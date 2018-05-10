@@ -1,0 +1,367 @@
+/* 
+   Title: A/V Script Format v0.38a
+   Author: Ken Lowrie based on similar CSS originally by Mark Boszko
+
+   Description: Formats text files using a Markdown-like syntax as side-by-side 
+   A/V Script format, with visuals on the left, and audio/narration on the right. 
+   Unordered lists are interpreted as visuals, regular paragraphs are 
+   audio/narration. Various other specialized formatting options. See the README
+   for docs on how to use it and the various formatting options supported.
+   -----
+   This styling document along with the script avscript_md was made for use with 
+   BBEdit <http://www.barebones.com/products/bbedit/> as a CSS theme for Markdown 
+   previews.
+   
+   A separate script, mkavscript_md can be used to build an HTML document suitable
+   for loading in a browser, since avscript_md is intended to be used with BBEdit's
+   Markdown preview only...
+   */
+
+body
+{
+    -webkit-font-smoothing:antialiased;
+	font-style: normal;
+	margin:0;
+	font-family: "Proxima Nova Alt", "Proxima Nova", "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+}
+
+html>body
+{
+    font-size:13px
+}
+
+h1 {
+	font-size: 3em;
+    text-align:center;
+}
+
+h2 {
+	font-size: 2em;
+}
+
+h3 {
+    font-size: 1.5em;
+}
+
+ins {
+    font-weight: bold;
+    color:blue;
+}
+
+del{
+    font-weight: light;
+    color: gray;
+}
+
+.red{
+    color:red;
+}
+
+.blue{
+    color:blue;
+}
+
+.green{
+    color:green;
+}
+
+#cover {
+    text-align:center;
+    border: 1px solid #ccc;
+    font-size: 1.5em;
+    margin: .5em;
+}    
+
+div#cover p{
+    border:none;
+    float: none;
+    width: inherit;
+	margin-bottom: 0;
+	font-family:inherit;
+}
+
+.coverSummary{
+    display:block;
+    font-size: .8em;
+}
+
+
+#revision {
+    display:block;
+    text-align:center;
+    border: 1px solid #ccc;
+    font-size: 1.5em;
+    margin: .5em;
+}
+
+div#revision p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+.revTitle {
+    font-weight:bold;
+}
+
+#contact {
+    display:block;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: .5em;
+    page-break-after: always;
+}    
+
+div#contact p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}    
+
+#section, #unused, #link {
+    clear:both;
+    border: 2px solid #000;
+    margin: .5em;
+    padding: 10px;
+	background-color: #c0c0c0;
+}
+
+div#section p, div#unused p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+div#link p{
+    margin:0;
+    padding:0;
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+div#unused p{
+	margin-bottom: 0;
+}
+
+#plain {
+    clear:both;
+    margin: .5em;
+    padding: 10px;
+}
+
+div#plain p{
+    border:none;
+    float: none;
+    padding: 20px;
+    width: inherit;
+	font-family:inherit;
+}
+
+div#plain p.plainTitle{
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+    border-bottom: 2px solid black;
+}
+
+#extras {
+    clear:both;
+    margin: .5em;
+    padding: 0px 10px 0 10px;
+}
+
+div#extras p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+#note {
+    clear: both;
+    padding: .5em;
+    border: 2px dashed #ff0000;
+    margin: .5em;
+	background-color: #f7f7f7;
+}
+
+div#note p{
+    border:none;
+    float: none;
+    width: inherit;
+    margin-bottom: 0;
+	font-family:inherit;
+}
+
+.noteTitle{
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.list{
+    margin:0;
+    padding:0;
+    margin-left:2em;
+    padding-left:1.5em;
+    font-weight:500;
+    font-size:1.2em;
+}
+
+.pba, .pbb {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.ignore {
+    display:none;
+}
+
+.greyout {
+    display:block;
+    white-space: 32;
+    padding: .5em;
+    border: 2px solid #000000;
+    color: gray;
+    margin: .5em;
+	background-color: #f7f7f7;
+}
+
+td {
+    width: 100%;
+}
+
+.left {
+    text-align:left;
+}
+
+.right {
+    text-align:right;
+}
+
+
+/* @group AV Format */
+
+ul {
+	width: 45%;
+	float: left;
+	background-color: #f0f0f0;
+	clear: both;
+	padding: 1em;
+	list-style-type: none;
+}
+
+p {
+	width: 45%;
+	float: right;
+	margin-bottom: 0;
+	margin-top: 1em;
+	font-family: "Courier Prime", Courier, "Courier New", mono;
+	padding: .7em 1em 1em;
+	border-top: 1px solid #ccc;
+}
+
+div#av p{
+	font-size: 1.3em;
+}
+
+ul li + li {
+	margin-top: 10px;
+}
+
+ul + ul {
+	clear: left;
+}
+
+p + p {
+	clear: right;
+	border-top: none;
+	margin-top: 0;
+}
+
+.note {
+    width: 40%;
+    padding: 5px;
+    margin: 2em;
+    border: 2px dotted #777777;
+	background-color: #f7f7f7;
+}
+
+.widenote {
+    width: 90%;
+    padding: 5px;
+    margin: 2em;
+    border: 2px dotted #777777;
+	background-color: #f7f7f7;
+}
+
+.question {
+    width: 40%;
+    padding: 5px;
+    margin: 2em;
+    color: red;
+    border: 2px dotted #777777;
+	background-color: #f7f7f7;
+}
+
+.important {
+    padding: 15px;
+    margin: 1.3em;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+.vo {
+    width: 40%;
+    padding: 5px;
+    margin: 2em;
+    color: blue;
+    border: 2px dotted #777777;
+	background-color: #f7f7f7;
+	/*white-space: pre;*/
+}
+
+em {
+    color: red;
+}
+
+.shotlist {
+    clear:both;
+    float:none;
+    width:inherit;
+}
+
+#shot {
+	clear:both;
+    float:none;
+    width:inherit;
+}
+
+div#shot p{
+    float:none;
+    width:inherit;
+    border:none;
+}
+
+@media print
+{
+	ul, li, p {
+		/*page-break-inside: avoid;
+		display:inline;*/
+	}
+	#plain{
+		page-break-inside: avoid;
+	}
+    .pbb{
+        page-break-before: always;
+    }
+    .pba
+    {
+        page-break-after: always;
+    }
+
+}
+/* @end */

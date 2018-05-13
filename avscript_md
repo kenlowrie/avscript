@@ -32,7 +32,6 @@ V. I think I should remove the <link> auto format feature.
 W. I need to create a text file with all the common combinations of stuff for testing,
    so that I can quickly test changes/tweaks to the RE's when I need to fix them...
 X. Might need a way to escape characters (like *, -, _, etc.) to prevent expansion.
-Y. Allow multiple spaces/tabs on -[ ], ---[ ], #[ ] instead of just 0 or 1...
 Z. Might look at improving markdown parsing to take advantage of group(0) like links does...
 
 ANCHORS
@@ -408,9 +407,9 @@ class C_AVScriptParser:
                 return self.match_str if self.match_str else self.test_str
                 
         regex_main = {
-            'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]?(?![-]{2})',                      r'^[-|\*|\+][ ]?(?![-]{2})(.*)'),
-            'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?',        r'^[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?(.*)'),
-            'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]?',                               r'^([#]{1,6})[ ]?(.*)'),
+            'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]*(?![-]{2})',                      r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
+            'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',        r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
+            'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
             'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
             'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),

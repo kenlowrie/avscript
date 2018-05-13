@@ -9,7 +9,7 @@ $$revision$$:<<1a>>
 $$contact$$:<<Contact Name>>:<<Phone>>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME.>>:<<All Rights Reserved.>>:<<Don't steal my script>>
 $$contact$$:<<Contact Name>>:<<>>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
 $$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>:<<>>
---- note noteTitle "Notes to Reviewers"
+---    note      noteTitle       Notes to Reviewers
     Please send [me] any and all [feedback], preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. ++additions are marked like this++ ~~deletions are marked like this~~
 
 {: .pbb }--- note noteTitle Film Pitch for Potential Client
@@ -26,7 +26,7 @@ $$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>:<<>>
     {:.blue}PART 1B
 [Link to Article]
 
-- WS:Couple watching TV
+-       WS:Couple watching TV
 - CU:Couple looking concerned
 The narrative for the shots on the left would go here.
 - MS:Paranoid guy looking thru blinds
@@ -70,6 +70,8 @@ footage
 bar
 
 ## heading
+
+##    heading with leading spaces
 
 xyz
 

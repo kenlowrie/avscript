@@ -2,8 +2,8 @@ This file contains the regular expressions and the tests used to validate them
 on regex101.com
 
 RE: Matches shots
-r'^[-|\*|\+][ ]?(?![-]{2})'
-r'^[-|\*|\+][ ]?(?![-]{2})(.*)'
+r'^[-|\*|\+][ ]*(?![-]{2})'
+r'^[-|\*|\+][ ]*(?![-]{2})(.*)'
 
 <TEST>
 --- NO
@@ -31,8 +31,8 @@ r'^[-|\*|\+][ ]?(?![-]{2})(.*)'
 
 RE: Matches DIV
 'div' : 
-    C_regex_main(r'[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?',
-                 r'[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?(.*)')
+    C_regex_main(r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',
+                 r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)')
 
 <TEST>
 --- DIVidSTR CLASSor. [optional title]
@@ -49,6 +49,10 @@ RE: Matches DIV
 --- YES YES
 --- YES YES YES
 --- YES YES YES YES
+---    YES
+---    YES    YES
+---    YES    YES    YES
+---    YES    YES    YES    YES
 @@@ YES
 @@@ YES 
 @@@ YES YES
@@ -70,8 +74,8 @@ RE: Matches DIV
 RE Matches Header level 1 to level 6
 
 'h#'  : 
-    C_regex_main(r'^([#]{1,6})[ ]?',
-                 r'^([#]{1,6})[ ]?(.*)')
+    C_regex_main(r'^([#]{1,6})[ ]*',
+                 r'^([#]{1,6})[ ]*(.*)')
 
 <TEST>
 # Yes YES
@@ -80,12 +84,14 @@ RE Matches Header level 1 to level 6
 #### Yes YES
 ##### Yes
 ###### Yes YES
+######    Yes  YES
 #Yes
 ##Yes YES
 ###Yes YES
 ####Yes
 #####Yes YES
 ######Yes
+######Yes     YES
 ?#NO
 *##NO
 !###NO

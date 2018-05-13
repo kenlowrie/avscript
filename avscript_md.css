@@ -65,6 +65,10 @@ del{
     color:green;
 }
 
+.center{
+    text-align:center;
+}
+
 #cover {
     text-align:center;
     border: 1px solid #ccc;

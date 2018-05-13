@@ -3,8 +3,7 @@ Title: TITLE OF VIDEO HERE
 Summary: This is the ?????? video ... 
     It introduces the ...
 Author: Ken Lowrie
-Date: .dt
-Revision: .dt-1a
+Revision: 1a
 Copyright: Copyright (c) 2018 by COPYRIGHT HOLDER.
     All Rights Reserved.
 Contact: Ken Lowrie
@@ -17,8 +16,12 @@ Contact: Ken Lowrie
     Additions ++are now marked like this++ and deletions ~~are now marked like this~~\n\n
     Thanks in advance for reviewing and commenting on the script!
 
---- section ""
-    ### Introduction Section
+--- section noteTitle Introduction Section
+
+You can create an email hyperlink using the syntax shown below.
+[feedback]:mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
+
+Now, when I write &#91;feedback], it will be substituted like this: [feedback]
 
 - VIDEO NOTES
 

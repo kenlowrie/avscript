@@ -19,19 +19,11 @@ TODO (Punch list):
 K. Document the use of mailto: in the stationery file
 
 7. Search for TODO and fix/cleanup
-**D. Consider adding support for ordered lists? (i.e. <ol>)
 H. Easier way to drop anchors and add links within doc would be nice. (See below)
 I. Clean up the CSS file and add a few more useful styles
 N. Review my current regex expressions and improve them.
-Q. Bug where multi-line shots are not handled correctly. see test script, basically if you indent multi shots, they don't correctly handle anchors for shot lists, etc.
-   Actually, not entirely a bug. If you indent, that will be placed into the same
-   grayed section for the prior shot. Annoyance that it won't detect an indented
-   line that starts a new section. Should it? like if you indent and use --- or *, etc?
 S. Image (both inline and reference-style) would be nice too.
 V. I think I should remove the <link> auto format feature.
-W. I need to create a text file with all the common combinations of stuff for testing,
-   so that I can quickly test changes/tweaks to the RE's when I need to fix them...
-X. Might need a way to escape characters (like *, -, _, etc.) to prevent expansion.
 Z. Might look at improving markdown parsing to take advantage of group(0) like links does...
 
 ANCHORS

@@ -23,24 +23,17 @@ K. Document the use of mailto: in the stationery file
 H. Easier way to drop anchors and add links within doc would be nice. (See below)
 I. Clean up the CSS file and add a few more useful styles
 N. Review my current regex expressions and improve them.
-O. Improve efficiency of current regex handling in main loop. Precompile, dict, etc.
-P. Review the line, ori_line logic, make sure it's sound and clean...
 Q. Bug where multi-line shots are not handled correctly. see test script, basically if you indent multi shots, they don't correctly handle anchors for shot lists, etc.
    Actually, not entirely a bug. If you indent, that will be placed into the same
    grayed section for the prior shot. Annoyance that it won't detect an indented
    line that starts a new section. Should it? like if you indent and use --- or *, etc?
-**R. Automatic links: <linkurl> becomes <a href="linkurl">linkurl</a>
 S. Image (both inline and reference-style) would be nice too.
-T. How do I handle [link]:(url_2_foo), and now _2_ wants to get marked down?
-U. Not properly ignoring [linkID]:(url) at beginning of line? It's including ()
-
-LINKS
-1. Determine if supporting inline syntax [id](url "optional title")
-2. Implement the "title" support.
-3. Change the reference syntax to not use () for url, allow "title" at end...
-2. Change reference syntax to: 
-        [Text to wrap with a<>] [id]    - id is like the alias, don't need M above 
-        [Text to wrap][]                - Text to wrap becomes the implicit id
+V. I think I should remove the <link> auto format feature.
+W. I need to create a text file with all the common combinations of stuff for testing,
+   so that I can quickly test changes/tweaks to the RE's when I need to fix them...
+X. Might need a way to escape characters (like *, -, _, etc.) to prevent expansion.
+Y. Allow multiple spaces/tabs on -[ ], ---[ ], #[ ] instead of just 0 or 1...
+Z. Might look at improving markdown parsing to take advantage of group(0) like links does...
 
 ANCHORS
 1. [@]+[id]<<anything>> - Creates an anchor named [id] puts inline <a id="generated">anything</a>
@@ -48,7 +41,6 @@ ANCHORS
 3. [@]:[id]<<anthing here>> will get the <a href="generated"> wrapped around 'anything here'
 4. This has to be done before other expansions, right?
 
-\*{3}(.+?)\*{3}
 \*{3}(?P<in_stars>.+?)\*{3}(?P<rest_of_line>.*)
 
 """
@@ -71,9 +63,9 @@ class C_Variables:
     def getText(self,id):
         return "(undefined)" if not self.exists(id) else self.vars[id].text
         
-    def dumpVars(self):
+    def dumpVars(self,indent=''):
         for var in self.vars:
-            print("{0}:{1}<br />".format(self.vars[var].id,self.vars[var].text))
+            print("{2}{0}:{1}<br />".format(self.vars[var].id,self.vars[var].text,indent))
 
 class C_LinkObject:
     def __init__(self,url,title=None):
@@ -85,6 +77,7 @@ class C_Links:
         self.links = {}
         
     def addLink(self,id,url,title=None):
+        #print("addLink()-->{0}-{1}-{2}<br />".format(id,url,title))
         self.links[id] = C_LinkObject(url,title)
         
     def exists(self,id):
@@ -104,31 +97,10 @@ class C_Links:
         
         return '<a href=\"{0}\"{2}>{1}</a>'.format(self.getLinkUrl(id),linkText,title)
         
-    def dumpLinks(self):
+    def dumpLinks(self,indent=''):
         for link in self.links:
-            print("{0}:{1}:{2}<br />".format(link,self.links[link].url,self.links[link].title))
+            print("{3}{0}:{1}:{2}<br />".format(link,self.links[link].url,self.links[link].title,indent))
         
-#TODO: Deprecate the C_LinkVars class ASAP.
-
-class C_LinkVars:
-    def __init__(self):
-        self.linkDict = {}
-        
-    def addLinkVar(self,linkName, linkUrl):
-        self.linkDict[linkName] = linkUrl
-        
-    def varExists(self,linkName):
-        return linkName in self.linkDict
-        
-    def getLinkUrl(self,linkName):
-        if( linkName in self.linkDict ):
-            return self.linkDict[linkName]
-            
-        return 'undefined link name:\'{0}\''.format(linkName)
-        
-    def getLinkMarkup(self,linkName):
-        return '<a href=\"{0}\">{1}</a>'.format(self.getLinkUrl(linkName),linkName)
-
 class C_LinkQueue:
     def __init__(self):
         self.linkQ = []
@@ -171,6 +143,7 @@ class C_regex_peek:
         self.stripClass = stripClass
 
 # TODO: Isn't this broken now because of new URL syntax???
+# TODO: Doesn't this need to match the main regex's?
 gb_regexpeek = [
     C_regex_peek(r'^[-@]{3}[ ]',                    True),
     C_regex_peek(r'^[-|\*|\+][ ]',                  True),
@@ -194,21 +167,17 @@ class C_regex_md:
         
 
 gb_regex_md_list = [
-    #C_regex_md(r'\[(.+?)\]',            '[{0}]',       None),
-    #C_regex_md(r'\[([^\]]+)\](?!(:\(.+\))|(:\<.+\>))',    '[{0}]',       None),
     C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(%(.+)))',    '[{0}]',       None),
     # TODO: Next one kind of complex. Do we need this?
     C_regex_md(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>',            '<{0}>',       '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
-    C_regex_md(r'\*{2}(.+?)\*{2}',      '**{0}**',     '<strong>{0}</strong>'),
-    C_regex_md(r'\*(.+?)\*',            '*{0}*',       '<em>{0}</em>'),
-    #TODO: Until we handle __ better, see T in todo list...
-    #C_regex_md(r'\_{2}(.+?)\_{2}',      '__{0}__',     '<strong>{0}</strong>'),
-    #C_regex_md(r'\_(.+?)\_',            '_{0}_',       '<em>{0}</em>'),
-    C_regex_md(r'\+{2}(.+?)\+{2}',      '++{0}++',     '<ins>{0}</ins>'),
-    C_regex_md(r'\~{2}(.+?)\~{2}',      '~~{0}~~',     '<del>{0}</del>')
+    C_regex_md(r'\*{2}(?!\*)(.+?)\*{2}',    '**{0}**',     '<strong>{0}</strong>'),
+    C_regex_md(r'\*(.+?)\*',                '*{0}*',       '<em>{0}</em>'),
+    C_regex_md(r'\+{2}(.+?)\+{2}',          '++{0}++',     '<ins>{0}</ins>'),
+    C_regex_md(r'\~{2}(.+?)\~{2}',          '~~{0}~~',     '<del>{0}</del>')
 ]
 
 """
+TODO: Is this allowing '(' after :? 
 For use when searching at beginning of line. Get's both : and %
 ^\[([^\]]+)\](?=(:(.+))|(%(.+)))
 
@@ -216,25 +185,11 @@ Maybe when doing markdown:
 \[([^\]]+)\](?!(:(.+))|(%(.+)))
 
 For inline links:
-<(.+)>
 <((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>
 
 For inline html links:
 \[([^\]]+)\](?=(:\((.+)\)))
 
-
-import re
-regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
-        r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-        
-        r'^(?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+)$'
-        
 """
 
 class C_AVScriptParser:
@@ -250,7 +205,6 @@ class C_AVScriptParser:
         self.classInCache = False       # if we have a class in the cache
         self.av = sys.stdin             # assume we are reading from console
         self.shotListQ = C_LinkQueue()  # shot list link Q
-        self.linkVars = C_LinkVars()    # dict of link variables
         
         self.links = C_Links()          # dict of links
         self.variables = C_Variables()  # dict of document variables
@@ -259,22 +213,19 @@ class C_AVScriptParser:
         """Mark the current line in the buffer as unread, so it will be returned next time."""
         self.lineInCache = True
         
-    def TODO_DEPRECATE_pushBackLine(self,line):
-        """Push back the passed string into the line buffer and set the line cached flag."""
-        self.line = self.ori_line = line    # won't work, line is "marked_down"...
-        self._unreadLine()
-        
     def markdown(self,s):
         """This method is used to apply markdown to the passed in string."""
         
         # TODO: nice if we could integrate this into main loop...
-        spec = C_regex_md(r'\[([^\]]+)\](?=(:\((.+)\)))', '[{0}]{1}','<a href=\"{0}\">{1}</a>')
+        # This handles inline links in this format: [linkID]:(url)
+        # Might be able to fix if I can eliminate the extra group... linkID,(url),url
+        spec = C_regex_md(r'(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))', '','')
         
         # This special case handles inline links
         matches = re.findall(spec.regex,s)
         for m in matches:
-            #print("m-->{0}[{1}]<br />".format(m,spec.ori_str.format(m[0],m[1])))
-            s = s.replace(spec.ori_str.format(m[0],m[1]),spec.new_str.format(m[2],m[0]))
+            optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
+            s = s.replace(m[0],'<a href=\"{0}\"{2}>{1}</a>'.format(m[2],m[1],optTitle))
 
         global gb_regex_md_list # use this global precompiled list of regex elements
     
@@ -406,11 +357,16 @@ class C_AVScriptParser:
         self._unreadLine()
         return ""
         
+    def fmt_getIndent(self,after=True):
+        """Create a string of blanks for printing at the start of a line in order
+        to keep things lined up properly."""
+        howmany = self.fmtlevel if after else self.fmtlevel - 1
+        return " " * (howmany * 4)
+        
     def fmt(self,str,in_out_same=0,after=True):
         """Prefix the string passed in so it will align properly in the HTML file
            for keeping things in pretty print format."""
-        howmany = self.fmtlevel if after else self.fmtlevel - 1
-        s = " " * (howmany * 4)
+        s = self.fmt_getIndent(after)
         
         # in_out_same = 1, increase indent for next time
         # in_out_same = -1, decrease indent for next time
@@ -432,18 +388,65 @@ class C_AVScriptParser:
         print(self.fmt("</div>"))
         
     def parse(self):
+        class C_regex_main:
+            """
+            starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
+            uses_raw_line - signals whether this regex should process the raw line or the marked_down line
+            allows_class_prefix - signals whether this regex can be prefixed with a class override
+            test_str - this is the regex string used to detect if the line is a match
+            match_str - this is the regex string used when parsing the line into groups. If None, uses test_str
+            """
+            def __init__(self,starts_new_div,uses_raw_line,allows_class_prefix,test,match):
+                self.test_str = re.compile(test)
+                self.match_str = None if not match else re.compile(match)
+                self.starts_new_div = starts_new_div
+                self.uses_raw_line = uses_raw_line
+                self.allows_class_prefix = allows_class_prefix
+            def test_regex(self):
+                return self.test_str
+            def match_regex(self):
+                return self.match_str if self.match_str else self.test_str
+                
+        regex_main = {
+            'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]?(?![-]{2})',                      r'^[-|\*|\+][ ]?(?![-]{2})(.*)'),
+            'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?',        r'^[-@]{3}[ ]?([^\s]+)[ ]?([\w\.]+)?[ ]?(.*)'),
+            'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]?',                               r'^([#]{1,6})[ ]?(.*)'),
+            'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
+            'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
+            'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),
+            'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
+            'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
+            # TODO: make these regex's simpler ...
+            'cover'     : C_regex_main(True,  True,   False,  r'^[\$]{2}cover[\$]{2}:(.*)',                     r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'revision'  : C_regex_main(True,  True,   False,  r'^[\$]{2}revision[\$]{2}:(.*)',                  r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
+            'contact'   : C_regex_main(True,  True,   False,  r'^[\$]{2}contact[\$]{2}:(.*)',                   r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+        }
+        
+        def testLine(regex_obj,line_obj):
+            line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
+            return re.match(regex_obj.test_regex(),line)
+
+        def matchLine(regex_obj,line_obj):
+            line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
+            return re.match(regex_obj.match_regex(),line)
+
         # TODO: Outermost Div, probably needs an ID so we can apply styles...
-        print(self.fmt("<div>",1))
+        print(self.fmt("<div id=\"wrapper\">",1))
         while( self._readNextLine() != ''):
             # DOC this entire method better...
-        
             # Start by stripping any class override from the beginning of the line
             cssClass, curLine = self._stripClass(self.line)
             
-            if (re.match('[-|\*|\+][ ]',curLine)):
-                regex = r'[-|\*|\+][ ](.*)'
-                
-                m = re.match(regex,curLine)
+            # TODO: would this (a line class) be better to help doc code below?
+            class C_LineObj:
+                def __init__(self,curLine,oriLine):
+                    self.curLine = curLine
+                    self.oriLine = oriLine
+                    
+            lineObj = C_LineObj(curLine,self.ori_line)
+
+            if (testLine(regex_main['shot'],lineObj)):
+                m = matchLine(regex_main['shot'],lineObj)
                 
                 if( m != None):
                     li = "" if len(m.groups())<1 else "%s" % m.group(1)
@@ -459,10 +462,8 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
 
-            elif( re.match(r'[-@]{3}[ ]',curLine)):
-                regex = r"[-@]{3}[ ]([\w]+)[ ]([\w\.]+)[ ](.*)"
-                
-                m = re.search(regex,curLine)
+            elif( testLine(regex_main['div'],lineObj)):
+                m = matchLine(regex_main['div'],lineObj)
                 
                 if( m != None ):
                     divID = "" if len(m.groups())<1 else " id=\"{0}\"{1}".format(m.group(1),cssClass)
@@ -478,9 +479,8 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
                     
-            elif( re.match(r'([#]{1,6})[ ](.*)',curLine)):
-                regex = r'([#]{1,6})[ ](.*)'
-                m = re.match(regex,curLine)
+            elif( testLine(regex_main['h#'],lineObj)):
+                m = matchLine(regex_main['h#'],lineObj)
                 
                 if(m != None and len(m.groups()) > 1):
                     hnum = len(m.group(1))
@@ -488,7 +488,7 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
                     
-            elif ( re.match(r'[/]{3}Shotlist[/]{3}',curLine)):
+            elif ( testLine(regex_main['shotlist'],lineObj)):
                 print(self.fmt("<div class=\"shotlist\">",1))
                 print(self.fmt("<hr />"))
                 shotnum = 1
@@ -500,53 +500,41 @@ class C_AVScriptParser:
                     
                 print(self.fmt("</div>",-1,False))
                 
-            elif ( re.match(r'[/]{3}Variables[/]{3}',curLine)):
+            elif ( testLine(regex_main['variables'],lineObj)):
                 print(self.fmt("<div class=\"variables\">",1))
                 print(self.fmt("<hr />"))
-                self.variables.dumpVars()                
+                self.variables.dumpVars(self.fmt_getIndent())                
                 print(self.fmt("</div>",-1,False))
                 
-            elif ( re.match(r'[/]{3}Links[/]{3}',curLine)):
+            elif ( testLine(regex_main['dumplinks'],lineObj)):
                 print(self.fmt("<div class=\"links\">",1))
                 print(self.fmt("<hr />"))
-                self.links.dumpLinks()                
+                self.links.dumpLinks(self.fmt_getIndent())                
                 print(self.fmt("</div>",-1,False))
                 
-            # Use original line to match a link definition
-            elif( re.match(r'^\[([^\]]+)\](?=(:(.+))|(%(.+)))',self.ori_line)):
-                regex = r'^\[([^\]]+)\](?=(:(.+))|(%(.+)))'
-                #regex = r'^\[([^\]]+)\](?=(:\((.+?)\))|(:\<(.+?)\>))'
-                
-                m = re.match(regex,self.ori_line)
+            # links handles the various formats that allow a title to be specified.
+            # [linkID]:url "title"
+            # [linkID]:(url "title")
+            # [linkID]:url
+            # [linkID]:(url)
+            # This has precedence over the [var]:[value], so we process it first
+            elif( testLine(regex_main['links'],lineObj)):
+                m = matchLine(regex_main['links'],lineObj)
 
+                optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
+                
                 # TODO: Should we markdown the Link Text?? m.group(1)?
-                if( m != None and len(m.groups()) == 5):
-                    #print("-->len[{0}]<br />".format(len(m.groups())))
-                    #print("-->[{0}]<br />".format(m.groups()))
-                    if( m.group(3) ):
-                        #print("ADDL:[{0}][{1}]<br />".format(m.group(1),m.group(3)))
-                        self.links.addLink(m.group(1),m.group(3))
-                    elif( m.group(5)):
-                        self.variables.addVar(m.group(1),m.group(5))
-                    else:
-                        # TODO: is this right??
-                        print(self.ori_line)
+                if( m != None and len(m.groups()) == 4):
+                    self.links.addLink(m.group(1),m.group(2),optTitle)
                 else:
                     print(self.ori_line)
                     
-            # Use original line to match a link definition
-            elif( re.match(r'^\[(\w[^\]]*)\]:([^\(|\s].*)',self.ori_line)):
-                # TODO: This will be deprecated soon...
-                #r'\[(\w[^\]]*)\]:\((\w[^\)]*)\)'
-                print("old_style link definitions are deprecated.")
-                deprecated()
-                regex = r'^\[(\w[^\]]*)\]:([^\(|\s].*)'
-                
-                m = re.match(regex,self.ori_line)
+            elif( testLine(regex_main['alias'],lineObj)):
+                m = matchLine(regex_main['alias'],lineObj)
 
                 # TODO: Should we markdown the Link Text?? m.group(1)?
-                if( m != None and len(m.groups()) == 2):
-                    self.linkVars.addLinkVar(m.group(1),m.group(2))
+                if( m != None and len(m.groups()) == 3):
+                    self.variables.addVar(m.group(1),m.group(3))
                 else:
                     print(self.ori_line)
                     
@@ -554,10 +542,8 @@ class C_AVScriptParser:
             # raw line and not the markdown line in order to parse. Once
             # we parse out these special lines, we'll markdown the individual
             # groups before writing them...
-            elif( re.match(r'[\$]{2}cover[\$]{2}:(.*)',self.ori_line)):
-                regex = r'[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'
-                
-                m = re.search(regex,self.ori_line)
+            elif( testLine(regex_main['cover'],lineObj)):
+                m = matchLine(regex_main['cover'],lineObj)
 
                 if( m != None ):
                     title = "" if len(m.groups())< 1 or not m.group(1) else self.markdown(m.group(1))
@@ -574,11 +560,8 @@ class C_AVScriptParser:
                 else:
                     print(self.ori_line)
 
-            elif( re.match(r'[\$]{2}revision[\$]{2}:(.*)',self.ori_line)):
-                #TODO: Make this use delimiters that are less likely to be used, i.e. ///
-                regex = r'[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'
-                
-                m = re.search(regex,self.ori_line)
+            elif( testLine(regex_main['revision'],lineObj)):
+                m = matchLine(regex_main['revision'],lineObj)
 
                 if( m != None and len(m.groups()) == 1):
                     from time import strftime
@@ -592,11 +575,8 @@ class C_AVScriptParser:
                 else:
                     print(self.ori_line)
 
-            elif( re.match(r'[\$]{2}contact[\$]{2}:(.*)',self.ori_line)):
-                #TODO: Make this use delimiters that are less likely to be used, i.e. ///
-                regex = r'[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'
-                
-                m = re.search(regex,self.ori_line)
+            elif( testLine(regex_main['contact'],lineObj)):
+                m = matchLine(regex_main['contact'],lineObj)
 
                 if( m != None ):
                     cName = "" if len(m.groups())<1 or not m.group(1) else "{0}<br />".format(self.markdown(m.group(1)))

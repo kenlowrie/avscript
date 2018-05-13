@@ -40,10 +40,13 @@ More narrative here that goes with the shot on the left...
 This is a description for this section
 [Link to Article] <-- That should have been turned into a link
 {:.red}- MS/CU:Clips of people angry
-    WS:violence
-    {:.green}WS/MS News programs
-    CGI Websites and blogs
-    {:.blue}CGI Use PIP to fill the screen
+    You can add more information about a shot by indenting the line that follows the definition. New shots are not started if you indent, however, so don't do that. :)
+The narration for the Clips of people angry would be here...
+- WS:violence
+    This begins a new shot, because we used the shot delimiter at the beginning of the line.
+    {:.green}You can, however, prefix each new indented line with a different class for formatting...
+CGI Websites and blogs
+{:.blue}CGI Use PIP to fill the screen
 Words, words, words, blah, blah, blah
 --- section secTitle section heading goes here...
 - CGI:

@@ -6,7 +6,7 @@ $$cover$$:<<Title of Script>>:<<Script Author>>:<<Script summary goes here and c
 $$cover$$:<<>>:<<>>:<<>>
 $$cover$$:<<>>:<<Script Author>>:<<>>
 $$revision$$:<<1a>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME.>>:<<All Rights Reserved.>>:<<Don't steal my script>>
+$$contact$$:<<Contact Name>>:<<Phone >>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME.>>:<<All Rights Reserved.>>:<<Don't steal my script>>
 $$contact$$:<<Contact Name>>:<<>>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
 $$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>:<<>>
 ---    note      noteTitle       Notes to Reviewers

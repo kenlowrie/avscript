@@ -24,7 +24,6 @@ I. Clean up the CSS file and add a few more useful styles
 S. Image (both inline and reference-style) would be nice too.
 V. Remove the <link> auto format feature???
 Z. Improve markdown parsing to take advantage of group(0) like links does???
-a. @import <'|"><path/filename><"|'> - This would be a nice feature to eliminate dup text
 
 ANCHORS
 1. [@]+[id]<<anything>> - Creates an anchor named [id] puts inline <a id="generated">anything</a>
@@ -203,7 +202,7 @@ class C_AVScriptParser:
             'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
             'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
             'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
-            'import'    : C_regex_main(True,  True,   False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
+            'import'    : C_regex_main(True,  False,  False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
             'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
             'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),

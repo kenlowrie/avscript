@@ -69,7 +69,11 @@ del{
     text-align:center;
 }
 
+#wrapper {
+}
+
 #cover {
+    clear:both;
     text-align:center;
     border: 1px solid #ccc;
     font-size: 1.5em;
@@ -91,6 +95,7 @@ div#cover p{
 
 
 #revision {
+    clear:both;
     display:block;
     text-align:center;
     border: 1px solid #ccc;
@@ -99,6 +104,7 @@ div#cover p{
 }
 
 div#revision p{
+    clear:both;
     border:none;
     float: none;
     width: inherit;
@@ -110,6 +116,7 @@ div#revision p{
 }
 
 #contact {
+    clear:both;
     display:block;
     border: 1px solid #ccc;
     padding: 10px;
@@ -348,6 +355,12 @@ div#shot p{
     float:none;
     width:inherit;
     border:none;
+}
+
+div.links, div.variables{
+	clear:both;
+    float:none;
+    width:inherit;
 }
 
 @media print

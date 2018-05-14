@@ -19,12 +19,11 @@ TODO (Punch list):
 K. Document the use of mailto: in the stationery file
 
 7. Search for TODO and fix/cleanup
-H. Easier way to drop anchors and add links within doc would be nice. (See below)
+H. Easy way to drop anchors and add links within doc would be nice. (See below)
 I. Clean up the CSS file and add a few more useful styles
-N. Review my current regex expressions and improve them.
 S. Image (both inline and reference-style) would be nice too.
-V. I think I should remove the <link> auto format feature.
-Z. Might look at improving markdown parsing to take advantage of group(0) like links does...
+V. Remove the <link> auto format feature???
+Z. Improve markdown parsing to take advantage of group(0) like links does???
 
 ANCHORS
 1. [@]+[id]<<anything>> - Creates an anchor named [id] puts inline <a id="generated">anything</a>
@@ -37,11 +36,13 @@ ANCHORS
 """
 
 class C_VarObject:
+    """Class to abstract a variable (alias)"""
     def __init__(self,id,text):
         self.id = id
         self.text = text
         
 class C_Variables:
+    """Class to abstract a dictionary of variables (aliases)"""
     def __init__(self):
         self.vars = {}
         
@@ -106,83 +107,37 @@ class C_LinkQueue:
     def getLinkQ(self):
         return self.linkQ
 
-""" TODO: Wonder if this same class could be extended to use in the main loop,
-          so we could precompile those expressions, and also indicate whether
-          each expression requires use of the marked up line or the raw line.
-"""
-class C_regex_peek:
-    """This class is used to hold the regular expressions that are used when
-       peeking at the next line to see if it should be part of the current DIV,
-       or if it should start a new DIV. Currently, this includes the following
-       cases:
-       
-            regex               optional class prefix {:.class} allowed?
-            ^[---|@@@]\s        - Yes
-            ^[-|*|+]\s          - Yes
-            ^[#]{1,6}\s         - Yes
-            ^[LinkText]:url     - No
-            
-        A global variable is declared below for this, so we can precompile
-        the RE's for efficiency, since this logic is used quite a bit during
-        processing of an input file.            
-        
-        TODO: Should we be checking for $$ tags too???
-    """
-    def __init__(self,regex,stripClass=True):
-        self.regexpeek = []
-        self.regex = re.compile(regex)
-        self.stripClass = stripClass
-
-# TODO: Isn't this broken now because of new URL syntax???
-# TODO: Doesn't this need to match the main regex's?
-gb_regexpeek = [
-    C_regex_peek(r'^[-@]{3}[ ]',                    True),
-    C_regex_peek(r'^[-|\*|\+][ ]',                  True),
-    C_regex_peek(r'^([#]{1,6})[ ](.*)',             True),
-    # TODO: Isn't this broken now because of new URL syntax???
-    C_regex_peek(r'^\[(.*[^\]])\]:([^\(|\s].*)',    False)
-]
-
-# Match [name]:(id) \[([^\]]+)\](?=(:\(.+\)))
-            
 class C_regex_md:
-    """This class is used to hold the regular expressions that are used when
-       applying markdown to inline formatting codes. A global variable is
-       used to create a list of these objects, so we can precompile the expressions
-       since they are used over and over throughout the script.
+    """
+    This class is used to hold the regular expressions that are used when
+    applying markdown to inline formatting codes. A global variable is
+    used to create a list of these objects, so we can precompile the expressions
+    since they are used over and over throughout the script.
     """
     def __init__(self,regex,ori_repl_str,new_repl_str,flags=0):
         self.regex = re.compile(regex,flags)
         self.ori_str = ori_repl_str
         self.new_str = new_repl_str
         
-
-gb_regex_md_list = [
-    C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(%(.+)))',    '[{0}]',       None),
-    # TODO: Next one kind of complex. Do we need this?
-    C_regex_md(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>',            '<{0}>',       '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
-    C_regex_md(r'\*{2}(?!\*)(.+?)\*{2}',    '**{0}**',     '<strong>{0}</strong>'),
-    C_regex_md(r'\*(.+?)\*',                '*{0}*',       '<em>{0}</em>'),
-    C_regex_md(r'\+{2}(.+?)\+{2}',          '++{0}++',     '<ins>{0}</ins>'),
-    C_regex_md(r'\~{2}(.+?)\~{2}',          '~~{0}~~',     '<del>{0}</del>')
-]
-
-"""
-TODO: Is this allowing '(' after :? 
-For use when searching at beginning of line. Get's both : and %
-^\[([^\]]+)\](?=(:(.+))|(%(.+)))
-
-Maybe when doing markdown: 
-\[([^\]]+)\](?!(:(.+))|(%(.+)))
-
-For inline links:
-<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>
-
-For inline html links:
-\[([^\]]+)\](?=(:\((.+)\)))
-
-"""
-
+class C_regex_main:
+    """
+    starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
+    uses_raw_line - signals whether this regex should process the raw line or the marked_down line
+    allows_class_prefix - signals whether this regex can be prefixed with a class override
+    test_str - this is the regex string used to detect if the line is a match
+    match_str - this is the regex string used when parsing the line into groups. If None, uses test_str
+    """
+    def __init__(self,starts_new_div,uses_raw_line,allows_class_prefix,test,match):
+        self.test_str = re.compile(test)
+        self.match_str = None if not match else re.compile(match)
+        self.starts_new_div = starts_new_div
+        self.uses_raw_line = uses_raw_line
+        self.allows_class_prefix = allows_class_prefix
+    def test_regex(self):
+        return self.test_str
+    def match_regex(self):
+        return self.match_str if self.match_str else self.test_str
+        
 class C_AVScriptParser:
     def __init__(self):
         """The constructor for the class. Initialize the required member
@@ -199,6 +154,42 @@ class C_AVScriptParser:
         
         self.links = C_Links()          # dict of links
         self.variables = C_Variables()  # dict of document variables
+        
+        self.regex_main = {
+            #                                        Class
+            #                         NewDiv RawLine Prefix   Test Regex                                        Match Regex
+            #                         ----------------------------------------------------------------------------------------------
+            'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]*(?![-]{2})',                      r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
+            'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',        r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
+            'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
+            'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
+            'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
+            'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
+            'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
+            'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),
+            'cover'     : C_regex_main(True,  True,   False,  r'^[\$]{2}cover[\$]{2}:(.*)',                     r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'revision'  : C_regex_main(True,  True,   False,  r'^[\$]{2}revision[\$]{2}:(.*)',                  r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
+            'contact'   : C_regex_main(True,  True,   False,  r'^[\$]{2}contact[\$]{2}:(.*)',                   r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+        }
+        
+        self.regex_md_list = [
+            C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(%(.+)))',    '[{0}]',       None),
+            # TODO: Next one kind of complex. Do we need this?
+            C_regex_md(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>',            '<{0}>',       '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
+            C_regex_md(r'\*{2}(?!\*)(.+?)\*{2}',    '**{0}**',     '<strong>{0}</strong>'),
+            C_regex_md(r'\*(.+?)\*',                '*{0}*',       '<em>{0}</em>'),
+            C_regex_md(r'\+{2}(.+?)\+{2}',          '++{0}++',     '<ins>{0}</ins>'),
+            C_regex_md(r'\~{2}(.+?)\~{2}',          '~~{0}~~',     '<del>{0}</del>')
+        ]
+
+    def _regex(self,id):
+        if( id in self.regex_main ):
+            return self.regex_main[id]
+            
+        print("ERROR: Invalid regex ID: [{0}]".format(id))
+        
+        #TODO: Throw exception here
+        return None
         
     def _unreadLine(self):
         """Mark the current line in the buffer as unread, so it will be returned next time."""
@@ -218,9 +209,7 @@ class C_AVScriptParser:
             optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
             s = s.replace(m[0],'<a href=\"{0}\"{2}>{1}</a>'.format(m[2],m[1],optTitle))
 
-        global gb_regex_md_list # use this global precompiled list of regex elements
-    
-        for item in gb_regex_md_list:
+        for item in self.regex_md_list:
             matches = re.findall(item.regex,s)
             for m in matches:
                 # if item.new_str is None, it means we have a link or a variable
@@ -261,15 +250,30 @@ class C_AVScriptParser:
         # return the marked down version
         return self.line
         
+    def _addLink(self,link):
+        return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addLink(link)))
+    
     def _makeCSSclass(self,tmpClass):
         # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
         s = tmpClass.replace(" ","").replace("."," ").strip()
         
         return " class=\"{0}\"".format(s)
         
-    def _addLink(self,link):
-        return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addLink(link)))
-    
+    def _stripClass(self,line):
+        """Strip the {:.class} prefix off the line, and return the class formatted
+           for use as an HTML class ATTR, along with the rest of the line. If no
+           class is present, just return the line as-is."""
+        if( re.match(r'\{:([\s]?.\w[^\}]*)\}(.*)',line)):
+            regex = r'\{:([\s]?.\w[^\}]*)\}(.*)'
+            m = re.match(regex,line)
+            
+            if(m != None and len(m.groups()) == 2):
+                # format it like this: " class=cls1"
+                return self._makeCSSclass(m.group(1)),m.group(2)
+
+        # no class found, so return '' and the line, as-is
+        return '',line
+        
     def _peekNextLine(self,element="p",addLinks=False):
         """Read the next line, and if it's got white space at the beginning, then add it to the
            current line as a new <p> or whatever 'element' is. Then keep looking, in case there
@@ -292,21 +296,6 @@ class C_AVScriptParser:
         self._unreadLine()
         return ""
         
-    def _stripClass(self,line):
-        """Strip the {:.class} prefix off the line, and return the class formatted
-           for use as an HTML class ATTR, along with the rest of the line. If no
-           class is present, just return the line as-is."""
-        if( re.match(r'\{:([\s]?.\w[^\}]*)\}(.*)',line)):
-            regex = r'\{:([\s]?.\w[^\}]*)\}(.*)'
-            m = re.match(regex,line)
-            
-            if(m != None and len(m.groups()) == 2):
-                # format it like this: " class=cls1"
-                return self._makeCSSclass(m.group(1)),m.group(2)
-
-        # no class found, so return '' and the line, as-is
-        return '',line
-        
     def _peekPlainText(self,element="p"):
         """Gobble up all the normal lines after one or more shot descriptions. "Normal"
            lines are the voiceover or narration that goes along with each shot. It's
@@ -316,19 +305,17 @@ class C_AVScriptParser:
         """
         if (self._readNextLine() == ''): return ""   #if we hit EOF return ''
         
-        # This internal API detects if the next line is some type of BREAK. e.g. a
-        # section, new shot, heading or link...
-        def isNewSection(line):
+        # This internal API detects if the next line is some type of BREAK. 
+        # e.g. a section, new shot, heading or link...
+        
+        def isNewSection(line, ori_line):
             # Look to see if the current line in the cache is the start of a new section
-            # e.g. New section (@@@|---), New Shot (-), New Heading (#) or New Link ($$link$$)
-            tmpCls, rest = self._stripClass(line)
-            
-            global gb_regexpeek
 
-            for obj in gb_regexpeek:
-                # if this RE allows a class prefix, used the line with the
+            for id in self.regex_main:
+                # if this RE allows a class prefix, use the line with the
                 # prefix stripped off, otherwise, use the original line.
-                if re.match(obj.regex, rest if obj.stripClass else line):
+                obj = self._regex(id)
+                if re.match(obj.test_str, line if obj.allows_class_prefix else ori_line):
                     return True
         
             return False
@@ -336,8 +323,9 @@ class C_AVScriptParser:
         # Strip class, check the raw line to see if we should break
         tCls, tRst = self._stripClass(self.ori_line.strip())
         
-        # if the line is empty or if it's not a new section, keep it and peek at next line
-        if not tRst or not isNewSection(tRst):
+        # if the RAW line is empty or if it's not a new section, 
+        #   keep it and peek at next line
+        if not tRst or not isNewSection(tRst, self.ori_line.strip()):
             indentSp = " " * self.fmtlevel*4
             tmpClass,rest = self._stripClass(self.line.strip())
             # add this line to the current DIV, and keep reading until we hit some
@@ -379,40 +367,6 @@ class C_AVScriptParser:
         print(self.fmt("</div>"))
         
     def parse(self):
-        class C_regex_main:
-            """
-            starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
-            uses_raw_line - signals whether this regex should process the raw line or the marked_down line
-            allows_class_prefix - signals whether this regex can be prefixed with a class override
-            test_str - this is the regex string used to detect if the line is a match
-            match_str - this is the regex string used when parsing the line into groups. If None, uses test_str
-            """
-            def __init__(self,starts_new_div,uses_raw_line,allows_class_prefix,test,match):
-                self.test_str = re.compile(test)
-                self.match_str = None if not match else re.compile(match)
-                self.starts_new_div = starts_new_div
-                self.uses_raw_line = uses_raw_line
-                self.allows_class_prefix = allows_class_prefix
-            def test_regex(self):
-                return self.test_str
-            def match_regex(self):
-                return self.match_str if self.match_str else self.test_str
-                
-        regex_main = {
-            'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]*(?![-]{2})',                      r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
-            'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',        r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
-            'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
-            'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
-            'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
-            'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),
-            'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
-            'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
-            # TODO: make these regex's simpler ...
-            'cover'     : C_regex_main(True,  True,   False,  r'^[\$]{2}cover[\$]{2}:(.*)',                     r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
-            'revision'  : C_regex_main(True,  True,   False,  r'^[\$]{2}revision[\$]{2}:(.*)',                  r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
-            'contact'   : C_regex_main(True,  True,   False,  r'^[\$]{2}contact[\$]{2}:(.*)',                   r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
-        }
-        
         def testLine(regex_obj,line_obj):
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.test_regex(),line)
@@ -421,7 +375,6 @@ class C_AVScriptParser:
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.match_regex(),line)
 
-        # TODO: Outermost Div, probably needs an ID so we can apply styles...
         print(self.fmt("<div id=\"wrapper\">",1))
         while( self._readNextLine() != ''):
             # DOC this entire method better...
@@ -436,8 +389,8 @@ class C_AVScriptParser:
                     
             lineObj = C_LineObj(curLine,self.ori_line)
 
-            if (testLine(regex_main['shot'],lineObj)):
-                m = matchLine(regex_main['shot'],lineObj)
+            if (testLine(self._regex('shot'),lineObj)):
+                m = matchLine(self._regex('shot'),lineObj)
                 
                 if( m != None):
                     li = "" if len(m.groups())<1 else "%s" % m.group(1)
@@ -453,8 +406,8 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
 
-            elif( testLine(regex_main['div'],lineObj)):
-                m = matchLine(regex_main['div'],lineObj)
+            elif( testLine(self._regex('div'),lineObj)):
+                m = matchLine(self._regex('div'),lineObj)
                 
                 if( m != None ):
                     divID = "" if len(m.groups())<1 else " id=\"{0}\"{1}".format(m.group(1),cssClass)
@@ -470,8 +423,8 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
                     
-            elif( testLine(regex_main['h#'],lineObj)):
-                m = matchLine(regex_main['h#'],lineObj)
+            elif( testLine(self._regex('h#'),lineObj)):
+                m = matchLine(self._regex('h#'),lineObj)
                 
                 if(m != None and len(m.groups()) > 1):
                     hnum = len(m.group(1))
@@ -479,7 +432,7 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
                     
-            elif ( testLine(regex_main['shotlist'],lineObj)):
+            elif ( testLine(self._regex('shotlist'),lineObj)):
                 print(self.fmt("<div class=\"shotlist\">",1))
                 print(self.fmt("<hr />"))
                 shotnum = 1
@@ -491,13 +444,13 @@ class C_AVScriptParser:
                     
                 print(self.fmt("</div>",-1,False))
                 
-            elif ( testLine(regex_main['variables'],lineObj)):
+            elif ( testLine(self._regex('variables'),lineObj)):
                 print(self.fmt("<div class=\"variables\">",1))
                 print(self.fmt("<hr />"))
                 self.variables.dumpVars(self.fmt_getIndent())                
                 print(self.fmt("</div>",-1,False))
                 
-            elif ( testLine(regex_main['dumplinks'],lineObj)):
+            elif ( testLine(self._regex('dumplinks'),lineObj)):
                 print(self.fmt("<div class=\"links\">",1))
                 print(self.fmt("<hr />"))
                 self.links.dumpLinks(self.fmt_getIndent())                
@@ -509,8 +462,8 @@ class C_AVScriptParser:
             # [linkID]:url
             # [linkID]:(url)
             # This has precedence over the [var]:[value], so we process it first
-            elif( testLine(regex_main['links'],lineObj)):
-                m = matchLine(regex_main['links'],lineObj)
+            elif( testLine(self._regex('links'),lineObj)):
+                m = matchLine(self._regex('links'),lineObj)
 
                 optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
                 
@@ -520,8 +473,8 @@ class C_AVScriptParser:
                 else:
                     print(self.ori_line)
                     
-            elif( testLine(regex_main['alias'],lineObj)):
-                m = matchLine(regex_main['alias'],lineObj)
+            elif( testLine(self._regex('alias'),lineObj)):
+                m = matchLine(self._regex('alias'),lineObj)
 
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if( m != None and len(m.groups()) == 3):
@@ -533,8 +486,8 @@ class C_AVScriptParser:
             # raw line and not the markdown line in order to parse. Once
             # we parse out these special lines, we'll markdown the individual
             # groups before writing them...
-            elif( testLine(regex_main['cover'],lineObj)):
-                m = matchLine(regex_main['cover'],lineObj)
+            elif( testLine(self._regex('cover'),lineObj)):
+                m = matchLine(self._regex('cover'),lineObj)
 
                 if( m != None ):
                     title = "" if len(m.groups())< 1 or not m.group(1) else self.markdown(m.group(1))
@@ -551,8 +504,8 @@ class C_AVScriptParser:
                 else:
                     print(self.ori_line)
 
-            elif( testLine(regex_main['revision'],lineObj)):
-                m = matchLine(regex_main['revision'],lineObj)
+            elif( testLine(self._regex('revision'),lineObj)):
+                m = matchLine(self._regex('revision'),lineObj)
 
                 if( m != None and len(m.groups()) == 1):
                     from time import strftime
@@ -566,8 +519,8 @@ class C_AVScriptParser:
                 else:
                     print(self.ori_line)
 
-            elif( testLine(regex_main['contact'],lineObj)):
-                m = matchLine(regex_main['contact'],lineObj)
+            elif( testLine(self._regex('contact'),lineObj)):
+                m = matchLine(self._regex('contact'),lineObj)
 
                 if( m != None ):
                     cName = "" if len(m.groups())<1 or not m.group(1) else "{0}<br />".format(self.markdown(m.group(1)))

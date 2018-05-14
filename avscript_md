@@ -24,6 +24,7 @@ I. Clean up the CSS file and add a few more useful styles
 S. Image (both inline and reference-style) would be nice too.
 V. Remove the <link> auto format feature???
 Z. Improve markdown parsing to take advantage of group(0) like links does???
+a. @import <'|"><path/filename><"|'> - This would be a nice feature to eliminate dup text
 
 ANCHORS
 1. [@]+[id]<<anything>> - Creates an anchor named [id] puts inline <a id="generated">anything</a>
@@ -34,6 +35,44 @@ ANCHORS
 \*{3}(?P<in_stars>.+?)\*{3}(?P<rest_of_line>.*)
 
 """
+
+class C_fileObj:
+    def __init__(self,f,closeOnEOF=True):
+        self.file = f
+        self.closeOnEOF = closeOnEOF
+            
+class C_file_handler:
+    def __init__(self):
+        self.filestack = []
+        self.idx = -1
+        self.line = ''
+
+    def _open(self, filename):
+        if( filename == 'sys.stdin' ):
+            self.filestack.append(C_fileObj(sys.stdin,False))
+            self.idx += 1
+            
+        elif os.path.isfile(filename):
+            file = open(filename,"r")
+            self.filestack.append(C_fileObj(file))
+            self.idx += 1
+            
+            return 0
+
+        return 1
+        
+    def _readline(self):
+        self.line = self.filestack[self.idx].file.readline()
+        if( self.line == '' ):
+            if( len(self.filestack) ):
+                
+                f = self.filestack.pop()
+                if (f.closeOnEOF): f.file.close()
+                self.idx -= 1
+                
+                if (self.idx >= 0): return self._readline()
+                
+        return self.line
 
 class C_VarObject:
     """Class to abstract a variable (alias)"""
@@ -149,7 +188,7 @@ class C_AVScriptParser:
         self.fmtlevel = 0               # indentation level for HTML tags
         self.lineInCache = False        # if we have a line in the cache
         self.classInCache = False       # if we have a class in the cache
-        self.av = sys.stdin             # assume we are reading from console
+        self.av = C_file_handler()
         self.shotListQ = C_LinkQueue()  # shot list link Q
         
         self.links = C_Links()          # dict of links
@@ -164,6 +203,7 @@ class C_AVScriptParser:
             'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
             'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
             'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
+            'import'    : C_regex_main(True,  True,   False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
             'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
             'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),
@@ -241,7 +281,7 @@ class C_AVScriptParser:
             
         # read the next line from the file buffer
         while(1):
-            self.ori_line = self.av.readline()
+            self.ori_line = self.av._readline()
             if self.ori_line[0:2] != '//': break
             if self.ori_line[0:3] == '///': break
             
@@ -432,6 +472,13 @@ class C_AVScriptParser:
                 else:
                     print(curLine)
                     
+            elif ( testLine(self._regex('import'),lineObj)):
+                m = matchLine(self._regex('import'),lineObj)
+                if( m!= None and len(m.groups()) == 1):
+                    self.av._open(m.group(1))
+                    
+                # TODO: Need to handle error here and print if we cannot open the file, etc.
+                
             elif ( testLine(self._regex('shotlist'),lineObj)):
                 print(self.fmt("<div class=\"shotlist\">",1))
                 print(self.fmt("<hr />"))
@@ -566,14 +613,17 @@ class C_AVScriptParser:
                 # If the file doesn't exist, bail now.
                 if not os.path.isfile(avscript): return 1
 
-                self.av = open(avscript,"r")
+                self.av._open(avscript)
 
                 rc = self.parse()
             
                 # close the file when we have processed all of it.
-                self.av.close()
+                # TODO: No longer needed, right? Handled by the C_file_handler() class
+                #self.av.close()
             else:
                 # no filename passed in, default to sys.stdin...
+                self.av._open('sys.stdin')
+
                 self.parse()
 
         except IOError:

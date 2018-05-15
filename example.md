@@ -7,5 +7,11 @@
 [path]%/Users/ken/Dropbox/shared/src/script/avscript/include
 @import '[path]/heading.md'
 
-- WS: Product in use
-Here is the voice for this shot.
+- WS: Product in use in the field
+Welcome to the Widget Pro+ 9000, the latest update to our award winning widget line up.
+-CU: Widget Pro+ 9000
+We've built on the reliability and industry standard feature set of its predecessor, and raised the bar so high, even we are worried whether we can top it!
+{:.red}*MS: Technician operating the Pro+ 9000
+With the familiar controls of its heritage, your ***TCO*** is going to be lower than ever.
+{:.pbb}### Shotlist
+///Shotlist///

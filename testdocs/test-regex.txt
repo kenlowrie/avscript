@@ -99,38 +99,55 @@ RE Matches Header level 1 to level 6
 
 
 ----------------------------
-RE Matches Variable and Link definitions
-
-'define'    : 
+RE Matches Link definitions
+'links'     : 
     C_regex_main(True,  True,   False,  
-                 r'^\[([^\]]+)\](?=(:(.+))|(%(.+)))',
+                 r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',
                  None),
 
+'markdown' section
+        spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '','')
+
 <TEST>
+INLINE: (\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))
+REFERENCE: ^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?
+SAVE THIS SAVE THIS
 ^\[([^\]]+)\](?=(:\((.+)\)))
 ^\[([^\]]+)\](?=(:\(?(.+)\)?))
 ^\[([^\]]+)\](?=(:\(?(.+[^\)])\)?))
 ^\[([^\]]+)\](?=(:[\(]?(.+))|(%(.+)))
 
- MATCH: -->^\[([^\]]+)\]:\(?(.+[^\s])[ ]+\"(.+)\"\)?
-BETTER: -->^\[([^\]]+)\]:\(?(.+[^\s])[ ]+(\"(.+)\")\)?
+^\[([^\]]+)\](?=(:[\(]?(.+)([ ]?\"?(^\")?))|(%(.+)))
 
-Just inline version:
-  BEST: -->(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))
+^\[([^\]]+)\](?=(:(.+)([ ]?\"?(^\")?))|(%(.+)))
 
-[feedback]:mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback%20YES
-[Link to Article]:https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/%20YES/
+MATCH: [link]:URL "title"--> ^\[([^\]]+)\]:(.+)(\"(.+)\")
+
+MATCH: [link]:(?URL "title")? --> ^\[([^\]]+)\]:\(?(.+)\"(.+)\"
+MATCH: [name]:%[value] --> ^\[([^\]]+)\](?=(:(.+))|(%(.+)))
+
+SAVE THIS SAVE THIS
+
+NO TITLE: -->\[([^\]]+)\](?=(:\((.+)\)))
+
+[Cloudy Logic Studios]:https://cloudylogic.com
+[cloudylogic.com]:https://cloudylogic.com
+[ken@cloudylogic.com]:mailto:ken@cloudylogic.com
+[fbemailaddr]:mailto:ken@cloudylogic.com?subject=[workingtitle]%20Feedback"
+
+
+[feedback]:    mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback%20YES
+[Link to Article]:   https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/%20YES/
 [Link to Article2]:https://domain.com/another_article_link%20YES
 [domain]%cls-YES
 NO NO NO
 [Link to Article] <-- This should be turned into a link
-[Is this working right]:(www.cloudylogic.com) - BUG BUG BUG
-[how about this]:(www.cloudylogic.com   "title")
-xxx[this]:(www.cloudylogic.com   "t2")
-xxx[this]:(www.cloudylogic.com)
-[this]:(https://www.cloudylogic.com)
-[Google without a title]:(https://google.com)
-[title]:www.cloudylogic.com    "title"
+[Is this working right]:(www.cloudylogic.com) - NO PAREN!!
+[Is this working right]:  (www.cloudylogic.com     )
+[Is this working right]:(  www.cloudylogic.com     ) - BUG BUG BUG
+[Is this working right]:(www.cloudylogic.com     ) - BUG BUG BUG
+[how about this]:(www.cloudylogic.com     "title") - not this
+[title]:www.cloudylogic.com "title"
 {:.red.center}### avscript tester doc
 $$cover$$:<<User Manual>>:<<Ken Lowrie>>:<<This is a user manual for the AVScript utility.>>
 $$revision$$:<<*1b*>>
@@ -145,9 +162,22 @@ NO NO NO
 [me]:mailto:myemail@cloudylogic.com
 NO NO NO
 
+SAVE THIS SAVE THIS
+
+(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))
+^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?
+
 [My Email Address]%me
 [My Production Website]%cls
 [Cloudy Logic Studios, LLC]%cls
+
+#### Inline links
+
+So far, both the reference link syntax and the variable &#91;linkID]:(URL). Here's one for [Cloudy Logic]:(https://cloudylogic.com).
+
+///Variables///
+
+///Links///
 </TEST>
 
 ----------------------------

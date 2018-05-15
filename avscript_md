@@ -57,6 +57,8 @@ class C_file_handler:
             self.idx += 1
             
             return 0
+        else:
+            print("ERROR: Unable to import '{0}'. File does not exist.".format(filename))
 
         return 1
         
@@ -247,6 +249,8 @@ class C_AVScriptParser:
         for m in matches:
             optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
             s = s.replace(m[0],'<a href=\"{0}\"{2}>{1}</a>'.format(m[2],m[1],optTitle))
+            self.links.addLink(m[1],m[2],m[4])
+            #print("MD:AL:{0}<br />".format(m[1]))
 
         for item in self.regex_md_list:
             matches = re.findall(item.regex,s)
@@ -351,9 +355,12 @@ class C_AVScriptParser:
             # Look to see if the current line in the cache is the start of a new section
 
             for id in self.regex_main:
+                obj = self._regex(id)
+                # Make sure that this regex obj starts_new_div.
+                if( not obj.starts_new_div ):
+                    continue
                 # if this RE allows a class prefix, use the line with the
                 # prefix stripped off, otherwise, use the original line.
-                obj = self._regex(id)
                 if re.match(obj.test_str, line if obj.allows_class_prefix else ori_line):
                     return True
         
@@ -516,6 +523,7 @@ class C_AVScriptParser:
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if( m != None and len(m.groups()) == 4):
                     self.links.addLink(m.group(1),m.group(2),optTitle)
+                    #print("RL:AL:{0}<br />".format(m.group(1)))
                 else:
                     print(self.ori_line)
                     

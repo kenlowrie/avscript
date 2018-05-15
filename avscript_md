@@ -195,6 +195,8 @@ class C_AVScriptParser:
         self.links = C_Links()          # dict of links
         self.variables = C_Variables()  # dict of document variables
         
+        #TODO: Previous links: r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?'
+        
         self.regex_main = {
             #                                        Class
             #                         NewDiv RawLine Prefix   Test Regex                                        Match Regex
@@ -202,7 +204,7 @@ class C_AVScriptParser:
             'shot'      : C_regex_main(True,  False,  True,   r'^[-|\*|\+][ ]*(?![-]{2})',                      r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
             'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',        r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
             'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
-            'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?',   None),
+            'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',   None),
             'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
             'import'    : C_regex_main(True,  False,  False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
@@ -242,7 +244,8 @@ class C_AVScriptParser:
         # TODO: nice if we could integrate this into main loop...
         # This handles inline links in this format: [linkID]:(url)
         # Might be able to fix if I can eliminate the extra group... linkID,(url),url
-        spec = C_regex_md(r'(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))', '','')
+        # TODO: PREVIOUs spec = C_regex_md(r'(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))', '','')
+        spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '','')
         
         # This special case handles inline links
         matches = re.findall(spec.regex,s)
@@ -250,7 +253,7 @@ class C_AVScriptParser:
             optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
             s = s.replace(m[0],'<a href=\"{0}\"{2}>{1}</a>'.format(m[2],m[1],optTitle))
             self.links.addLink(m[1],m[2],m[4])
-            #print("MD:AL:{0}<br />".format(m[1]))
+            #print("MD:AL:{0}{1}{2}<br />".format(m[1],m[2],m[3]))
 
         for item in self.regex_md_list:
             matches = re.findall(item.regex,s)
@@ -523,7 +526,7 @@ class C_AVScriptParser:
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if( m != None and len(m.groups()) == 4):
                     self.links.addLink(m.group(1),m.group(2),optTitle)
-                    #print("RL:AL:{0}<br />".format(m.group(1)))
+                    #print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
                 else:
                     print(self.ori_line)
                     

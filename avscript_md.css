@@ -363,6 +363,10 @@ div.links, div.variables{
     width:inherit;
 }
 
+.indent{
+    margin-left:3em;
+}
+
 @media print
 {
 	ul, li, p {

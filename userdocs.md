@@ -7,6 +7,10 @@
 AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts as output in HTML. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
 ***TODO TODO TODO - Don't use valid email addresses in this document.***
 
+@@@ link noteTitle Table of Contents
+    @:[inlinemd]<<Inline Markdown>>
+    @:[links]<<Links>>
+    @:[aliases]<<Aliases or Variables>> 
 
 In its simplest use, Markdown list item tags (&#42;, -, +) are used to identify visuals (shots), and regular paragraphs are the audio/narration that go along with the visuals. Let's see a quick example now. The next line will begin with the * and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
 *WS:Sunrise
@@ -14,6 +18,7 @@ There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
 [null]%null
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc.
+@+[inlinemd]
 ###Inline Markdown
 
 Some of the standard markdown span elements are supported, and a few additional useful span elements as well. These include:
@@ -33,6 +38,7 @@ When you want to wrap text with &ltins>, use the double plus signs like this: ++
 
 That's a brief look at using AVScript's built-in span element support. Now, let's take a look at support for links, the remaining span element.
 
+@+[links]
 ###Links
 
 Both inline and reference style links are supported. The syntax for each style is:
@@ -74,6 +80,7 @@ Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it'
 ####Automatic links
 Should I document automatic links? <http://www.cloudylogic.com>
 
+@+[aliases]
 ## Aliases or Variables
 
 Aliases (aka Variables), which is essentially text substitution, is supported using a similar syntax to reference links. **[variable]%value**. Take the following example:

@@ -36,17 +36,30 @@ ANCHORS
 """
 
 class C_fileObj:
+    """A simple file class to keep track if we need to issue a close on a file."""
     def __init__(self,f,closeOnEOF=True):
         self.file = f
         self.closeOnEOF = closeOnEOF
             
 class C_file_handler:
+    """This class abstracts the readline() built-in API so it can support
+    having multiple files open, ala the @import keyword. When a new file
+    is opened, the current file object is saved on a stack, and the file
+    becomes the current file until EOF. At that point, it's closed, and
+    the previous file is then popped off the stack, and we resume reading
+    from it until EOF."""
     def __init__(self):
         self.filestack = []
         self.idx = -1
         self.line = ''
 
     def _open(self, filename):
+        """Open a file. Initially, sys.stdin might be passed, indicating
+        that we should be reading from stdin. If that's the case, add it
+        to the stack, but signal that it should not be closed, since that
+        file is handled by the built-in Python library.
+        
+        TODO: Should sys.stdin only be allowed at the start?"""
         if( filename == 'sys.stdin' ):
             self.filestack.append(C_fileObj(sys.stdin,False))
             self.idx += 1
@@ -63,6 +76,9 @@ class C_file_handler:
         return 1
         
     def _readline(self):
+        """Read the next line of input and return it. If we are at EOF and
+        there's a file object on the stack, close the current file and then
+        pop the prior off the stack and return the next line from it."""
         self.line = self.filestack[self.idx].file.readline()
         if( self.line == '' ):
             if( len(self.filestack) ):
@@ -76,7 +92,8 @@ class C_file_handler:
         return self.line
 
 class C_VarObject:
-    """Class to abstract a variable (alias)"""
+    """Class to abstract a variable (alias). Keep track of the ID (name) and
+    the value (text)."""
     def __init__(self,id,text):
         self.id = id
         self.text = text
@@ -87,49 +104,69 @@ class C_Variables:
         self.vars = {}
         
     def addVar(self,id,text):
+        """Add a variable called 'id' to the list and set its value to 'text'."""
         self.vars[id] = C_VarObject(id,text)
         
     def exists(self,id):
+        """Returns true if the variable 'id' exists."""
         return id in self.vars
         
     def getText(self,id):
+        """Gets the value of the variable 'id', unless it doesn't exist, in
+        which case it returns (undefined).
+        
+        TODO: Should this just return an empty string if undefined?"""
         return "(undefined)" if not self.exists(id) else self.vars[id].text
         
     def dumpVars(self,indent=''):
+        """Dumps the variable list, names and values."""
         for var in self.vars:
             print("{2}{0}:{1}<br />".format(self.vars[var].id,self.vars[var].text,indent))
 
 class C_LinkObject:
+    """Class to abstract a reference link. Keep track of the URL (url) and
+    the optional title (title). We don't track the name here, that is done
+    in the C_Links class."""
     def __init__(self,url,title=None):
         self.url = url
         self.title = title
 
 class C_Links:
+    """Class to abstract a dictionary of reference links"""
     def __init__(self):
         self.links = {}
         
     def addLink(self,id,url,title=None):
+        """Add a link called 'id' to the list and set its url to 'url'
+        and its title to 'title'."""
         #print("addLink()-->{0}-{1}-{2}<br />".format(id,url,title))
         self.links[id] = C_LinkObject(url,title)
         
     def exists(self,id):
+        """Returns true if the link named 'id' exists."""
         return id in self.links
         
     def getLinkUrl(self,id):
+        """Gets the link object named 'id', unless it doesn't exist, in
+        which case it returns 'id'."""
         if( self.exists(id) ):
             return self.links[id].url
             
-        # what do we do if it doesn't exist?
-        # for now, let's just return what we were given...
+        # This seems best to just return what we were given. If it doesn't
+        # expand, it should be obvious, right?
         return id
         
     def getLinkMarkup(self,id,altText=None):
+        """Returns the HTML markup for the link named 'id' if it exists.
+        Otherwise, return an empty string. If altText is passed, wrap that with
+        the link markup, otherwise, just wrap the 'id'."""
         title = "" if not self.exists(id) or not self.links[id].title else " title=\"{0}\"".format(self.links[id].title)
         linkText = "{0}".format(altText if altText else id)
         
         return '<a href=\"{0}\"{2}>{1}</a>'.format(self.getLinkUrl(id),linkText,title)
         
     def dumpLinks(self,indent=''):
+        """Dumps the links list, names, urls and titles."""
         for link in self.links:
             print("{3}{0}:{1}:{2}<br />".format(link,self.links[link].url,self.links[link].title,indent))
         

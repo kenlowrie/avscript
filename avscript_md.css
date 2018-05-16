@@ -15,6 +15,14 @@
    A separate script, mkavscript_md can be used to build an HTML document suitable
    for loading in a browser, since avscript_md is intended to be used with BBEdit's
    Markdown preview only...
+   
+   TODO: This needs a lot of cleanup work. Once I finish with the remaining
+   features in avscript_md, I'll reorganize this, clean it up, and make it
+   more consistent.
+   
+   TODO: Might want to look at Mark BoszKo's latest version of the original CSS
+   file. He's added a TON of stuff that looks quite interesting...
+   
    */
 
 body

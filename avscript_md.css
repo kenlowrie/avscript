@@ -5,8 +5,9 @@
    Description: Formats text files using a Markdown-like syntax as side-by-side 
    A/V Script format, with visuals on the left, and audio/narration on the right. 
    Unordered lists are interpreted as visuals, regular paragraphs are 
-   audio/narration. Various other specialized formatting options. See the README
-   for docs on how to use it and the various formatting options supported.
+   audio/narration. Various other specialized formatting options are also
+   supported. See the README for docs on how to use it, and then take a look
+   at userdocs.md and example.md to learn more.
    -----
    This styling document along with the script avscript_md was made for use with 
    BBEdit <http://www.barebones.com/products/bbedit/> as a CSS theme for Markdown 
@@ -16,13 +17,12 @@
    for loading in a browser, since avscript_md is intended to be used with BBEdit's
    Markdown preview only...
    
-   TODO: This needs a lot of cleanup work. Once I finish with the remaining
+   TODO: This needs a LOT OF CLEANUP work. Once I finish with the remaining
    features in avscript_md, I'll reorganize this, clean it up, and make it
-   more consistent.
+   more consistent. Promise.
    
-   TODO: Might want to look at Mark BoszKo's latest version of the original CSS
+   TODO: Might want to look at Mark Boszko's latest version of the original CSS
    file. He's added a TON of stuff that looks quite interesting...
-   
    */
 
 body

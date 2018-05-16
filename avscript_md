@@ -5,33 +5,43 @@ import os
 import re
 
 """
-This script is a BBEdit-compliant Markup Previewer (if that's a thing)...
+This script is a BBEdit-compliant Markup Previewer (if that's a thing)... When
+invoked from BBEdit, it reads from sys.stdin, which will be the current contents
+of the markdown document you are editing, formats it on the fly, writing out
+HTML. Using BBEdit's Preview in BBEdit Markup support, you can see your AV
+script come to life.
 
-TODO: Add the details on this script...
+To quickly see how it works, copy "avscript_md" and "avscript_md.css":
+
+cp avscript_md ~/Library/Application\sSupport\BBEdit\Preview\sFilters
+cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
+
+And then open "example.md" in BBEdit, Choose Markup|Preview in BBEdit, and then
+in the Preview: example.md window:
+
+Select "avscript_md.css" from the CSS: popdown
+Select "avscript_md" from the Filter: popdown
+
+BAM! You should see a nicely formatted Audio/Visual script. You'll likely see
+error near the top about "Unable to import /.../heading.md". Don't worry, we'll
+fix that later.
+
+For now, take a look at userdocs.md (in a BBEdit preview window of course!), and
+you should quickly get up and running with the A/V Script Markdown Processor.
 
 TODO (Punch list):
 
-2. Way to export just the shots and narration
+2. Way to export just the shots and narration. Narration only. Shot followed by
+   narration in block format.
 4. Finish the documentation for this thing
-5. Finish the README (with instructions for installing and using it)
-6. Update my Evernote BBEDIT MD note with my new scripts...
+6. Update my Evernote BBEDIT MD note to reflect this new process.
 9. Test with Python2 and Python3
-K. Document the use of mailto: in the stationery file
 
 7. Search for TODO and fix/cleanup
-H. Easy way to drop anchors and add links within doc would be nice. (See below)
 I. Clean up the CSS file and add a few more useful styles
 S. Image (both inline and reference-style) would be nice too.
-V. Remove the <link> auto format feature???
+V. Remove the support for automatic <links>???
 Z. Improve markdown parsing to take advantage of group(0) like links does???
-
-ANCHORS
-1. [@]+[id]<<anything>> - Creates an anchor named [id] puts inline <a id="generated">anything</a>
-2. A dict of [id]'s will hold the "generated" tag so that:
-3. [@]:[id]<<anthing here>> will get the <a href="generated"> wrapped around 'anything here'
-4. This has to be done before other expansions, right?
-
-\*{3}(?P<in_stars>.+?)\*{3}(?P<rest_of_line>.*)
 
 """
 
@@ -170,19 +180,31 @@ class C_Links:
         for link in self.links:
             print("{3}{0}:{1}:{2}<br />".format(link,self.links[link].url,self.links[link].title,indent))
         
-class C_LinkQueue:
+class C_AnchorQueue:
     def __init__(self):
-        self.linkQ = []
+        self.anchorQ = []
         self.linkIDnum = 0
         
-    def addLink(self,link):
-        curItem = len(self.linkQ)
-        self.linkQ.append(("fnref:{0}".format(self.linkIDnum),link))
+    def addAnchorUsingID(self,id,link):
+        curItem = len(self.anchorQ)
+        self.anchorQ.append((id,link))
         self.linkIDnum += 1
-        return self.linkQ[curItem][0]
+        return self.anchorQ[curItem][0]
+    
+    def addAnchor(self,link):
+        return self.addAnchorUsingID("fnref:{0}".format(self.linkIDnum),link)
+        #
+        curItem = len(self.anchorQ)
+        self.anchorQ.append(("fnref:{0}".format(self.linkIDnum),link))
+        self.linkIDnum += 1
+        return self.anchorQ[curItem][0]
         
-    def getLinkQ(self):
-        return self.linkQ
+    def getAnchorQ(self):
+        return self.anchorQ
+        
+    def dumpAnchors(self):
+        for anchor in self.anchorQ:
+            print("{0}-{1}".format(anchor,self.anchorQ[anchor][1]))
 
 class C_regex_md:
     """
@@ -227,7 +249,7 @@ class C_AVScriptParser:
         self.lineInCache = False        # if we have a line in the cache
         self.classInCache = False       # if we have a class in the cache
         self.av = C_file_handler()
-        self.shotListQ = C_LinkQueue()  # shot list link Q
+        self.shotListQ = C_AnchorQueue()  # shot list link Q
         
         self.links = C_Links()          # dict of links
         self.variables = C_Variables()  # dict of document variables
@@ -244,6 +266,7 @@ class C_AVScriptParser:
             'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',   None),
             'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
             'import'    : C_regex_main(True,  False,  False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
+            'anchor'    : C_regex_main(True,  True,   False,  r'^[@]\+\[([^\]]*)\]',                              None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
             'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
             'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),
@@ -281,7 +304,6 @@ class C_AVScriptParser:
         # TODO: nice if we could integrate this into main loop...
         # This handles inline links in this format: [linkID]:(url)
         # Might be able to fix if I can eliminate the extra group... linkID,(url),url
-        # TODO: PREVIOUs spec = C_regex_md(r'(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))', '','')
         spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '','')
         
         # This special case handles inline links
@@ -291,6 +313,17 @@ class C_AVScriptParser:
             s = s.replace(m[0],'<a href=\"{0}\"{2}>{1}</a>'.format(m[2],m[1],optTitle))
             self.links.addLink(m[1],m[2],m[4])
             #print("MD:AL:{0}{1}{2}<br />".format(m[1],m[2],m[3]))
+            
+        # TODO: nice if this were also integrated into main loop...
+        # This handles inline links to local anchors: @:[anchorID]<<text>>
+        # This special case handles links to local anchors
+        spec = C_regex_md(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', '','')
+        
+        matches = re.findall(spec.regex,s)
+        for m in matches:
+            s = s.replace(m[0],'<a href=\"{0}\">{1}</a>'.format(m[1],m[2]))
+            #print("MD:AA:{0}{1}{2}<br />".format(m[0],m[1],m[2]))
+        
 
         for item in self.regex_md_list:
             matches = re.findall(item.regex,s)
@@ -334,7 +367,7 @@ class C_AVScriptParser:
         return self.line
         
     def _addLink(self,link):
-        return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addLink(link)))
+        return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addAnchor(link)))
     
     def _makeCSSclass(self,tmpClass):
         # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
@@ -373,7 +406,7 @@ class C_AVScriptParser:
             # get the link anchor and insert it ahead of the shot
             link = "" if not addLinks else self._addLink(rest)
             # return this, but call myself recursively in case there are more indented lines...
-            return self.fmt("{3}<{0}{2}>{1}</{0}>\n".format(element,rest.rstrip('\n'),cssClass,link) + self._peekNextLine(element))
+            return self.fmt("{3}<{0}{2}>{1}</{0}>\n".format(element,rest.rstrip('\n'),cssClass,link) + self._peekNextLine(element,addLinks))
 
         # We read 1 too many lines, so mark the cache as dirty so we can process it next time.            
         self._unreadLine()
@@ -529,7 +562,7 @@ class C_AVScriptParser:
                 print(self.fmt("<div class=\"shotlist\">",1))
                 print(self.fmt("<hr />"))
                 shotnum = 1
-                for shot in self.shotListQ.getLinkQ():
+                for shot in self.shotListQ.getAnchorQ():
                     print(self.fmt("<div id=\"shot\">",1))
                     print(self.fmt("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0],shot[1],shotnum),-1))
                     print(self.fmt("</div>"))
@@ -573,6 +606,15 @@ class C_AVScriptParser:
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if( m != None and len(m.groups()) == 3):
                     self.variables.addVar(m.group(1),m.group(3))
+                else:
+                    print(self.ori_line)
+                    
+            elif( testLine(self._regex('anchor'),lineObj)):
+                # For this case, we just need to drop an anchor.
+                m = matchLine(self._regex('anchor'),lineObj)
+
+                if( m != None and len(m.groups()) == 1):
+                    print(self.fmt("<a id=\"{0}\"></a>".format(m.group(1))))
                 else:
                     print(self.ori_line)
                     

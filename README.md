@@ -6,11 +6,13 @@ Welcome to the A/V Script Markdown Processor. This document should help you get 
 
 ### Attributions
 
-This project was inspired by John Gruber's [Markdown](https://daringfireball.net/projects/markdown/), the [Python Markdown](https://github.com/Python-Markdown/markdown) Project, and an A/V Script BBEdit plug-in (is this where it came from?).
+This project was inspired by John Gruber's [Markdown](https://daringfireball.net/projects/markdown/), the [Python Markdown](https://github.com/Python-Markdown/markdown) Project, and an Mark Boszko's [AVScriptFormat](https://github.com/bobtiki/AVScriptFormat) BBEdit plug-in.
 
 #### Installing this app on your system
 
 To install this on your system, do the following from a terminal window:
+
+TODO: This isn't done yet. Hang tight...
 
 cp avscript_md ~/Library/Application\sSupport\BBEdit\Preview\sFilters
 cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
@@ -21,9 +23,7 @@ That's it! If you run into any problems, feel free to contact me for assistance.
 
 #### Why A/V Script Markdown Processor?
 
-As I wrote more and more scripts based on Python Markdown and the A/V Script system mentioned above, I found myself wanting features, mostly to help avoid duplication amongst scripts, that were too difficult (for me) to implement within the existing framework. 
-
-Mention about new versions of these things coming out that broke existing scripts...
+As I wrote more and more scripts that relied partially on Python Markdown, along with the AVScriptFormat CSS mentioned above, I found myself wanting features, mostly to help avoid duplication amongst scripts, that were too difficult (for me) to implement within the existing framework. Someday when I have some time, I'd love to learn the ins and outs of Python Markdown, so I could write proper extensions to implement the features I need, while being able to rely on a proper Markdown implementation.
 
 Enter AVScript_md, mkavscript_md and avscript_md.css. These two Python scripts and the corresponding CSS file make up a BBEdit compliant Markdown-syntax-like system for creating Audio/Visual scripts from text documents. Although BBEdit isn't required to use the scripts, it is quite convenient to use their built-in markdown preview support when writing.
 

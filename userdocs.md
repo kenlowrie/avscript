@@ -107,6 +107,8 @@ There are a several built-in CSS ID's that are defined in the accompanying **avs
 
 ##Headers
 
+##Anchors
+
 ##Cover, Revision & Contact Sections
 
 ##Importing documents

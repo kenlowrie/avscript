@@ -211,3 +211,33 @@ For inline html links:
 (?i)\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))
 </TEST>
 
+
+----------------------------
+
+@+[id] - Define a new anchor
+^[@]\+\[([^\]]*)\]
+
+@:[id]<<text_to_wrap>> - <a href="id">"text_to_wrap"</a> 
+([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})
+
+@+[id]<<anything>> - Creates an anchor named [id], set's its value to "anything". Writes inline <a id="id">anything</a>
+@+[another id] - cache it, do the markup when it's used...
+
+2. A dict of [id]'s will hold the "generated" tag so that:
+@:[id]<<anthing here>> will get <a href="#id">anything here</a>
+this is a test @:[ref_id]<<a *bunch* of **marked up** text maybe even [substitutions] and it will work>>
+<a href="#ref_id">a *bunch* of **marked up** text maybe even [substitutions] and it will work</a>
+
+4. This has to be done before other expansions, right?? Does it??
+
+Generated tags won't work, because we need to be able to forward reference these. So [id] has to be the id="id". Right?
+
+The idea with the '+' being able to specify "anything" is so that the anchor has an actual place in the doc. Is this really needed? I don't think so. KISS.
+
+Original drop link regex: ^@\+\[([^\]]*)\]\<{2}([^\>\>]*)\>{2}
+
+^@\+\[([^\]]*)\]
+@+[ref_id] - what happens to this text?
+<a id="ref_id"></a>
+
+@\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2}

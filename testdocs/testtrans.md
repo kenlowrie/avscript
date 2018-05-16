@@ -18,6 +18,9 @@ Description
 Description
 [cls]:https://www.cloudylogic.com
 - Shot - [cls] <-- should be a link to www.cloudylogic.com
+    Shot 2 - [cls]
+    {:.red}Shot 3 - [cls]
+    Shot 4 - [cls] - Working good..
 Description
 [Google]:(https://www.google.com)
 - Shot - [Google] <-- Should be link to google.com
@@ -57,5 +60,6 @@ Description
 {:.green}$$contact$$:<<.NOT>>:<<.HERE>>:<<.EITHER>>:<<1>>:<<2>>:<<3>>
 {:.red}[variable]%NO NOT HERE EITHER
 {:.blue}[link]:not_in_links_either_
-
+@+[myanchor]
+@:[myanchor]<<*This is my text*>>
 

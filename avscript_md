@@ -321,7 +321,7 @@ class C_AVScriptParser:
         
         matches = re.findall(spec.regex,s)
         for m in matches:
-            s = s.replace(m[0],'<a href=\"{0}\">{1}</a>'.format(m[1],m[2]))
+            s = s.replace(m[0],'<a href=\"#{0}\">{1}</a>'.format(m[1],m[2]))
             #print("MD:AA:{0}{1}{2}<br />".format(m[0],m[1],m[2]))
         
 

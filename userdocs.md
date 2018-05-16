@@ -1,7 +1,7 @@
 {:.blue}#AVScript User Manual
 [workingtitle]%AVScript Markdown Utility
 [storysummary]%This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
-[path]%/Users/ken/Dropbox/shared/src/script/avscript/include
+[path]%/Users/ken/Dropbox/shared/src/script/avscript/import
 @import '[path]/userguideheading.md'
 ## What is AVScript?
 AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts as output in HTML. A CSS file is used to style the output, making it super easy to customize the final render to your liking.

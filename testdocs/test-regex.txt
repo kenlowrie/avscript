@@ -220,6 +220,7 @@ For inline html links:
 @:[id]<<text_to_wrap>> - <a href="id">"text_to_wrap"</a> 
 ([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})
 
+<TEST>
 @+[id]<<anything>> - Creates an anchor named [id], set's its value to "anything". Writes inline <a id="id">anything</a>
 @+[another id] - cache it, do the markup when it's used...
 
@@ -241,3 +242,32 @@ Original drop link regex: ^@\+\[([^\]]*)\]\<{2}([^\>\>]*)\>{2}
 <a id="ref_id"></a>
 
 @\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2}
+</TEST>
+
+----------------------------
+
+@import "filename"
+
+^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]
+
+<TEST>
+
+r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]'
+
+r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]'
+
+<TEST>
+@import "filename"
+@import 'filename'
+@import "path/to/filename"
+@import "/abs/path/to/filename"
+@import  "$../relative/path/to/filename"
+@import "../../relative/path/to/filename"
+@import  "$filename"
+@import  'filename'
+NO@import "filename"
+
+@import $ 'filename'
+^[@]import[ ]+([ ]*[$][ ]*)?[\'|\"](.+[^\'|\"])[\'|\"]
+
+</TEST>

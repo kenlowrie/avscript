@@ -371,7 +371,7 @@ div.links, div.variables{
     width:inherit;
 }
 
-.indent{
+.indent, div#link p.indent{
     margin-left:3em;
 }
 

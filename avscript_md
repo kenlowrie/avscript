@@ -42,14 +42,17 @@ I. Clean up the CSS file and add a few more useful styles
 S. Image (both inline and reference-style) would be nice too.
 V. Remove the support for automatic <links>???
 Z. Improve markdown parsing to take advantage of group(0) like links does???
+a. Need a way to specify "path of this file" in the @import statement
+b. Need a macro inside BBEdit to write a [nameoffile-path]%path
 
 """
 
 class C_fileObj:
     """A simple file class to keep track if we need to issue a close on a file."""
-    def __init__(self,f,closeOnEOF=True):
+    def __init__(self,f,closeOnEOF=True,name=None):
         self.file = f
         self.closeOnEOF = closeOnEOF
+        self.name = name
             
 class C_file_handler:
     """This class abstracts the readline() built-in API so it can support
@@ -70,13 +73,27 @@ class C_file_handler:
         file is handled by the built-in Python library.
         
         TODO: Should sys.stdin only be allowed at the start?"""
+
+        # If name is prefixed with '$', it means we need to prefix the
+        # filename with the path of the current file being read...
+        
+        #print("-->filename-{0}-<br />".format(filename))
+        if( filename[0] == '$' ):
+            # Make sure this isn't the first file we are opening, and also
+            # that the current file isn't stdin!
+            if(self.idx >= 0 and self.filestack[self.idx].name):
+                #print("abs-->{0}<br />".format(self.filestack[self.idx].name))
+                filename = os.path.join(os.path.split(os.path.abspath(self.filestack[self.idx].name))[0],filename[1:])
+                
         if( filename == 'sys.stdin' ):
             self.filestack.append(C_fileObj(sys.stdin,False))
             self.idx += 1
             
         elif os.path.isfile(filename):
+                    
+            name = os.path.abspath(filename)
             file = open(filename,"r")
-            self.filestack.append(C_fileObj(file))
+            self.filestack.append(C_fileObj(file,True,name))
             self.idx += 1
             
             return 0
@@ -265,8 +282,8 @@ class C_AVScriptParser:
             'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
             'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',   None),
             'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
-            'import'    : C_regex_main(True,  False,  False,  r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]',         None),
-            'anchor'    : C_regex_main(True,  True,   False,  r'^[@]\+\[([^\]]*)\]',                              None),
+            'import'    : C_regex_main(True,  False,  False,  r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]',      None),
+            'anchor'    : C_regex_main(True,  True,   False,  r'^[@]\+\[([^\]]*)\]',                            None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
             'variables' : C_regex_main(True,  False,  False,  r'^[/]{3}Variables[/]{3}',                        None),
             'dumplinks' : C_regex_main(True,  False,  False,  r'^[/]{3}Links[/]{3}',                            None),

@@ -16,6 +16,7 @@ TODO: This isn't done yet. Hang tight...
 
 cp avscript_md ~/Library/Application\sSupport\BBEdit\Preview\sFilters
 cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
+cp Stationery/My\sAV\sScript.md ~/Library/Application\sSupport\BBEdit\Stationery
 
 TODO: Rethink these instructions so the system can be used stand alone too.
 

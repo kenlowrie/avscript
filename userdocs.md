@@ -1,18 +1,31 @@
 {:.blue}#AVScript User Manual
 [workingtitle]%AVScript Markdown Utility
 [storysummary]%This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
+//You will probably need to update this path to make this work
 [path]%/Users/ken/Dropbox/shared/src/script/avscript/import
 @import '[path]/userguideheading.md'
+[SP]%&nbsp;
+@@@ link noteTitle Table of Contents
+    [SP]
+    @:[inlinemd]<<Inline Markdown>> - **Formatting content inline**
+    @:[links]<<Links>> - **Inline and Reference Link Styles**
+    {:.indent}@:[inline+links]<<Inline Links>> - **Creating links inline**
+    {:.indent}@:[ref+links]<<Reference Links>> - **Creating reference links**
+    {:.indent}@:[auto+links]<<Automatic Links>> - **Creating automatic links**
+    @:[aliases]<<Aliases>>  - **Text substitution aka Variables**
+    @:[div]<<DIV>> - **Creating new DIV sections**
+    @:[headers]<<Headers>> - **Adding Headers**
+    @:[anchors]<<Anchors>> - **Using Anchors**
+    @:[special+sections]<<Special Sections>> - **Covers, Revisions &amp; Contact sections**
+    @:[imports]<<Imports>> - **Importing files**
+    @:[shotlist]<<Shotlist>> - **Displaying the shotlist**
+    @:[debug]<<Debug>> - **Dumping variables and links**
+
 ## What is AVScript?
 AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts as output in HTML. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
 ***TODO TODO TODO - Don't use valid email addresses in this document.***
 
-@@@ link noteTitle Table of Contents
-    @:[inlinemd]<<Inline Markdown>>
-    @:[links]<<Links>>
-    @:[aliases]<<Aliases or Variables>> 
-
-In its simplest use, Markdown list item tags (&#42;, -, +) are used to identify visuals (shots), and regular paragraphs are the audio/narration that go along with the visuals. Let's see a quick example now. The next line will begin with the * and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
+In its simplest, Markdown list item tags (&#42;, -, +) are used to identify visuals (shots), and regular paragraphs are the audio/narration that go along with the visuals. Let's see a quick example now. The next line will begin with the * and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
 *WS:Sunrise
 There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
@@ -21,7 +34,7 @@ You can have as much narration as required, just keep writing, even starting new
 @+[inlinemd]
 ###Inline Markdown
 
-Some of the standard markdown span elements are supported, and a few additional useful span elements as well. These include:
+A few of the standard markdown span elements are supported, as are a couple of specialized span elements. These include:
 
 {:.indent}####&#42; - wrap text in a single asterisk for emphasis
 {:.indent}####&#42;&#42; - wrap text in double asterisks for bold
@@ -46,6 +59,7 @@ Both inline and reference style links are supported. The syntax for each style i
 
 {:.indent}###Reference: &lt;***&#91;LinkID&#93;***&gt; &lt;*** : ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;
 
+@+[inline+links]
 ####Inline Style:
 
 The following paragraph has the following inline links defined within it: This is **&#91;an example]:(http://example.com/ "Inline Link Sample")** of an inline link. **&#91;This inline link]:(http://example.net/)** has no title attribute.
@@ -54,6 +68,7 @@ This is [an example]:(http://example.com/ "Inline Link Sample") of an inline lin
 
 Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: [an example].
 
+@+[ref+links]
 ####Reference Style:
 Reference links use the format [linkID]:url "optional title". Essentially, just like inline links, but without the ( ) surrounding the URL and optional title.
 
@@ -77,6 +92,7 @@ Then the inline link isn't expanded inline as normal, and any text following the
 [inline 2]:(https://cloudylogic.com)-you won't see any of this text...
 
 Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it's a valid link!
+@+[auto+inks]
 ####Automatic links
 Should I document automatic links? <http://www.cloudylogic.com>
 
@@ -102,6 +118,7 @@ And that's all good. It's concise, I only have to write *cls* in [ ] and it is w
 [Cloudy Logic]%cls
 Now, when I write [Cloudy Logic], it is wrapped with the link for *cls*. Cool!
 
+@+[divs]
 ##Divs
 You can create a new DIV using ***---*** or ***@@@*** at the start of a new line. The complete syntax is: 
 
@@ -112,16 +129,36 @@ For example, when I write ***@@@ section noteTitle This is my new DIV section***
 
 There are a several built-in CSS ID's that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
 
+@+[headers]
 ##Headers
 
+@+[anchors]
 ##Anchors
 
+@+[special+sections]
 ##Cover, Revision & Contact Sections
 
+@+[imports]
 ##Importing documents
 
+@@@ link noteTitle Syntax:
+    {:.indent}**@import "filename"**
+    {:.indent}**@import "/abs/path/to/filename"**
+    {:.indent}**@import "../relative/path/to/filename"**
+    {:.indent}**@import "$/relative/to/current/filename"**
+
+The @import statement can be used to include documents that contain commonly used contents for your scripts, such as common aliases, links, headers, sections, etc. You can use fully qualified paths, relative paths, or paths based on the current file being processed. The latter uses the symbol '$' to designate that the path to this file should begin with the path the current file being processed. For example, assume the current file being processed is: /mydir/myfile.md. The statement:
+
+#### @import "$/vars.md"
+
+Would be the same as writing @import "/mydir/vars.md". This is useful because it doesn't require that you use absolute paths for everything.
+
+{:.note}There is a gotcha when using this with BBEdit's Markup Preview. There is no context for the top level file, since it is passed to the Python script as sys.stdin. Because of that, you can't rely on avscript_md to determine the relative path of the top level file. It will work just fine when using mkavscript_md, but that won't be useful if you are using BBEdit's Markup Preview to write your documents...
+
+@+[shotlist]
 ##Shotlist
 
+@+[debug]
 ##Debugging
 
 ///Links///

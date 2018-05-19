@@ -1,10 +1,10 @@
 {:.blue}#AVScript User Manual
-[workingtitle]%AVScript Markdown Utility
-[storysummary]%This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
+[workingtitle]=AVScript Markdown Utility
+[storysummary]=This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
 //You will probably need to update this path to make this work
-[path]%/Users/ken/Dropbox/shared/src/script/avscript/import
+[path]=/Users/ken/Dropbox/shared/src/script/avscript/import
 @import '[path]/userguideheading.md'
-[SP]%&nbsp;
+[SP]=&nbsp;
 @@@ link noteTitle Table of Contents
     [SP]
     @:[inlinemd]<<Inline Markdown>> - **Formatting content inline**
@@ -29,7 +29,7 @@ In its simplest, Markdown list item tags (&#42;, -, +) are used to identify visu
 *WS:Sunrise
 There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
-[null]%null
+[null]=null
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc.
 @+[inlinemd]
 ###Inline Markdown
@@ -99,13 +99,13 @@ Should I document automatic links? <http://www.cloudylogic.com>
 @+[aliases]
 ## Aliases or Variables
 
-Aliases (aka Variables), which is essentially text substitution, is supported using a similar syntax to reference links. **[variable]%value**. Take the following example:
-{:.indent}###[my name]%Ken Lowrie
-[my name]%Ken Lowrie
+Aliases (aka Variables), which is essentially text substitution, is supported using a similar syntax to reference links. **[variable]=value**. Take the following example:
+{:.indent}###[my name]=Ken Lowrie
+[my name]=Ken Lowrie
 Now, anywhere I write &#91;my name], it will be replaced with "Ken Lowrie". Let's do that now: [my name] <-- Should be Ken Lowrie.
 
-If I instead write: &#91;my name]%[&#42;Ken Lowrie*], then everywhere I write &#91;my name], it will be replaced with &lt;em>Ken Lowrie&lt;/em>. Okay, let's go ahead and do that now. 
-[my name]%*Ken Lowrie*
+If I instead write: &#91;my name]=[&#42;Ken Lowrie*], then everywhere I write &#91;my name], it will be replaced with &lt;em>Ken Lowrie&lt;/em>. Okay, let's go ahead and do that now. 
+[my name]=*Ken Lowrie*
 And now, [my name] <-- should be Ken Lowrie wrapped with &lt;em> tags.
 ## Link aliases
 
@@ -113,9 +113,9 @@ Building on that, we can create aliases for inline links. Say I define a referen
 {:.indent}###&#91;cls]:https://cloudylogic.com
 [cls]:https://cloudylogic.com
 Now, when I write **&#91;cls]**, it is replaced with a link to https://cloudylogic.com. For example: [cls].
-And that's all good. It's concise, I only have to write *cls* in [ ] and it is wrapped with an HTML link. Saves a lot of typing and potential mistakes. But what if I want to have other, more descriptive names for that URL? Good news, we can do that using a special form of aliases: [Descriptive Text]%[id], where *id* is the name of a previously described reference link. Let me go ahead and create an alias for the *cls* link so the descriptive name is Cloudy Logic.
-{:.indent}###&#91;Cloudy Logic]%cls
-[Cloudy Logic]%cls
+And that's all good. It's concise, I only have to write *cls* in [ ] and it is wrapped with an HTML link. Saves a lot of typing and potential mistakes. But what if I want to have other, more descriptive names for that URL? Good news, we can do that using a special form of aliases: [Descriptive Text]=[id], where *id* is the name of a previously described reference link. Let me go ahead and create an alias for the *cls* link so the descriptive name is Cloudy Logic.
+{:.indent}###&#91;Cloudy Logic]=cls
+[Cloudy Logic]=cls
 Now, when I write [Cloudy Logic], it is wrapped with the link for *cls*. Cool!
 
 @+[divs]
@@ -151,7 +151,7 @@ The @import statement can be used to include documents that contain commonly use
 
 #### @import "$/vars.md"
 
-Would be the same as writing @import "/mydir/vars.md". This is useful because it doesn't require that you use absolute paths for everything.
+Would be the same as writing **@import "/mydir/vars.md"**. This is useful because it doesn't require that you use absolute paths for everything.
 
 {:.note}There is a gotcha when using this with BBEdit's Markup Preview. There is no context for the top level file, since it is passed to the Python script as sys.stdin. Because of that, you can't rely on avscript_md to determine the relative path of the top level file. It will work just fine when using mkavscript_md, but that won't be useful if you are using BBEdit's Markup Preview to write your documents...
 

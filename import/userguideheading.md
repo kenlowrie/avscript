@@ -6,7 +6,7 @@
 [cloudylogic.com]:https://cloudylogic.com
 [ken@cloudylogic.com]:mailto:ken@cloudylogic.com
 [fbemailaddr]:mailto:ken@cloudylogic.com?subject=[workingtitle]%20Feedback"
-[Ken Lowrie]%fbemailaddr
+[Ken Lowrie]=fbemailaddr
 $$cover$$:<<[workingtitle]>>:<<**This guide is NOT Confidential**>>:<<[storysummary].>>
 $$revision$$:<<***0.38a***>>
 $$contact$$:<<Ken Lowrie>>:<<*512-867-5309*>>:<<[ken@cloudylogic.com]>>:<<Copyright (c) 2018 by [Cloudy Logic Studios], LLC.>>:<<All Rights Reserved.>>:<<www.cloudylogic.com>>

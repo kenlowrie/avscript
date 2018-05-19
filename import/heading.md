@@ -6,7 +6,7 @@
 [cloudylogic.com]:https://cloudylogic.com
 [ken@cloudylogic.com]:mailto:ken@cloudylogic.com
 [fbemailaddr]:mailto:ken@cloudylogic.com?subject=[workingtitle]%20Feedback"
-[Ken Lowrie]%fbemailaddr
+[Ken Lowrie]=fbemailaddr
 $$cover$$:<<[workingtitle]>>:<<**Confidential**>>:<<[storysummary].>>
 $$cover$$:<<>>:<<**DISCLAIMER**: This document is strictly private, confidential and personal to its recipients and should not be copied, distributed or reproduced in whole or in part, nor passed to any third party without the expressed, written consent of [Cloudy Logic Studios], LLC.>>:<<>>
 $$revision$$:<<***1d***>>

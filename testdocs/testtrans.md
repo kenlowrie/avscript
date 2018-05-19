@@ -11,7 +11,7 @@ Description
 {:.green}@@@plain plainTitle This should be a new section
 - Shot
 Description
-[variable]%VALUE
+[variable]=VALUE
 - Shot - [variable] <-- should be the word VALUE
 Description
 - Shot
@@ -58,7 +58,7 @@ Description
 {:.red}$$revision$$:<<1 This should not be a new div, class prefixes are not allowed here.>>
 {:.blue}$$cover$$:<<.NOT>>:<<.HERE>>:<<.EITHER>>
 {:.green}$$contact$$:<<.NOT>>:<<.HERE>>:<<.EITHER>>:<<1>>:<<2>>:<<3>>
-{:.red}[variable]%NO NOT HERE EITHER
+{:.red}[variable]=NO NOT HERE EITHER
 {:.blue}[link]:not_in_links_either_
 @+[myanchor]
 @:[myanchor]<<*This is my text*>>

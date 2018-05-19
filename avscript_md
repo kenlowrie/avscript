@@ -31,30 +31,31 @@ you should quickly get up and running with the A/V Script Markdown Processor.
 
 TODO (Punch list):
 
-2. Way to export just the shots and narration. Narration only. Shot followed by
-   narration in block format.
 4. Finish the documentation for this thing
-6. Update my Evernote BBEDIT MD note to reflect this new process.
 9. Test with Python2 and Python3
 
 7. Search for TODO and fix/cleanup
-I. Clean up the CSS file and add a few more useful styles
 S. Image (both inline and reference-style) would be nice too.
-V. Remove the support for automatic <links>???
 Z. Improve markdown parsing to take advantage of group(0) like links does???
-a. Need a way to specify "path of this file" in the @import statement
 b. Need a macro inside BBEdit to write a [nameoffile-path]%path
+
+CSS Clean Up
+1. Reorganize, make consistent.
+2. Make it pass lint
+3. Add more useful styles
+4. Create multiple versions: All, Visuals and Narration only, User Guide
+5. Ability to pass requested version to mkavscript_md
 
 """
 
-class C_fileObj:
+class C_fileObj(object):
     """A simple file class to keep track if we need to issue a close on a file."""
     def __init__(self,f,closeOnEOF=True,name=None):
         self.file = f
         self.closeOnEOF = closeOnEOF
         self.name = name
             
-class C_file_handler:
+class C_file_handler(object):
     """This class abstracts the readline() built-in API so it can support
     having multiple files open, ala the @import keyword. When a new file
     is opened, the current file object is saved on a stack, and the file
@@ -118,14 +119,14 @@ class C_file_handler:
                 
         return self.line
 
-class C_VarObject:
+class C_VarObject(object):
     """Class to abstract a variable (alias). Keep track of the ID (name) and
     the value (text)."""
     def __init__(self,id,text):
         self.id = id
         self.text = text
         
-class C_Variables:
+class C_Variables(object):
     """Class to abstract a dictionary of variables (aliases)"""
     def __init__(self):
         self.vars = {}
@@ -150,7 +151,7 @@ class C_Variables:
         for var in self.vars:
             print("{2}{0}:{1}<br />".format(self.vars[var].id,self.vars[var].text,indent))
 
-class C_LinkObject:
+class C_LinkObject(object):
     """Class to abstract a reference link. Keep track of the URL (url) and
     the optional title (title). We don't track the name here, that is done
     in the C_Links class."""
@@ -158,7 +159,7 @@ class C_LinkObject:
         self.url = url
         self.title = title
 
-class C_Links:
+class C_Links(object):
     """Class to abstract a dictionary of reference links"""
     def __init__(self):
         self.links = {}
@@ -197,7 +198,7 @@ class C_Links:
         for link in self.links:
             print("{3}{0}:{1}:{2}<br />".format(link,self.links[link].url,self.links[link].title,indent))
         
-class C_AnchorQueue:
+class C_AnchorQueue(object):
     def __init__(self):
         self.anchorQ = []
         self.linkIDnum = 0
@@ -223,7 +224,7 @@ class C_AnchorQueue:
         for anchor in self.anchorQ:
             print("{0}-{1}".format(anchor,self.anchorQ[anchor][1]))
 
-class C_regex_md:
+class C_regex_md(object):
     """
     This class is used to hold the regular expressions that are used when
     applying markdown to inline formatting codes. A global variable is
@@ -235,7 +236,7 @@ class C_regex_md:
         self.ori_str = ori_repl_str
         self.new_str = new_repl_str
         
-class C_regex_main:
+class C_regex_main(object):
     """
     starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
     uses_raw_line - signals whether this regex should process the raw line or the marked_down line
@@ -254,7 +255,7 @@ class C_regex_main:
     def match_regex(self):
         return self.match_str if self.match_str else self.test_str
         
-class C_AVScriptParser:
+class C_AVScriptParser(object):
     def __init__(self):
         """The constructor for the class. Initialize the required member
         variables:
@@ -271,8 +272,6 @@ class C_AVScriptParser:
         self.links = C_Links()          # dict of links
         self.variables = C_Variables()  # dict of document variables
         
-        #TODO: Previous links: r'^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?'
-        
         self.regex_main = {
             #                                        Class
             #                         NewDiv RawLine Prefix   Test Regex                                        Match Regex
@@ -281,7 +280,7 @@ class C_AVScriptParser:
             'div'       : C_regex_main(True,  False,  True,   r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',        r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
             'h#'        : C_regex_main(True,  False,  True,   r'^([#]{1,6})[ ]*',                               r'^([#]{1,6})[ ]*(.*)'),
             'links'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',   None),
-            'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=(%(.+)))',                      None),
+            'alias'     : C_regex_main(True,  True,   False,  r'^\[([^\]]+)\](?=([\=](.+)))',                   None),
             'import'    : C_regex_main(True,  False,  False,  r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]',      None),
             'anchor'    : C_regex_main(True,  True,   False,  r'^[@]\+\[([^\]]*)\]',                            None),
             'shotlist'  : C_regex_main(True,  False,  False,  r'^[/]{3}Shotlist[/]{3}',                         None),
@@ -293,7 +292,8 @@ class C_AVScriptParser:
         }
         
         self.regex_md_list = [
-            C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(%(.+)))',    '[{0}]',       None),
+            # Next one is to match LINK & ALIAS SUBS, but NOT DEFs.
+            C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))',    '[{0}]',       None),
             # TODO: Next one kind of complex. Do we need this?
             C_regex_md(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>',            '<{0}>',       '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
             C_regex_md(r'\*{2}(?!\*)(.+?)\*{2}',    '**{0}**',     '<strong>{0}</strong>'),

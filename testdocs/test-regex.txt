@@ -108,6 +108,11 @@ RE Matches Link definitions
 'markdown' section
         spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '','')
 
+TODO: Need to rebuild each of these test sections: 
+    Inline vs Reference
+    Definitions vs substitutions
+    Alias DEFs vs Alias Substitution
+    
 <TEST>
 INLINE: (\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))
 REFERENCE: ^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?
@@ -152,8 +157,10 @@ NO NO NO
 $$cover$$:<<User Manual>>:<<Ken Lowrie>>:<<This is a user manual for the AVScript utility.>>
 $$revision$$:<<*1b*>>
 {:.blue}--- plain plainTitle Variables
-We can define variables using the syntax: ***[name]%value***. 
-[whoami]%Ken Lowrie
+We can define variables using the syntax: ***[name]=value***. 
+[whoami]=Ken Lowrie
+but not:
+[whoami]%This should NOT work
 Now, whenever I write whoami inside square brackets **[ ]**, it will replace it with *Ken Lowrie*. Let's try that now. Hello, my name is *[whoami]*.
 @@@plain plainTitle Links
 We can also define hyperlinks using a similar syntax: [linkID]:linkurl. Let's go ahead and define a few links now...
@@ -167,9 +174,9 @@ SAVE THIS SAVE THIS
 (\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))
 ^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?
 
-[My Email Address]%me
-[My Production Website]%cls
-[Cloudy Logic Studios, LLC]%cls
+[My Email Address]=me
+[My Production Website]=cls
+[Cloudy Logic Studios, LLC]=cls
 
 #### Inline links
 

@@ -115,7 +115,7 @@ def mkhtml(mdfile):
     fileobj = C_FileName(mdfile)
     cssFile = 'avscript_md.css'
     cssSrcPath = os.path.join(me.whereami(),"avscript_md.css")
-    avscript_md = os.path.join(me.whereami(),"avscript_md")
+    avscript_md = os.path.join(me.whereami(),"avscript_md.py")
     if not os.path.isdir('./html'):
         os.mkdir('./html')
     os.system("cp \"{0}\" ./html/{1}".format(cssSrcPath,cssFile))

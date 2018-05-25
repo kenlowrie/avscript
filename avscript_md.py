@@ -11,16 +11,16 @@ of the markdown document you are editing, formats it on the fly, writing out
 HTML. Using BBEdit's Preview in BBEdit Markup support, you can see your AV
 script come to life.
 
-To quickly see how it works, copy "avscript_md" and "avscript_md.css":
+To quickly see how it works, copy "avscript_md.py" and "avscript_md.css":
 
-cp avscript_md ~/Library/Application\sSupport\BBEdit\Preview\sFilters
+cp avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters
 cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
 
 And then open "example.md" in BBEdit, Choose Markup|Preview in BBEdit, and then
 in the Preview: example.md window:
 
 Select "avscript_md.css" from the CSS: popdown
-Select "avscript_md" from the Filter: popdown
+Select "avscript_md.py" from the Filter: popdown
 
 BAM! You should see a nicely formatted Audio/Visual script. You'll likely see
 error near the top about "Unable to import /.../heading.md". Don't worry, we'll
@@ -40,7 +40,6 @@ TODO (Punch list):
 
 a. Search for TODO and fix/cleanup
 b. Improve markdown parsing to take advantage of group(0) like links does???
-c. Need a macro inside BBEdit to write a [nameoffile-path]%path
 
 CSS Clean Up
 1. Reorganize, make consistent.

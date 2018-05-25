@@ -283,7 +283,7 @@ p {
 	border-top: 1px solid #ccc;
 }
 
-div#av p{
+div#av p, div#av ul{
 	font-size: 1.3em;
 }
 
@@ -351,6 +351,7 @@ em {
     clear:both;
     float:none;
     width:inherit;
+	font-size: 1.3em;
 }
 
 #shot {

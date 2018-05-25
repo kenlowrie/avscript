@@ -1,0 +1,280 @@
+This file contains the regular expressions and the tests used to validate them
+on regex101.com
+
+RE: Matches shots
+r'^[-|\*|\+][ ]*(?![-]{2})'
+r'^[-|\*|\+][ ]*(?![-]{2})(.*)'
+
+<TEST>
+--- NO
+---NO
+@@@ NO
+[NO NO NO]:NO NO NO
+- YES YES
+* YES YES
++ YES YES
+-YES YES
+*YES YES
++YES YES
+-*YES YES
+--YES YES
+-- YES YES
+ - NO NO
+ * NO NO
+ + NO NO
+ -NO NO
+ *NO NO
+ +NO NO
+ </TEST>
+
+----------------------------
+
+RE: Matches DIV
+'div' : 
+    C_regex_main(r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*',
+                 r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)')
+
+<TEST>
+--- DIVidSTR CLASSor. [optional title]
+-NO
+-NO NO
+-NO NO NO
+--NO
+--NO NO
+--NO NO NO
+--- YES
+--- YES 
+--- YES .
+--- YES . YES
+--- YES YES
+--- YES YES YES
+--- YES YES YES YES
+---    YES
+---    YES    YES
+---    YES    YES    YES
+---    YES    YES    YES    YES
+@@@ YES
+@@@ YES 
+@@@ YES YES
+@@@ YES YES YES
+@@@ YES YES YES YES
+---YES
+---YES 
+---YES YES
+---YES YES YES
+---YES YES YES YES
+@@@YES
+@@@YES 
+@@@YES YES
+@@@YES YES YES
+@@@YES YES YES YES
+</TEST>
+
+----------------------------
+RE Matches Header level 1 to level 6
+
+'h#'  : 
+    C_regex_main(r'^([#]{1,6})[ ]*',
+                 r'^([#]{1,6})[ ]*(.*)')
+
+<TEST>
+# Yes YES
+## Yes
+### Yes
+#### Yes YES
+##### Yes
+###### Yes YES
+######    Yes  YES
+#Yes
+##Yes YES
+###Yes YES
+####Yes
+#####Yes YES
+######Yes
+######Yes     YES
+?#NO
+*##NO
+!###NO
+</TEST>
+
+
+----------------------------
+RE Matches Link definitions
+'links'     : 
+    C_regex_main(True,  True,   False,  
+                 r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?',
+                 None),
+
+'markdown' section
+        spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '','')
+
+TODO: Need to rebuild each of these test sections: 
+    Inline vs Reference
+    Definitions vs substitutions
+    Alias DEFs vs Alias Substitution
+    
+<TEST>
+INLINE: (\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))
+REFERENCE: ^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?
+SAVE THIS SAVE THIS
+^\[([^\]]+)\](?=(:\((.+)\)))
+^\[([^\]]+)\](?=(:\(?(.+)\)?))
+^\[([^\]]+)\](?=(:\(?(.+[^\)])\)?))
+^\[([^\]]+)\](?=(:[\(]?(.+))|(%(.+)))
+
+^\[([^\]]+)\](?=(:[\(]?(.+)([ ]?\"?(^\")?))|(%(.+)))
+
+^\[([^\]]+)\](?=(:(.+)([ ]?\"?(^\")?))|(%(.+)))
+
+MATCH: [link]:URL "title"--> ^\[([^\]]+)\]:(.+)(\"(.+)\")
+
+MATCH: [link]:(?URL "title")? --> ^\[([^\]]+)\]:\(?(.+)\"(.+)\"
+MATCH: [name]:%[value] --> ^\[([^\]]+)\](?=(:(.+))|(%(.+)))
+
+SAVE THIS SAVE THIS
+
+NO TITLE: -->\[([^\]]+)\](?=(:\((.+)\)))
+
+[Cloudy Logic Studios]:https://cloudylogic.com
+[cloudylogic.com]:https://cloudylogic.com
+[ken@cloudylogic.com]:mailto:ken@cloudylogic.com
+[fbemailaddr]:mailto:ken@cloudylogic.com?subject=[workingtitle]%20Feedback"
+
+
+[feedback]:    mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback%20YES
+[Link to Article]:   https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/%20YES/
+[Link to Article2]:https://domain.com/another_article_link%20YES
+[domain]%cls-YES
+NO NO NO
+[Link to Article] <-- This should be turned into a link
+[Is this working right]:(www.cloudylogic.com) - NO PAREN!!
+[Is this working right]:  (www.cloudylogic.com     )
+[Is this working right]:(  www.cloudylogic.com     ) - BUG BUG BUG
+[Is this working right]:(www.cloudylogic.com     ) - BUG BUG BUG
+[how about this]:(www.cloudylogic.com     "title") - not this
+[title]:www.cloudylogic.com "title"
+{:.red.center}### avscript tester doc
+$$cover$$:<<User Manual>>:<<Ken Lowrie>>:<<This is a user manual for the AVScript utility.>>
+$$revision$$:<<*1b*>>
+{:.blue}--- plain plainTitle Variables
+We can define variables using the syntax: ***[name]=value***. 
+[whoami]=Ken Lowrie
+but not:
+[whoami]%This should NOT work
+Now, whenever I write whoami inside square brackets **[ ]**, it will replace it with *Ken Lowrie*. Let's try that now. Hello, my name is *[whoami]*.
+@@@plain plainTitle Links
+We can also define hyperlinks using a similar syntax: [linkID]:linkurl. Let's go ahead and define a few links now...
+[cls]:https://cloudylogic.com
+NO NO NO
+[me]:mailto:myemail@cloudylogic.com
+NO NO NO
+
+SAVE THIS SAVE THIS
+
+(\[([^\]]+)\]:\(([^\s]*)[ ]*(\"(.+)\")?\))
+^\[([^\]]+)\]:\(?([^\s]*)[ ]*(\"(.+)\")?\)?
+
+[My Email Address]=me
+[My Production Website]=cls
+[Cloudy Logic Studios, LLC]=cls
+
+#### Inline links
+
+So far, both the reference link syntax and the variable &#91;linkID]:(URL). Here's one for [Cloudy Logic]:(https://cloudylogic.com).
+
+///Variables///
+
+///Links///
+</TEST>
+
+----------------------------
+
+RE: Matches <http[s]?:...> anywhere in line.
+<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>
+<TEST>
+{:.red.center}### avscript tester
+We can define variables using the syntax: ***[name]%value***. Here's an example. The next line will define the variable *whoami* and set it to *[Ken Lowrie]*.
+[whoami]%Ken Lowrie
+Now, whenever I write whoami inside square brackets ***[]***, it will replace it with *Ken Lowrie*. Let's try that now. Hello, my name is *[whoami]*. That's pretty straightforward...
+We can also define hyperlinks using a similar syntax: [linkID]:(linkurl). Let's go <ahead> and define a few links now...
+[cls]:https://cloudylogic.com
+[me]:mailto:myemail@cloudylogic.com
+[me] but not [me]:(x) or [me]%ken. But [me] is okay [as-is] 
+[another]%This is me
+I've defined two new links, one called *cls* which is a standard these just like variables, just write the ID inside square brackets.<https://cloudylogic.com> 
+
+For use when searching at beginning of line. Get's both : and %
+^\[([^\]]+)\](?=(:(.+))|(%(.+)))
+
+Maybe when doing markdown: 
+\[([^\]]+)\](?!(:(.+))|(%(.+)))
+
+For inline links:
+<(.+)>
+
+For inline html links:
+\[([^\]]+)\](?=(:\((.+)\)))
+
+(?i)\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))
+</TEST>
+
+
+----------------------------
+
+@+[id] - Define a new anchor
+^[@]\+\[([^\]]*)\]
+
+@:[id]<<text_to_wrap>> - <a href="id">"text_to_wrap"</a> 
+([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})
+
+<TEST>
+@+[id]<<anything>> - Creates an anchor named [id], set's its value to "anything". Writes inline <a id="id">anything</a>
+@+[another id] - cache it, do the markup when it's used...
+
+2. A dict of [id]'s will hold the "generated" tag so that:
+@:[id]<<anthing here>> will get <a href="#id">anything here</a>
+this is a test @:[ref_id]<<a *bunch* of **marked up** text maybe even [substitutions] and it will work>>
+<a href="#ref_id">a *bunch* of **marked up** text maybe even [substitutions] and it will work</a>
+
+4. This has to be done before other expansions, right?? Does it??
+
+Generated tags won't work, because we need to be able to forward reference these. So [id] has to be the id="id". Right?
+
+The idea with the '+' being able to specify "anything" is so that the anchor has an actual place in the doc. Is this really needed? I don't think so. KISS.
+
+Original drop link regex: ^@\+\[([^\]]*)\]\<{2}([^\>\>]*)\>{2}
+
+^@\+\[([^\]]*)\]
+@+[ref_id] - what happens to this text?
+<a id="ref_id"></a>
+
+@\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2}
+</TEST>
+
+----------------------------
+
+@import "filename"
+
+^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]
+
+<TEST>
+
+r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]'
+
+r'^[@]import [\'|\"](.+[^\'|\"])[\'|\"]'
+
+<TEST>
+@import "filename"
+@import 'filename'
+@import "path/to/filename"
+@import "/abs/path/to/filename"
+@import  "$../relative/path/to/filename"
+@import "../../relative/path/to/filename"
+@import  "$filename"
+@import  'filename'
+NO@import "filename"
+
+@import $ 'filename'
+^[@]import[ ]+([ ]*[$][ ]*)?[\'|\"](.+[^\'|\"])[\'|\"]
+
+</TEST>

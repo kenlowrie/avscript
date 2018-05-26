@@ -51,7 +51,7 @@ CSS Clean Up
 """
 
 
-class C_fileObj(object):
+class OpenFile(object):
     """A simple file class to keep track if we need to issue a close on a file."""
     def __init__(self, f, closeOnEOF=True, name=None):
         self.file = f
@@ -59,7 +59,7 @@ class C_fileObj(object):
         self.name = name
 
 
-class C_file_handler(object):
+class FileHandler(object):
     """This class abstracts the readline() built-in API so it can support
     having multiple files open, ala the @import keyword. When a new file
     is opened, the current file object is saved on a stack, and the file
@@ -71,7 +71,7 @@ class C_file_handler(object):
         self.idx = -1
         self.line = ''
 
-    def _open(self, filename):
+    def open(self, filename):
         """Open a file. Initially, sys.stdin might be passed, indicating
         that we should be reading from stdin. If that's the case, add it
         to the stack, but signal that it should not be closed, since that
@@ -90,23 +90,23 @@ class C_file_handler(object):
                 filename = os.path.join(os.path.split(os.path.abspath(self.filestack[self.idx].name))[0], filename[1:])
 
         if(filename == 'sys.stdin'):
-            self.filestack.append(C_fileObj(sys.stdin, False))
+            self.filestack.append(OpenFile(sys.stdin, False))
             self.idx += 1
 
         elif os.path.isfile(filename):
 
             name = os.path.abspath(filename)
             file = open(filename, "r")
-            self.filestack.append(C_fileObj(file, True, name))
+            self.filestack.append(OpenFile(file, True, name))
             self.idx += 1
 
             return 0
         else:
-            print("ERROR: Unable to import '{0}'. File does not exist.".format(filename))
+            print("ERROR: Unable to import '{}'. File does not exist.".format(filename))
 
         return 1
 
-    def _readline(self):
+    def readline(self):
         """Read the next line of input and return it. If we are at EOF and
         there's a file object on the stack, close the current file and then
         pop the prior off the stack and return the next line from it."""
@@ -119,7 +119,7 @@ class C_file_handler(object):
                 self.idx -= 1
 
                 if (self.idx >= 0):
-                    return self._readline()
+                    return self.readline()
 
         return self.line
 
@@ -280,7 +280,7 @@ class C_AVScriptParser(object):
         self.fmtlevel = 0               # indentation level for HTML tags
         self.lineInCache = False        # if we have a line in the cache
         self.classInCache = False       # if we have a class in the cache
-        self.av = C_file_handler()
+        self._av = FileHandler()        # file handler stack
         self.shotListQ = C_AnchorQueue()  # shot list link Q
 
         self.links = C_Links()          # dict of links
@@ -385,7 +385,7 @@ class C_AVScriptParser(object):
 
         # read the next line from the file buffer
         while(1):
-            self.ori_line = self.av._readline()
+            self.ori_line = self._av.readline()
             if self.ori_line[0:2] != '//':
                 break
             if self.ori_line[0:3] == '///':
@@ -396,7 +396,7 @@ class C_AVScriptParser(object):
         # return the marked down version
         return self.line
 
-    def _addLink(self, link):
+    def _addBookmark(self, link):
         return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addAnchor(link)))
 
     def _makeCSSclass(self, tmpClass):
@@ -435,7 +435,7 @@ class C_AVScriptParser(object):
             #
             cssClass, rest = self._stripClass(self.line)
             # get the link anchor and insert it ahead of the shot
-            link = "" if not addLinks else self._addLink(rest)
+            link = "" if not addLinks else self._addBookmark(rest)
             # return this, but call myself recursively in case there are more indented lines...
             return self.fmt("{3}<{0}{2}>{1}</{0}>\n".format(element, rest.rstrip('\n'), cssClass, link) + self._peekNextLine(element, addLinks))
 
@@ -547,7 +547,7 @@ class C_AVScriptParser(object):
                     li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
                     divstr = self.fmt("<div id=\"av\">\n", 1)
                     divstr += self.fmt("<ul>\n", 1)
-                    divstr += self._addLink(li)
+                    divstr += self._addBookmark(li)
                     divstr += self.fmt("<li{1}>{0}</li>\n".format(li, cssClass))
                     divstr += self._peekNextLine("li", True)
                     divstr += self.fmt("</ul>\n", -1, False)
@@ -586,7 +586,7 @@ class C_AVScriptParser(object):
             elif(testLine(self._regex('import'), lineObj)):
                 m = matchLine(self._regex('import'), lineObj)
                 if(m is not None and len(m.groups()) == 1):
-                    self.av._open(m.group(1))
+                    self._av.open(m.group(1))
 
                 # TODO: Need to handle error here and print if we cannot open the file, etc.
 
@@ -738,7 +738,7 @@ class C_AVScriptParser(object):
                 if not os.path.isfile(avscript):
                     return 1
 
-                self.av._open(avscript)
+                self._av.open(avscript)
 
                 rc = self.parse()
 
@@ -747,7 +747,7 @@ class C_AVScriptParser(object):
                 # self.av.close()
             else:
                 # no filename passed in, default to sys.stdin...
-                self.av._open('sys.stdin')
+                self._av.open('sys.stdin')
 
                 self.parse()
 

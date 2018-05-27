@@ -26,35 +26,38 @@ class FileHandler(object):
         self.line = ''
 
     def open(self, filename):
-        """Open a file. Initially, sys.stdin might be passed, indicating
-        that we should be reading from stdin. If that's the case, add it
-        to the stack, but signal that it should not be closed, since that
-        file is handled by the built-in Python library.
+        """Open a file.
+        
+        Arguments:
+        filename -- name of the file to open, or None to process sys.stdin
+        """
 
-        TODO: Should sys.stdin only be allowed at the start?"""
+        if(filename is None):
+            """sys.stdin can only be opened as the first file."""
+            if(self.idx is not -1):
+                raise FileError(2,"ERROR: sys.stdin cannot only be opened at start")
 
-        # If name is prefixed with '$', it means we need to prefix the
-        # filename with the path of the current file being read...
-
-        if(filename[0] == '$'):
-            # Make sure this isn't the first file we are opening, and also
-            # that the current file isn't stdin!
-            if(self.idx >= 0 and self.filestack[self.idx].name):
-                # print("abs-->{0}<br />".format(self.filestack[self.idx].name))
-                filename = join(split(abspath(self.filestack[self.idx].name))[0], filename[1:])
-
-        if(filename == 'sys.stdin'):
+            # set current file to sys.stdin
             self.filestack.append(_OpenFile(stdin, False))
             self.idx += 1
 
-        elif isfile(filename):
-            name = abspath(filename)
-            file = open(filename, "r")
-            self.filestack.append(_OpenFile(file, True, name))
-            self.idx += 1
-
         else:
-            raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
+            # If name is prefixed with '$', prefix the filename with the path of
+            # current file being read.
+
+            if(filename[0] == '$'):
+                # Make sure this isn't the first file we are opening
+                if(self.idx >= 0 and self.filestack[self.idx].name is not None):
+                    filename = join(split(abspath(self.filestack[self.idx].name))[0], filename[1:])
+
+            if isfile(filename):
+                name = abspath(filename)
+                file = open(filename, "r")
+                self.filestack.append(_OpenFile(file, True, name))
+                self.idx += 1
+
+            else:
+                raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
 
     def readline(self):
         """Read the next line of input and return it. If we are at EOF and

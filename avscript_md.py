@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-import os
-import re
-
 """
 This script is a BBEdit-compliant Markup Previewer (if that's a thing)... When
 invoked from BBEdit, it reads from sys.stdin, which will be the current contents
@@ -50,191 +46,19 @@ CSS Clean Up
 
 """
 
+import re
 
-class OpenFile(object):
-    """A simple file class to keep track if we need to issue a close on a file."""
-    def __init__(self, f, closeOnEOF=True, name=None):
-        self.file = f
-        self.closeOnEOF = closeOnEOF
-        self.name = name
+from sys import exit, stdin, argv
+from os.path import isfile
 
-
-class FileHandler(object):
-    """This class abstracts the readline() built-in API so it can support
-    having multiple files open, ala the @import keyword. When a new file
-    is opened, the current file object is saved on a stack, and the file
-    becomes the current file until EOF. At that point, it's closed, and
-    the previous file is then popped off the stack, and we resume reading
-    from it until EOF."""
-    def __init__(self):
-        self.filestack = []
-        self.idx = -1
-        self.line = ''
-
-    def open(self, filename):
-        """Open a file. Initially, sys.stdin might be passed, indicating
-        that we should be reading from stdin. If that's the case, add it
-        to the stack, but signal that it should not be closed, since that
-        file is handled by the built-in Python library.
-
-        TODO: Should sys.stdin only be allowed at the start?"""
-
-        # If name is prefixed with '$', it means we need to prefix the
-        # filename with the path of the current file being read...
-
-        if(filename[0] == '$'):
-            # Make sure this isn't the first file we are opening, and also
-            # that the current file isn't stdin!
-            if(self.idx >= 0 and self.filestack[self.idx].name):
-                # print("abs-->{0}<br />".format(self.filestack[self.idx].name))
-                filename = os.path.join(os.path.split(os.path.abspath(self.filestack[self.idx].name))[0], filename[1:])
-
-        if(filename == 'sys.stdin'):
-            self.filestack.append(OpenFile(sys.stdin, False))
-            self.idx += 1
-
-        elif os.path.isfile(filename):
-
-            name = os.path.abspath(filename)
-            file = open(filename, "r")
-            self.filestack.append(OpenFile(file, True, name))
-            self.idx += 1
-
-            return 0
-        else:
-            print("ERROR: Unable to import '{}'. File does not exist.".format(filename))
-
-        return 1
-
-    def readline(self):
-        """Read the next line of input and return it. If we are at EOF and
-        there's a file object on the stack, close the current file and then
-        pop the prior off the stack and return the next line from it."""
-        self.line = self.filestack[self.idx].file.readline()
-        if(self.line == ''):
-            if(len(self.filestack)):
-                f = self.filestack.pop()
-                if (f.closeOnEOF):
-                    f.file.close()
-                self.idx -= 1
-
-                if (self.idx >= 0):
-                    return self.readline()
-
-        return self.line
+from avs.file import FileHandler
+from avs.link import LinkDict
+from avs.variable import VariableDict
+from avs.bookmark import BookmarkList
+from avs.exception import *
 
 
-class C_VarObject(object):
-    """Class to abstract a variable (alias). Keep track of the ID (name) and
-    the value (text)."""
-    def __init__(self, id, text):
-        self.id = id
-        self.text = text
-
-
-class C_Variables(object):
-    """Class to abstract a dictionary of variables (aliases)"""
-    def __init__(self):
-        self.vars = {}
-
-    def addVar(self, id, text):
-        """Add a variable called 'id' to the list and set its value to 'text'."""
-        self.vars[id] = C_VarObject(id, text)
-
-    def exists(self, id):
-        """Returns true if the variable 'id' exists."""
-        return id in self.vars
-
-    def getText(self, id):
-        """Gets the value of the variable 'id', unless it doesn't exist, in
-        which case it returns (undefined).
-
-        TODO: Should this just return an empty string if undefined?"""
-        return "(undefined)" if not self.exists(id) else self.vars[id].text
-
-    def dumpVars(self, indent=''):
-        """Dumps the variable list, names and values."""
-        for var in self.vars:
-            print("{2}{0}:{1}<br />".format(self.vars[var].id, self.vars[var].text, indent))
-
-
-class C_LinkObject(object):
-    """Class to abstract a reference link. Keep track of the URL (url) and
-    the optional title (title). We don't track the name here, that is done
-    in the C_Links class."""
-    def __init__(self, url, title=None):
-        self.url = url
-        self.title = title
-
-
-class C_Links(object):
-    """Class to abstract a dictionary of reference links"""
-    def __init__(self):
-        self.links = {}
-
-    def addLink(self, id, url, title=None):
-        """Add a link called 'id' to the list and set its url to 'url'
-        and its title to 'title'."""
-        # print("addLink()-->{0}-{1}-{2}<br />".format(id,url,title))
-        self.links[id] = C_LinkObject(url, title)
-
-    def exists(self, id):
-        """Returns true if the link named 'id' exists."""
-        return id in self.links
-
-    def getLinkUrl(self, id):
-        """Gets the link object named 'id', unless it doesn't exist, in
-        which case it returns 'id'."""
-        if(self.exists(id)):
-            return self.links[id].url
-
-        # This seems best to just return what we were given. If it doesn't
-        # expand, it should be obvious, right?
-        return id
-
-    def getLinkMarkup(self, id, altText=None):
-        """Returns the HTML markup for the link named 'id' if it exists.
-        Otherwise, return an empty string. If altText is passed, wrap that with
-        the link markup, otherwise, just wrap the 'id'."""
-        title = "" if not self.exists(id) or not self.links[id].title else " title=\"{0}\"".format(self.links[id].title)
-        linkText = "{0}".format(altText if altText else id)
-
-        return '<a href=\"{0}\"{2}>{1}</a>'.format(self.getLinkUrl(id), linkText, title)
-
-    def dumpLinks(self, indent=''):
-        """Dumps the links list, names, urls and titles."""
-        for link in self.links:
-            print("{3}{0}:{1}:{2}<br />".format(link, self.links[link].url, self.links[link].title, indent))
-
-
-class C_AnchorQueue(object):
-    def __init__(self):
-        self.anchorQ = []
-        self.linkIDnum = 0
-
-    def addAnchorUsingID(self, id, link):
-        curItem = len(self.anchorQ)
-        self.anchorQ.append((id, link))
-        self.linkIDnum += 1
-        return self.anchorQ[curItem][0]
-
-    def addAnchor(self, link):
-        return self.addAnchorUsingID("fnref:{0}".format(self.linkIDnum), link)
-        #
-        curItem = len(self.anchorQ)
-        self.anchorQ.append(("fnref:{0}".format(self.linkIDnum), link))
-        self.linkIDnum += 1
-        return self.anchorQ[curItem][0]
-
-    def getAnchorQ(self):
-        return self.anchorQ
-
-    def dumpAnchors(self):
-        for anchor in self.anchorQ:
-            print("{0}-{1}".format(anchor, self.anchorQ[anchor][1]))
-
-
-class C_regex_md(object):
+class RegexMD(object):
     """
     This class is used to hold the regular expressions that are used when
     applying markdown to inline formatting codes. A global variable is
@@ -247,7 +71,7 @@ class C_regex_md(object):
         self.new_str = new_repl_str
 
 
-class C_regex_main(object):
+class RegexMain(object):
     """
     starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
     uses_raw_line - signals whether this regex should process the raw line or the marked_down line
@@ -269,106 +93,103 @@ class C_regex_main(object):
         return self.match_str if self.match_str else self.test_str
 
 
-class C_AVScriptParser(object):
+class AVScriptParser(object):
     def __init__(self):
         """The constructor for the class. Initialize the required member
         variables:
 
         """
-        self.line = None                # the current line "marked down"
-        self.ori_line = None            # the current line as it was read in
-        self.fmtlevel = 0               # indentation level for HTML tags
-        self.lineInCache = False        # if we have a line in the cache
-        self.classInCache = False       # if we have a class in the cache
+        self._line = None                # the current line "marked down"
+        self._ori_line = None            # the current line as it was read in
+        self._fmtlevel = 0               # indentation level for HTML tags
+        self._lineInCache = False        # if we have a line in the cache
+        #self._classInCache = False       # if we have a class in the cache
         self._av = FileHandler()        # file handler stack
-        self.shotListQ = C_AnchorQueue()  # shot list link Q
+        self._shotListQ = BookmarkList() # shot list link Q
 
-        self.links = C_Links()          # dict of links
-        self.variables = C_Variables()  # dict of document variables
+        self._links = LinkDict()         # dict of links
+        self._variables = VariableDict() # dict of document variables
 
-        self.regex_main = {
+        self._regex_main = {
             #                   NewDiv RawLine Prefix   Test Regex                                        Match Regex
-            'shot': C_regex_main(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
-            'div': C_regex_main(True, False, True, r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
-            'h#': C_regex_main(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
-            'links': C_regex_main(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
-            'alias': C_regex_main(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
-            'import': C_regex_main(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
-            'anchor': C_regex_main(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
-            'shotlist': C_regex_main(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
-            'variables': C_regex_main(True, False, False, r'^[/]{3}Variables[/]{3}', None),
-            'dumplinks': C_regex_main(True, False, False, r'^[/]{3}Links[/]{3}', None),
-            'cover': C_regex_main(True, True, False, r'^[\$]{2}cover[\$]{2}:(.*)', r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
-            'revision': C_regex_main(True, True, False, r'^[\$]{2}revision[\$]{2}:(.*)', r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
-            'contact': C_regex_main(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'shot': RegexMain(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
+            'div': RegexMain(True, False, True, r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
+            'h#': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
+            'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
+            'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
+            'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
+            'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
+            'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
+            'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
+            'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
+            'cover': RegexMain(True, True, False, r'^[\$]{2}cover[\$]{2}:(.*)', r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'revision': RegexMain(True, True, False, r'^[\$]{2}revision[\$]{2}:(.*)', r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
+            'contact': RegexMain(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
         }
 
-        self.regex_md_list = [
+        self._regex_md_list = [
             # Next one is to match LINK & ALIAS substitutions, but NOT DEFs.
-            C_regex_md(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))', '[{0}]', None),
+            RegexMD(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))', '[{0}]', None),
             # TODO: Next one kind of complex. Do we need this?
-            C_regex_md(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>', '<{0}>', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
-            C_regex_md(r'\*{2}(?!\*)(.+?)\*{2}', '**{0}**', '<strong>{0}</strong>'),
-            C_regex_md(r'\*(.+?)\*', '*{0}*', '<em>{0}</em>'),
-            C_regex_md(r'\+{2}(.+?)\+{2}', '++{0}++', '<ins>{0}</ins>'),
-            C_regex_md(r'\~{2}(.+?)\~{2}', '~~{0}~~', '<del>{0}</del>')
+            RegexMD(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>', '<{0}>', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
+            RegexMD(r'\*{2}(?!\*)(.+?)\*{2}', '**{0}**', '<strong>{0}</strong>'),
+            RegexMD(r'\*(.+?)\*', '*{0}*', '<em>{0}</em>'),
+            RegexMD(r'\+{2}(.+?)\+{2}', '++{0}++', '<ins>{0}</ins>'),
+            RegexMD(r'\~{2}(.+?)\~{2}', '~~{0}~~', '<del>{0}</del>')
         ]
 
     def _regex(self, id):
-        if(id in self.regex_main):
-            return self.regex_main[id]
+        if(id in self._regex_main):
+            return self._regex_main[id]
 
-        print("ERROR: Invalid regex ID: [{0}]".format(id))
-
-        # TODO: Throw exception here
-        return None
+        raise RegexError("ERROR: Invalid regex ID: [{0}]".format(id))
 
     def _unreadLine(self):
         """Mark the current line in the buffer as unread, so it will be returned next time."""
-        self.lineInCache = True
+        self._lineInCache = True
 
-    def markdown(self, s):
+    def _markdown(self, s):
         """This method is used to apply markdown to the passed in string."""
 
         # TODO: nice if we could integrate this into main loop...
         # This handles inline links in this format: [linkID]:(url)
         # Might be able to fix if I can eliminate the extra group... linkID,(url),url
-        spec = C_regex_md(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '', '')
+        spec = RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '', '')
 
         # This special case handles inline links
         matches = re.findall(spec.regex, s)
         for m in matches:
             optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
             s = s.replace(m[0], '<a href=\"{0}\"{2}>{1}</a>'.format(m[2], m[1], optTitle))
-            self.links.addLink(m[1], m[2], m[4])
+            self._links.addLink(m[1], m[2], m[4])
             # print("MD:AL:{0}{1}{2}<br />".format(m[1],m[2],m[3]))
 
         # TODO: nice if this were also integrated into main loop...
         # This handles inline links to local anchors: @:[anchorID]<<text>>
         # This special case handles links to local anchors
-        spec = C_regex_md(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', '', '')
+        spec = RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', '', '')
 
         matches = re.findall(spec.regex, s)
         for m in matches:
             s = s.replace(m[0], '<a href=\"#{0}\">{1}</a>'.format(m[1], m[2]))
             # print("MD:AA:{0}{1}{2}<br />".format(m[0],m[1],m[2]))
 
-        for item in self.regex_md_list:
+        for item in self._regex_md_list:
             matches = re.findall(item.regex, s)
             for m in matches:
                 # if item.new_str is None, it means we have a link or a variable
                 if item.new_str is None:
                     # If m[0] is an ID for a LINK, then replace apply the link URL to the text
-                    if self.links.exists(m[0]):
-                        s = s.replace(item.ori_str.format(m[0]), self.links.getLinkMarkup(m[0]))
-                    elif self.variables.exists(m[0]):
+                    if self._links.exists(m[0]):
+                        s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(m[0]))
+                    elif self._variables.exists(m[0]):
                         # Get the variable value
-                        varValue = self.variables.getText(m[0])
+                        varValue = self._variables.getText(m[0])
                         # See if there is a link ID by that name
-                        if self.links.exists(varValue):
-                            s = s.replace(item.ori_str.format(m[0]), self.links.getLinkMarkup(varValue, m[0]))
+                        if self._links.exists(varValue):
+                            s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(varValue, m[0]))
                         else:
-                            s = s.replace(item.ori_str.format(m[0]), self.variables.getText(m[0]))
+                            s = s.replace(item.ori_str.format(m[0]), self._variables.getText(m[0]))
                     else:
                         pass    # TODO: should we do anything here?
                 else:
@@ -379,25 +200,24 @@ class C_AVScriptParser(object):
 
     def _readNextLine(self):
         """Read the next line from the buffer, unless something is cached, in which case return that"""
-        if(self.lineInCache):
-            self.lineInCache = False    # reset the flag since we are returning it
-            return self.line
-
+        if(self._lineInCache):
+            self._lineInCache = False    # reset the flag since we are returning it
+            return self._line
         # read the next line from the file buffer
         while(1):
-            self.ori_line = self._av.readline()
-            if self.ori_line[0:2] != '//':
+            self._ori_line = self._av.readline()
+            if self._ori_line[0:2] != '//':
                 break
-            if self.ori_line[0:3] == '///':
+            if self._ori_line[0:3] == '///':
                 break
 
         # mark it down
-        self.line = self.markdown(self.ori_line)
+        self._line= self._markdown(self._ori_line)
         # return the marked down version
-        return self.line
-
+        return self._line
+        
     def _addBookmark(self, link):
-        return self.fmt("<a id=\"{0}\"></a>\n".format(self.shotListQ.addAnchor(link)))
+        return self.fmt("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(link)))
 
     def _makeCSSclass(self, tmpClass):
         # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
@@ -428,12 +248,12 @@ class C_AVScriptParser(object):
         if (self._readNextLine() == ''):
             return ""   # if we hit EOF, return ''
 
-        if re.match('[ \t]', self.line):
+        if re.match('[ \t]', self._line):
             # line was indented, strip any leading space, and then indent it at current level
-            self.line = self.line.strip()
-            # TODO: Remove This--> indentSp = " " * self.fmtlevel*4
+            self._line= self._line.strip()
+            # TODO: Remove This--> indentSp = " " * self._fmtlevel*4
             #
-            cssClass, rest = self._stripClass(self.line)
+            cssClass, rest = self._stripClass(self._line)
             # get the link anchor and insert it ahead of the shot
             link = "" if not addLinks else self._addBookmark(rest)
             # return this, but call myself recursively in case there are more indented lines...
@@ -459,7 +279,7 @@ class C_AVScriptParser(object):
         def isNewSection(line, ori_line):
             # Look to see if the current line in the cache is the start of a new section
 
-            for id in self.regex_main:
+            for id in self._regex_main:
                 obj = self._regex(id)
                 # Make sure that this regex obj starts_new_div.
                 if(not obj.starts_new_div):
@@ -472,13 +292,13 @@ class C_AVScriptParser(object):
             return False
 
         # Strip class, check the raw line to see if we should break
-        tCls, tRst = self._stripClass(self.ori_line.strip())
+        tCls, tRst = self._stripClass(self._ori_line.strip())
 
         # if the RAW line is empty or if it's not a new section,
         #   keep it and peek at next line
-        if not tRst or not isNewSection(tRst, self.ori_line.strip()):
-            # TODO: Remote this --> indentSp = " " * self.fmtlevel * 4
-            tmpClass, rest = self._stripClass(self.line.strip())
+        if not tRst or not isNewSection(tRst, self._ori_line.strip()):
+            # TODO: Remote this --> indentSp = " " * self._fmtlevel * 4
+            tmpClass, rest = self._stripClass(self._line.strip())
             # add this line to the current DIV, and keep reading until we hit some
             # type of break element...
             return self.fmt("<{0}{2}>{1}</{0}>\n".format(element, rest, tmpClass) + self._peekPlainText(element))
@@ -487,29 +307,29 @@ class C_AVScriptParser(object):
         self._unreadLine()
         return ""
 
-    def fmt_getIndent(self, after=True):
+    def _fmt_getIndent(self, after=True):
         """Create a string of blanks for printing at the start of a line in order
         to keep things lined up properly."""
-        howmany = self.fmtlevel if after else self.fmtlevel - 1
+        howmany = self._fmtlevel if after else self._fmtlevel - 1
         return " " * (howmany * 4)
 
     def fmt(self, str, in_out_same=0, after=True):
         """Prefix the string passed in so it will align properly in the HTML file
            for keeping things in pretty print format."""
-        s = self.fmt_getIndent(after)
+        s = self._fmt_getIndent(after)
 
         # in_out_same = 1, increase indent for next time
         # in_out_same = -1, decrease indent for next time
         # if 0, leave indent alone
 
         if(in_out_same > 0):
-            self.fmtlevel += 1
+            self._fmtlevel += 1
         elif(in_out_same < 0):
-            self.fmtlevel -= 1
+            self._fmtlevel -= 1
 
         return "{0}{1}".format(s, str)
 
-    def printInExtrasDiv(self, str):
+    def _printInExtrasDiv(self, str):
         """Print the passed in string inside of a DIV with ID="extras". This allows
            orphaned elements to be kept out of the shot/narrative sections, where
            floats are active."""
@@ -530,7 +350,7 @@ class C_AVScriptParser(object):
         while(self._readNextLine() != ''):
             # DOC this entire method better...
             # Start by stripping any class override from the beginning of the line
-            cssClass, curLine = self._stripClass(self.line)
+            cssClass, curLine = self._stripClass(self._line)
 
             # TODO: would this (a line class) be better to help doc code below?
             class C_LineObj:
@@ -538,7 +358,7 @@ class C_AVScriptParser(object):
                     self.curLine = curLine
                     self.oriLine = oriLine
 
-            lineObj = C_LineObj(curLine, self.ori_line)
+            lineObj = C_LineObj(curLine, self._ori_line)
 
             if (testLine(self._regex('shot'), lineObj)):
                 m = matchLine(self._regex('shot'), lineObj)
@@ -579,14 +399,17 @@ class C_AVScriptParser(object):
 
                 if(m is not None and len(m.groups()) > 1):
                     hnum = len(m.group(1))
-                    self.printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), cssClass))
+                    self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), cssClass))
                 else:
                     print(curLine)
 
             elif(testLine(self._regex('import'), lineObj)):
                 m = matchLine(self._regex('import'), lineObj)
                 if(m is not None and len(m.groups()) == 1):
-                    self._av.open(m.group(1))
+                    try:
+                        self._av.open(m.group(1))
+                    except FileError as fe:
+                        print(fe.errmsg)
 
                 # TODO: Need to handle error here and print if we cannot open the file, etc.
 
@@ -594,7 +417,7 @@ class C_AVScriptParser(object):
                 print(self.fmt("<div class=\"shotlist\">", 1))
                 print(self.fmt("<hr />"))
                 shotnum = 1
-                for shot in self.shotListQ.getAnchorQ():
+                for shot in self._shotListQ.getBookmarkList():
                     print(self.fmt("<div id=\"shot\">", 1))
                     print(self.fmt("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
                     print(self.fmt("</div>"))
@@ -605,13 +428,13 @@ class C_AVScriptParser(object):
             elif(testLine(self._regex('variables'), lineObj)):
                 print(self.fmt("<div class=\"variables\">", 1))
                 print(self.fmt("<hr />"))
-                self.variables.dumpVars(self.fmt_getIndent())
+                self._variables.dumpVars(self._fmt_getIndent())
                 print(self.fmt("</div>", -1, False))
 
             elif(testLine(self._regex('dumplinks'), lineObj)):
                 print(self.fmt("<div class=\"links\">", 1))
                 print(self.fmt("<hr />"))
-                self.links.dumpLinks(self.fmt_getIndent())
+                self._links.dumpLinks(self._fmt_getIndent())
                 print(self.fmt("</div>", -1, False))
 
             # links handles the various formats that allow a title to be specified.
@@ -627,19 +450,19 @@ class C_AVScriptParser(object):
 
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if(m is not None and len(m.groups()) == 4):
-                    self.links.addLink(m.group(1), m.group(2), optTitle)
+                    self._links.addLink(m.group(1), m.group(2), optTitle)
                     # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             elif(testLine(self._regex('alias'), lineObj)):
                 m = matchLine(self._regex('alias'), lineObj)
 
                 # TODO: Should we markdown the Link Text?? m.group(1)?
                 if(m is not None and len(m.groups()) == 3):
-                    self.variables.addVar(m.group(1), m.group(3))
+                    self._variables.addVar(m.group(1), m.group(3))
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             elif(testLine(self._regex('anchor'), lineObj)):
                 # For this case, we just need to drop an anchor.
@@ -648,7 +471,7 @@ class C_AVScriptParser(object):
                 if(m is not None and len(m.groups()) == 1):
                     print(self.fmt("<a id=\"{0}\"></a>".format(m.group(1))))
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             # These "special" keywords require that we use the original
             # raw line and not the markdown line in order to parse. Once
@@ -658,9 +481,9 @@ class C_AVScriptParser(object):
                 m = matchLine(self._regex('cover'), lineObj)
 
                 if(m is not None):
-                    title = "" if len(m.groups()) < 1 or not m.group(1) else self.markdown(m.group(1))
-                    author = "" if len(m.groups()) < 2 or not m.group(2) else self.markdown(m.group(2))
-                    summary = "" if len(m.groups()) < 3 or not m.group(3) else self.markdown(m.group(3))
+                    title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
+                    author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
+                    summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
 
                     divstr = self.fmt("<div id=\"cover\">\n", 1)
                     if title:
@@ -673,14 +496,14 @@ class C_AVScriptParser(object):
 
                     print(divstr)
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             elif(testLine(self._regex('revision'), lineObj)):
                 m = matchLine(self._regex('revision'), lineObj)
 
                 if(m is not None and len(m.groups()) == 1):
                     from time import strftime
-                    revision = self.markdown(m.group(1))
+                    revision = self._markdown(m.group(1))
 
                     divstr = self.fmt("<div id=\"revision\">\n", 1)
                     divstr += self.fmt("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
@@ -688,18 +511,18 @@ class C_AVScriptParser(object):
 
                     print(divstr)
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             elif(testLine(self._regex('contact'), lineObj)):
                 m = matchLine(self._regex('contact'), lineObj)
 
                 if(m is not None):
-                    cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self.markdown(m.group(1)))
-                    cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self.markdown(m.group(2)))
-                    cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self.markdown(m.group(3)))
-                    cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self.markdown(m.group(4)))
-                    cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self.markdown(m.group(5)))
-                    cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self.markdown(m.group(6)))
+                    cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
+                    cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
+                    cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
+                    cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
+                    cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
+                    cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
 
                     divstr = self.fmt("<div id=\"contact\">\n", 1)
                     divstr += self.fmt("<table>\n", 1)
@@ -712,13 +535,13 @@ class C_AVScriptParser(object):
 
                     print(divstr)
                 else:
-                    print(self.ori_line)
+                    print(self._ori_line)
 
             else:
                 if curLine.rstrip():
                     # TODO: we are orphaning things because of this... Why???
-                    # self.printInExtrasDiv("<p>{0}</p>".format(curLine.rstrip()))
-                    self.printInExtrasDiv("<p{1}>{0}</p>".format(curLine. rstrip(), cssClass))
+                    # self._printInExtrasDiv("<p>{0}</p>".format(curLine.rstrip()))
+                    self._printInExtrasDiv("<p{1}>{0}</p>".format(curLine. rstrip(), cssClass))
 
         print(self.fmt("</div>", -1, False))
 
@@ -735,7 +558,7 @@ class C_AVScriptParser(object):
         try:
             if(avscript is not None):
                 # If the file doesn't exist, bail now.
-                if not os.path.isfile(avscript):
+                if not isfile(avscript):
                     return 1
 
                 self._av.open(avscript)
@@ -758,4 +581,4 @@ class C_AVScriptParser(object):
 
 
 if __name__ == '__main__':
-    sys.exit(C_AVScriptParser().load(None if len(sys.argv) < 2 else sys.argv[1]))
+    exit(AVScriptParser().load(None if len(argv) < 2 else argv[1]))

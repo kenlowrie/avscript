@@ -48,22 +48,21 @@ CSS Clean Up
 
 import re
 
-from sys import exit, stdin, argv
+from sys import exit
 from os.path import isfile
 
 from avs.file import FileHandler
 from avs.link import LinkDict
 from avs.variable import VariableDict
 from avs.bookmark import BookmarkList
+from avs.htmlformat import HTMLFormatter
 from avs.exception import *
 
 
 class RegexMD(object):
     """
     This class is used to hold the regular expressions that are used when
-    applying markdown to inline formatting codes. A global variable is
-    used to create a list of these objects, so we can precompile the expressions
-    since they are used over and over throughout the script.
+    applying markdown to inline formatting codes.
     """
     def __init__(self, regex, ori_repl_str, new_repl_str, flags=0):
         self.regex = re.compile(regex, flags)
@@ -94,17 +93,20 @@ class RegexMain(object):
 
 
 class AVScriptParser(object):
+    """Parse a text file written in a markdown-like syntax and output HTML.
+    
+    Reads a text file (or reads from sys.stdin) and outputs HTML in a format suitable
+    for Audio-Visual (AV) scripts. AV Scripts are a type of script format used to describe
+    visuals (shots) and the corresponding narrative (voiceover) that would accompany the
+    visual when made into a video. 
+    """
     def __init__(self):
-        """The constructor for the class. Initialize the required member
-        variables:
-
-        """
+        """The constructor for the class. Initialize the required member variables."""
         self._line = None                # the current line "marked down"
         self._ori_line = None            # the current line as it was read in
-        self._fmtlevel = 0               # indentation level for HTML tags
+        self._html = HTMLFormatter()     # format HTML output (indent for readability)
         self._lineInCache = False        # if we have a line in the cache
-        #self._classInCache = False       # if we have a class in the cache
-        self._av = FileHandler()        # file handler stack
+        self._av = FileHandler()         # file handler stack
         self._shotListQ = BookmarkList() # shot list link Q
 
         self._links = LinkDict()         # dict of links
@@ -217,7 +219,7 @@ class AVScriptParser(object):
         return self._line
         
     def _addBookmark(self, link):
-        return self.fmt("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(link)))
+        return self._html.formatLine("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(link)))
 
     def _makeCSSclass(self, tmpClass):
         # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
@@ -251,13 +253,11 @@ class AVScriptParser(object):
         if re.match('[ \t]', self._line):
             # line was indented, strip any leading space, and then indent it at current level
             self._line= self._line.strip()
-            # TODO: Remove This--> indentSp = " " * self._fmtlevel*4
-            #
             cssClass, rest = self._stripClass(self._line)
             # get the link anchor and insert it ahead of the shot
             link = "" if not addLinks else self._addBookmark(rest)
             # return this, but call myself recursively in case there are more indented lines...
-            return self.fmt("{3}<{0}{2}>{1}</{0}>\n".format(element, rest.rstrip('\n'), cssClass, link) + self._peekNextLine(element, addLinks))
+            return self._html.formatLine("{3}<{0}{2}>{1}</{0}>\n".format(element, rest.rstrip('\n'), cssClass, link) + self._peekNextLine(element, addLinks))
 
         # We read 1 too many lines, so mark the cache as dirty so we can process it next time.
         self._unreadLine()
@@ -297,45 +297,22 @@ class AVScriptParser(object):
         # if the RAW line is empty or if it's not a new section,
         #   keep it and peek at next line
         if not tRst or not isNewSection(tRst, self._ori_line.strip()):
-            # TODO: Remote this --> indentSp = " " * self._fmtlevel * 4
             tmpClass, rest = self._stripClass(self._line.strip())
             # add this line to the current DIV, and keep reading until we hit some
             # type of break element...
-            return self.fmt("<{0}{2}>{1}</{0}>\n".format(element, rest, tmpClass) + self._peekPlainText(element))
+            return self._html.formatLine("<{0}{2}>{1}</{0}>\n".format(element, rest, tmpClass) + self._peekPlainText(element))
 
         # read one too many lines, so cache the current line for the next time around...
         self._unreadLine()
         return ""
 
-    def _fmt_getIndent(self, after=True):
-        """Create a string of blanks for printing at the start of a line in order
-        to keep things lined up properly."""
-        howmany = self._fmtlevel if after else self._fmtlevel - 1
-        return " " * (howmany * 4)
-
-    def fmt(self, str, in_out_same=0, after=True):
-        """Prefix the string passed in so it will align properly in the HTML file
-           for keeping things in pretty print format."""
-        s = self._fmt_getIndent(after)
-
-        # in_out_same = 1, increase indent for next time
-        # in_out_same = -1, decrease indent for next time
-        # if 0, leave indent alone
-
-        if(in_out_same > 0):
-            self._fmtlevel += 1
-        elif(in_out_same < 0):
-            self._fmtlevel -= 1
-
-        return "{0}{1}".format(s, str)
-
     def _printInExtrasDiv(self, str):
         """Print the passed in string inside of a DIV with ID="extras". This allows
            orphaned elements to be kept out of the shot/narrative sections, where
            floats are active."""
-        print(self.fmt("<div id=\"extras\">", 1))
-        print(self.fmt(str, -1))
-        print(self.fmt("</div>"))
+        print(self._html.formatLine("<div id=\"extras\">", 1))
+        print(self._html.formatLine(str, -1))
+        print(self._html.formatLine("</div>"))
 
     def parse(self):
         def testLine(regex_obj, line_obj):
@@ -346,206 +323,211 @@ class AVScriptParser(object):
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.match_regex(), line)
 
-        print(self.fmt("<div id=\"wrapper\">", 1))
-        while(self._readNextLine() != ''):
-            # DOC this entire method better...
-            # Start by stripping any class override from the beginning of the line
-            cssClass, curLine = self._stripClass(self._line)
+        rc = 0
 
-            # TODO: would this (a line class) be better to help doc code below?
-            class C_LineObj:
-                def __init__(self, curLine, oriLine):
-                    self.curLine = curLine
-                    self.oriLine = oriLine
+        try:
+            print(self._html.formatLine("<div id=\"wrapper\">", 1))
+            while(self._readNextLine() != ''):
+                # DOC this entire method better...
+                # Start by stripping any class override from the beginning of the line
+                cssClass, curLine = self._stripClass(self._line)
 
-            lineObj = C_LineObj(curLine, self._ori_line)
+                # TODO: would this (a line class) be better to help doc code below?
+                class C_LineObj:
+                    def __init__(self, curLine, oriLine):
+                        self.curLine = curLine
+                        self.oriLine = oriLine
 
-            if (testLine(self._regex('shot'), lineObj)):
-                m = matchLine(self._regex('shot'), lineObj)
+                lineObj = C_LineObj(curLine, self._ori_line)
 
-                if(m is not None):
-                    li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
-                    divstr = self.fmt("<div id=\"av\">\n", 1)
-                    divstr += self.fmt("<ul>\n", 1)
-                    divstr += self._addBookmark(li)
-                    divstr += self.fmt("<li{1}>{0}</li>\n".format(li, cssClass))
-                    divstr += self._peekNextLine("li", True)
-                    divstr += self.fmt("</ul>\n", -1, False)
-                    divstr += self._peekPlainText()
-                    divstr += self.fmt("</div>", -1, False)
-                    print(divstr)
+                if (testLine(self._regex('shot'), lineObj)):
+                    m = matchLine(self._regex('shot'), lineObj)
+
+                    if(m is not None):
+                        li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
+                        divstr = self._html.formatLine("<div id=\"av\">\n", 1)
+                        divstr += self._html.formatLine("<ul>\n", 1)
+                        divstr += self._addBookmark(li)
+                        divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, cssClass))
+                        divstr += self._peekNextLine("li", True)
+                        divstr += self._html.formatLine("</ul>\n", -1, False)
+                        divstr += self._peekPlainText()
+                        divstr += self._html.formatLine("</div>", -1, False)
+                        print(divstr)
+                    else:
+                        print(curLine)
+
+                elif(testLine(self._regex('div'), lineObj)):
+                    m = matchLine(self._regex('div'), lineObj)
+
+                    if(m is not None):
+                        divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), cssClass)
+                        divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
+                        divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
+                        divstr = self._html.formatLine("<div%s>\n" % divID, 1)
+                        divstr += self._html.formatLine("<p%s>%s</p>\n" % (divPcls, divText.rstrip('\n')))
+                        divstr += self._peekNextLine()
+                        divstr += self._html.formatLine("</div>", -1, False)
+
+                        print(divstr)
+
+                    else:
+                        print(curLine)
+
+                elif(testLine(self._regex('h#'), lineObj)):
+                    m = matchLine(self._regex('h#'), lineObj)
+
+                    if(m is not None and len(m.groups()) > 1):
+                        hnum = len(m.group(1))
+                        self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), cssClass))
+                    else:
+                        print(curLine)
+
+                elif(testLine(self._regex('import'), lineObj)):
+                    m = matchLine(self._regex('import'), lineObj)
+                    if(m is not None and len(m.groups()) == 1):
+                        try:
+                            self._av.open(m.group(1))
+                        except FileError as fe:
+                            print(fe.errmsg)
+
+                    # TODO: Need to handle error here and print if we cannot open the file, etc.
+
+                elif(testLine(self._regex('shotlist'), lineObj)):
+                    print(self._html.formatLine("<div class=\"shotlist\">", 1))
+                    print(self._html.formatLine("<hr />"))
+                    shotnum = 1
+                    for shot in self._shotListQ.getBookmarkList():
+                        print(self._html.formatLine("<div id=\"shot\">", 1))
+                        print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
+                        print(self._html.formatLine("</div>"))
+                        shotnum += 1
+
+                    print(self._html.formatLine("</div>", -1, False))
+
+                elif(testLine(self._regex('variables'), lineObj)):
+                    print(self._html.formatLine("<div class=\"variables\">", 1))
+                    print(self._html.formatLine("<hr />"))
+                    self._variables.dumpVars(self._html.getIndent())
+                    print(self._html.formatLine("</div>", -1, False))
+
+                elif(testLine(self._regex('dumplinks'), lineObj)):
+                    print(self._html.formatLine("<div class=\"links\">", 1))
+                    print(self._html.formatLine("<hr />"))
+                    self._links.dumpLinks(self._html.getIndent())
+                    print(self._html.formatLine("</div>", -1, False))
+
+                # links handles the various formats that allow a title to be specified.
+                # [linkID]:url "title"
+                # [linkID]:(url "title")
+                # [linkID]:url
+                # [linkID]:(url)
+                # This has precedence over the [var]:[value], so we process it first
+                elif(testLine(self._regex('links'), lineObj)):
+                    m = matchLine(self._regex('links'), lineObj)
+
+                    optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
+
+                    # TODO: Should we markdown the Link Text?? m.group(1)?
+                    if(m is not None and len(m.groups()) == 4):
+                        self._links.addLink(m.group(1), m.group(2), optTitle)
+                        # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
+                    else:
+                        print(self._ori_line)
+
+                elif(testLine(self._regex('alias'), lineObj)):
+                    m = matchLine(self._regex('alias'), lineObj)
+
+                    # TODO: Should we markdown the Link Text?? m.group(1)?
+                    if(m is not None and len(m.groups()) == 3):
+                        self._variables.addVar(m.group(1), m.group(3))
+                    else:
+                        print(self._ori_line)
+
+                elif(testLine(self._regex('anchor'), lineObj)):
+                    # For this case, we just need to drop an anchor.
+                    m = matchLine(self._regex('anchor'), lineObj)
+
+                    if(m is not None and len(m.groups()) == 1):
+                        print(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
+                    else:
+                        print(self._ori_line)
+
+                # These "special" keywords require that we use the original
+                # raw line and not the markdown line in order to parse. Once
+                # we parse out these special lines, we'll markdown the individual
+                # groups before writing them...
+                elif(testLine(self._regex('cover'), lineObj)):
+                    m = matchLine(self._regex('cover'), lineObj)
+
+                    if(m is not None):
+                        title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
+                        author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
+                        summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
+
+                        divstr = self._html.formatLine("<div id=\"cover\">\n", 1)
+                        if title:
+                            divstr += self._html.formatLine("<h3>%s</h3>\n" % title)
+                        if author:
+                            divstr += self._html.formatLine("<p>%s</p>\n" % author)
+                        if summary:
+                            divstr += self._html.formatLine("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
+                        divstr += self._html.formatLine("</div>", -1, False)
+
+                        print(divstr)
+                    else:
+                        print(self._ori_line)
+
+                elif(testLine(self._regex('revision'), lineObj)):
+                    m = matchLine(self._regex('revision'), lineObj)
+
+                    if(m is not None and len(m.groups()) == 1):
+                        from time import strftime
+                        revision = self._markdown(m.group(1))
+
+                        divstr = self._html.formatLine("<div id=\"revision\">\n", 1)
+                        divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
+                        divstr += self._html.formatLine("</div>")
+
+                        print(divstr)
+                    else:
+                        print(self._ori_line)
+
+                elif(testLine(self._regex('contact'), lineObj)):
+                    m = matchLine(self._regex('contact'), lineObj)
+
+                    if(m is not None):
+                        cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
+                        cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
+                        cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
+                        cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
+                        cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
+                        cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
+
+                        divstr = self._html.formatLine("<div id=\"contact\">\n", 1)
+                        divstr += self._html.formatLine("<table>\n", 1)
+                        divstr += self._html.formatLine("<tr>\n", 1)
+                        divstr += self._html.formatLine("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
+                        divstr += self._html.formatLine("<td class=\"right\">{0}{1}{2}</td>\n".format(cName, cPhone, cEmail), -1)
+                        divstr += self._html.formatLine("</tr>\n", -1)
+                        divstr += self._html.formatLine("</table>\n", -1)
+                        divstr += self._html.formatLine("</div>")
+
+                        print(divstr)
+                    else:
+                        print(self._ori_line)
+
                 else:
-                    print(curLine)
+                    if curLine.rstrip():
+                        self._printInExtrasDiv("<p{1}>{0}</p>".format(curLine.rstrip(), cssClass))
 
-            elif(testLine(self._regex('div'), lineObj)):
-                m = matchLine(self._regex('div'), lineObj)
+            print(self._html.formatLine("</div>", -1, False))
 
-                if(m is not None):
-                    divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), cssClass)
-                    divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
-                    divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
-                    divstr = self.fmt("<div%s>\n" % divID, 1)
-                    divstr += self.fmt("<p%s>%s</p>\n" % (divPcls, divText.rstrip('\n')))
-                    divstr += self._peekNextLine()
-                    divstr += self.fmt("</div>", -1, False)
+        except RegexError as regex_error:
+            print("{}".format(regex_error.errmsg))
+            rc = 3
 
-                    print(divstr)
-
-                else:
-                    print(curLine)
-
-            elif(testLine(self._regex('h#'), lineObj)):
-                m = matchLine(self._regex('h#'), lineObj)
-
-                if(m is not None and len(m.groups()) > 1):
-                    hnum = len(m.group(1))
-                    self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), cssClass))
-                else:
-                    print(curLine)
-
-            elif(testLine(self._regex('import'), lineObj)):
-                m = matchLine(self._regex('import'), lineObj)
-                if(m is not None and len(m.groups()) == 1):
-                    try:
-                        self._av.open(m.group(1))
-                    except FileError as fe:
-                        print(fe.errmsg)
-
-                # TODO: Need to handle error here and print if we cannot open the file, etc.
-
-            elif(testLine(self._regex('shotlist'), lineObj)):
-                print(self.fmt("<div class=\"shotlist\">", 1))
-                print(self.fmt("<hr />"))
-                shotnum = 1
-                for shot in self._shotListQ.getBookmarkList():
-                    print(self.fmt("<div id=\"shot\">", 1))
-                    print(self.fmt("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
-                    print(self.fmt("</div>"))
-                    shotnum += 1
-
-                print(self.fmt("</div>", -1, False))
-
-            elif(testLine(self._regex('variables'), lineObj)):
-                print(self.fmt("<div class=\"variables\">", 1))
-                print(self.fmt("<hr />"))
-                self._variables.dumpVars(self._fmt_getIndent())
-                print(self.fmt("</div>", -1, False))
-
-            elif(testLine(self._regex('dumplinks'), lineObj)):
-                print(self.fmt("<div class=\"links\">", 1))
-                print(self.fmt("<hr />"))
-                self._links.dumpLinks(self._fmt_getIndent())
-                print(self.fmt("</div>", -1, False))
-
-            # links handles the various formats that allow a title to be specified.
-            # [linkID]:url "title"
-            # [linkID]:(url "title")
-            # [linkID]:url
-            # [linkID]:(url)
-            # This has precedence over the [var]:[value], so we process it first
-            elif(testLine(self._regex('links'), lineObj)):
-                m = matchLine(self._regex('links'), lineObj)
-
-                optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
-
-                # TODO: Should we markdown the Link Text?? m.group(1)?
-                if(m is not None and len(m.groups()) == 4):
-                    self._links.addLink(m.group(1), m.group(2), optTitle)
-                    # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
-                else:
-                    print(self._ori_line)
-
-            elif(testLine(self._regex('alias'), lineObj)):
-                m = matchLine(self._regex('alias'), lineObj)
-
-                # TODO: Should we markdown the Link Text?? m.group(1)?
-                if(m is not None and len(m.groups()) == 3):
-                    self._variables.addVar(m.group(1), m.group(3))
-                else:
-                    print(self._ori_line)
-
-            elif(testLine(self._regex('anchor'), lineObj)):
-                # For this case, we just need to drop an anchor.
-                m = matchLine(self._regex('anchor'), lineObj)
-
-                if(m is not None and len(m.groups()) == 1):
-                    print(self.fmt("<a id=\"{0}\"></a>".format(m.group(1))))
-                else:
-                    print(self._ori_line)
-
-            # These "special" keywords require that we use the original
-            # raw line and not the markdown line in order to parse. Once
-            # we parse out these special lines, we'll markdown the individual
-            # groups before writing them...
-            elif(testLine(self._regex('cover'), lineObj)):
-                m = matchLine(self._regex('cover'), lineObj)
-
-                if(m is not None):
-                    title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
-                    author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
-                    summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
-
-                    divstr = self.fmt("<div id=\"cover\">\n", 1)
-                    if title:
-                        divstr += self.fmt("<h3>%s</h3>\n" % title)
-                    if author:
-                        divstr += self.fmt("<p>%s</p>\n" % author)
-                    if summary:
-                        divstr += self.fmt("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
-                    divstr += self.fmt("</div>", -1, False)
-
-                    print(divstr)
-                else:
-                    print(self._ori_line)
-
-            elif(testLine(self._regex('revision'), lineObj)):
-                m = matchLine(self._regex('revision'), lineObj)
-
-                if(m is not None and len(m.groups()) == 1):
-                    from time import strftime
-                    revision = self._markdown(m.group(1))
-
-                    divstr = self.fmt("<div id=\"revision\">\n", 1)
-                    divstr += self.fmt("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
-                    divstr += self.fmt("</div>")
-
-                    print(divstr)
-                else:
-                    print(self._ori_line)
-
-            elif(testLine(self._regex('contact'), lineObj)):
-                m = matchLine(self._regex('contact'), lineObj)
-
-                if(m is not None):
-                    cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
-                    cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
-                    cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
-                    cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
-                    cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
-                    cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
-
-                    divstr = self.fmt("<div id=\"contact\">\n", 1)
-                    divstr += self.fmt("<table>\n", 1)
-                    divstr += self.fmt("<tr>\n", 1)
-                    divstr += self.fmt("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
-                    divstr += self.fmt("<td class=\"right\">{0}{1}{2}</td>\n".format(cName, cPhone, cEmail), -1)
-                    divstr += self.fmt("</tr>\n", -1)
-                    divstr += self.fmt("</table>\n", -1)
-                    divstr += self.fmt("</div>")
-
-                    print(divstr)
-                else:
-                    print(self._ori_line)
-
-            else:
-                if curLine.rstrip():
-                    # TODO: we are orphaning things because of this... Why???
-                    # self._printInExtrasDiv("<p>{0}</p>".format(curLine.rstrip()))
-                    self._printInExtrasDiv("<p{1}>{0}</p>".format(curLine. rstrip(), cssClass))
-
-        print(self.fmt("</div>", -1, False))
-
-        return 0
+        return rc
 
     def load(self, avscript=None):
         """This method is used to open and initiate a parse on an AV format text file.
@@ -561,24 +543,36 @@ class AVScriptParser(object):
                 if not isfile(avscript):
                     return 1
 
-                self._av.open(avscript)
+            self._av.open(avscript)
 
-                rc = self.parse()
-
-                # close the file when we have processed all of it.
-                # TODO: No longer needed, right? Handled by the C_file_handler() class
-                # self.av.close()
-            else:
-                # no filename passed in, default to sys.stdin...
-                self._av.open('sys.stdin')
-
-                self.parse()
+            rc = self.parse()
 
         except IOError:
             rc = 2
 
         return rc
 
+def av_parse_file(args=None):
+    """Parse specified input file as AV Script Format text file.
+    
+    if args is None, uses sys.argv - via argparse
+    if no filename is specified, parses sys.stdin
+    
+    Exit code:
+        0 -- Success
+        1 -- File not found
+        2 -- IO Error processing input file
+        3 -- Invalid regex ID in main loop
+    """
+    from argparse import ArgumentParser
+    
+    parser = ArgumentParser(description='Parse AV Format text files into HTML format.', 
+                            epilog='If filename is not specified, program reads from stdin.')
+    parser.add_argument('-f', '--filename', help='the file that you want to parse')
+    args = parser.parse_args()
+    
+    return AVScriptParser().load(args.filename)
+    
 
 if __name__ == '__main__':
-    exit(AVScriptParser().load(None if len(argv) < 2 else argv[1]))
+    exit(av_parse_file())

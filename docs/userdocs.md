@@ -206,7 +206,9 @@ Would be the same as writing **@import "/mydir/vars.md"**. This is useful becaus
 @+[shotlist]
 ##Shotlist
 
-For convenience, you can list all of the defined shots in a list at the end of your script by using the ***///Shotlist///*** tag. This tag must begin on a line of its own, and it is replaced on the fly with all the shots that have been defined up to that point.
+For convenience, you can list all of the defined shots in a list at the end of your script by using the ***///Shotlist///*** tag. This tag must begin on a line of its own, and it is replaced on the fly with all the shots that have been defined up to that point. The following shows what it would do for this document:
+
+///Shotlist///
 
 @+[debug]
 ##Debugging

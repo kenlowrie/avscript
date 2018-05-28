@@ -23,15 +23,21 @@
     @:[summary]<<Summary>> - **Summary of the User Guide**
 
 ## What is AVScript?
-AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts as output in HTML. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
+AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts in HTML format. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
 
-In its simplest, Markdown list item tags (&#42;, -, +) are used to identify visuals (shots), and regular paragraphs are the audio/narration that go along with the visuals. Let's see a quick example now. The next line will begin with an ***&#42;*** and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
+In its simplest terms:
+
+{:.note}**Markdown** list item tags ***(&#42;, -, +)*** are used to identify ***visuals*** (shots), and regular paragraphs are the ***audio/narration*** that go along with the visuals.
+
+Let's see a quick example now. The next line will begin with an ***&#42;*** and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
 *WS:Sunrise
 There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
-// When you want to force the document out of shot mode, use a heading. That will reset the floats. See here, as he document leaves the narration mode of the prior shot, and starts a new block paragraph.
+// When you want to force the document out of shot mode, use a heading. That will reset the floats. See how the document leaves the narration mode of the prior shot, and starts a new block paragraph.
 #
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc.
+
+Lines that begin with a double forward slash [***//***] are treated as comments, and are discarded by AVScript. They will not appear in the HTML at all.
 @+[inlinemd]
 ###Inline Markdown
 

@@ -40,9 +40,6 @@ TODO (Punch list):
 5. Test with Python2 and Python3
 6. Make it pass flake8 (mostly)
 
-a. Search for TODO and fix/cleanup
-b. Improve markdown parsing to take advantage of group(0) like links does???
-
 CSS Clean Up
 1. Reorganize, make consistent.
 2. Make it pass lint
@@ -119,6 +116,7 @@ class AVScriptParser(object):
         self._links = LinkDict()         # dict of links
         self._variables = VariableDict() # dict of document variables
 
+        # Dictionary of each line type that we can process
         self._regex_main = {
             #                   NewDiv RawLine Prefix   Test Regex                                        Match Regex
             'shot': RegexMain(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
@@ -136,15 +134,17 @@ class AVScriptParser(object):
             'contact': RegexMain(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
         }
 
-        self._regex_md_list = [
-            # Next one is to match LINK & ALIAS substitutions, but NOT DEFs.
-            RegexMD(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))', '[{0}]', None),
-            RegexMD(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>', '<{0}>', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
-            RegexMD(r'\*{2}(?!\*)(.+?)\*{2}', '**{0}**', '<strong>{0}</strong>'),
-            RegexMD(r'\*(.+?)\*', '*{0}*', '<em>{0}</em>'),
-            RegexMD(r'\+{2}(.+?)\+{2}', '++{0}++', '<ins>{0}</ins>'),
-            RegexMD(r'\~{2}(.+?)\~{2}', '~~{0}~~', '<del>{0}</del>')
-        ]
+        # Dictionary of each markdown type that we process on each line
+        self._regex_markdown = {
+            'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None, None),
+            'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None, None),
+            'links_and_vars': RegexMD(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))', '[{0}]', None),
+            'automatic_link': RegexMD(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>', '<{0}>', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
+            'strong': RegexMD(r'\*{2}(?!\*)(.+?)\*{2}', '**{0}**', '<strong>{0}</strong>'),
+            'emphasis': RegexMD(r'\*(.+?)\*', '*{0}*', '<em>{0}</em>'),
+            'ins': RegexMD(r'\+{2}(.+?)\+{2}', '++{0}++', '<ins>{0}</ins>'),
+            'del': RegexMD(r'\~{2}(.+?)\~{2}', '~~{0}~~', '<del>{0}</del>')
+        }
 
     def _regex(self, id):
         if(id in self._regex_main):
@@ -159,54 +159,65 @@ class AVScriptParser(object):
     def _markdown(self, s):
         """This method is used to apply markdown to the passed in string."""
 
-        # TODO: nice if we could integrate this into main loop...
-        # This handles inline links in this format: [linkID]:(url)
-        # Might be able to fix if I can eliminate the extra group... linkID,(url),url
-        spec = RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', '', '')
-
-        # This special case handles inline links
-        matches = re.findall(spec.regex, s)
-        for m in matches:
+        # Start with some helper functions to process each markdown type
+        
+        def md_inline_links(m, s, ori_str, new_str):
+            """Handle inline links: [linkname]:(url [optional_title])"""
             optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
             s = s.replace(m[0], '<a href=\"{0}\"{2}>{1}</a>'.format(m[2], m[1], optTitle))
             self._links.addLink(m[1], m[2], m[4])
-            # print("MD:AL:{0}{1}{2}<br />".format(m[1],m[2],m[3]))
-
-        # TODO: nice if this were also integrated into main loop...
-        # This handles inline links to local anchors: @:[anchorID]<<text>>
-        # This special case handles links to local anchors
-        spec = RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', '', '')
-
-        matches = re.findall(spec.regex, s)
-        for m in matches:
+            return s
+            
+        def md_link_to_bookmark(m, s, ori_str, new_str):
+            """Handle converting inline link to bookmark: @:[linkname]<<link_text>>"""
             s = s.replace(m[0], '<a href=\"#{0}\">{1}</a>'.format(m[1], m[2]))
-            # print("MD:AA:{0}{1}{2}<br />".format(m[0],m[1],m[2]))
-
-        for item in self._regex_md_list:
-            matches = re.findall(item.regex, s)
-            for m in matches:
-                # if item.new_str is None, it means we have a link or a variable
-                if item.new_str is None:
-                    if self._links.exists(m[0]):
-                        # m[0] is an ID for a LINK, apply the link URL to the text
-                        s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(m[0]))
-                    elif self._variables.exists(m[0]):
-                        # m[0] is a variable name; get the variable value
-                        varValue = self._variables.getText(m[0])
-                        if self._links.exists(varValue):
-                            # There is a link ID by that name, wrap the text with hyperlink
-                            s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(varValue, m[0]))
-                        else:
-                            # Substitute the variable name with the value
-                            s = s.replace(item.ori_str.format(m[0]), self._variables.getText(m[0]))
-                    else:
-                        # No need to do anything here, just leave the unknown link/variable alone
-                        pass
+            return s
+        
+        def md_links_and_vars(m, s, ori_str, new_str):
+            """Handle inline link and vars: [link_or_variable_name]"""
+            if self._links.exists(m[0]):
+                # m[0] is an ID for a LINK, apply the link URL to the text
+                s = s.replace(ori_str.format(m[0]), self._links.getLinkMarkup(m[0]))
+            elif self._variables.exists(m[0]):
+                # m[0] is a variable name; get the variable value
+                varValue = self._variables.getText(m[0])
+                if self._links.exists(varValue):
+                    # There is a link ID by that name, wrap the text with hyperlink
+                    s = s.replace(ori_str.format(m[0]), self._links.getLinkMarkup(varValue, m[0]))
                 else:
-                    # These are the simple search/replace expressions...
-                    s = s.replace(item.ori_str.format(m), item.new_str.format(m))
+                    # Substitute the variable name with the value
+                    s = s.replace(ori_str.format(m[0]), self._variables.getText(m[0]))
+            else:
+                # No need to do anything here, just leave the unknown link/variable alone
+                pass
 
-        return s
+            return s
+            
+        def md_plain(m, s, ori_str, new_str):
+            """Handle simple replacement markdown. e.g. *foo* or **bar**, etc."""
+            return s.replace(ori_str.format(m), new_str.format(m))
+
+        # A map linking markdown keys to processor functions
+        markdownTypes = [
+            ('inline_links', md_inline_links),
+            ('link_to_bookmark', md_link_to_bookmark),
+            ('links_and_vars', md_links_and_vars),
+            ('automatic_link', md_plain),
+            ('strong', md_plain),
+            ('emphasis', md_plain),
+            ('ins', md_plain),
+            ('del', md_plain),
+        ]
+
+        # For each type of markdown
+        for key, md_func in markdownTypes:
+            md_obj = self._regex_markdown[key]
+            matches = re.findall(md_obj.regex,s)    # find all the matches
+            for m in matches:
+                # for each match, process it
+                s = md_func(m,s,md_obj.ori_str,md_obj.new_str)
+          
+        return s    # return the processed string
 
     def _readNextLine(self):
         """Read the next line from the buffer, unless something is cached, in which case return that"""

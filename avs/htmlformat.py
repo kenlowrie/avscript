@@ -13,7 +13,7 @@ class HTMLFormatter(object):
         
         Arguments:
         str -- the string to indent
-        indent_same_level -- -1 to decrease, 0 to retain, 1 to increase the indent level
+        indent_level -- -1 to decrease, 0 to retain, 1 to increase the indent level
         dedent_after -- True to decrease indent after or False to decrease indent before
         """
         s = self.getIndent(dedent_after)

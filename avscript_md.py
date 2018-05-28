@@ -1,29 +1,35 @@
 #!/usr/bin/env python
 
-"""
-This script is a BBEdit-compliant Markup Previewer (if that's a thing)... When
-invoked from BBEdit, it reads from sys.stdin, which will be the current contents
-of the markdown document you are editing, formats it on the fly, writing out
-HTML. Using BBEdit's Preview in BBEdit Markup support, you can see your AV
-script come to life.
+"""This script is a BBEdit-compliant Markup Previewer
+
+When invoked from BBEdit, it reads from sys.stdin, which will be the current 
+contents of the AV markdown document you are editing, formats it on the fly, 
+writing out HTML. Using BBEdit's Preview in BBEdit Markup support, you can see 
+your AV script come to life.
 
 To quickly see how it works, copy "avscript_md.py" and "avscript_md.css":
 
 cp avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters
 cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
 
-And then open "example.md" in BBEdit, Choose Markup|Preview in BBEdit, and then
-in the Preview: example.md window:
+    NOTE: Alternatively, create a symbolic link to these files in your
+          forked repository:
+          
+    ln -s /yourpathrepopath/avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters/avscript_md.py
+    ln -s /yourpathrepopath/avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS/avscript_md.css
+
+And then open "docs/example.md" in BBEdit, Choose Markup|Preview in BBEdit, 
+and then in the Preview: example.md window:
 
 Select "avscript_md.css" from the CSS: popdown
 Select "avscript_md.py" from the Filter: popdown
 
-BAM! You should see a nicely formatted Audio/Visual script. You'll likely see
+BAM! You should see a nicely formatted Audio/Visual script. You'll likely see an
 error near the top about "Unable to import /.../heading.md". Don't worry, we'll
 fix that later.
 
 For now, take a look at userdocs.md (in a BBEdit preview window of course!), and
-you should quickly get up and running with the A/V Script Markdown Processor.
+you'll quickly get up and running with the A/V Script Markdown Processor.
 
 Future - aka Wish List
 0. Image (both inline and reference-style) would be nice too.
@@ -60,10 +66,8 @@ from avs.exception import *
 
 
 class RegexMD(object):
-    """
-    This class is used to hold the regular expressions that are used when
-    applying markdown to inline formatting codes.
-    """
+    """This class holds the regular expressions used when applying markdown
+    to inline formatting syntax."""
     def __init__(self, regex, ori_repl_str, new_repl_str, flags=0):
         self.regex = re.compile(regex, flags)
         self.ori_str = ori_repl_str
@@ -71,14 +75,17 @@ class RegexMD(object):
 
 
 class RegexMain(object):
-    """
-    starts_new_div - signals whether this regex will stop the peekplaintext() from processing new lines
-    uses_raw_line - signals whether this regex should process the raw line or the marked_down line
-    allows_class_prefix - signals whether this regex can be prefixed with a class override
-    test_str - this is the regex string used to detect if the line is a match
-    match_str - this is the regex string used when parsing the line into groups. If None, uses test_str
-    """
+    """This class holds the regular expressions used for the main parsing loop."""
     def __init__(self, starts_new_div, uses_raw_line, allows_class_prefix, test, match):
+        """Constructor for the RegexMain class.
+        
+        Arguments:
+        starts_new_div -- signals whether this regex will stop the peekplaintext() from processing new lines
+        uses_raw_line -- signals whether this regex should process the raw line or the marked_down line
+        allows_class_prefix -- signals whether this regex can be prefixed with a class override
+        test_str -- this is the regex string used to detect if the line is a match
+        match_str -- this is the regex string used when parsing the line into groups. If None, uses test_str
+        """
         self.test_str = re.compile(test)
         self.match_str = None if not match else re.compile(match)
         self.starts_new_div = starts_new_div
@@ -132,7 +139,6 @@ class AVScriptParser(object):
         self._regex_md_list = [
             # Next one is to match LINK & ALIAS substitutions, but NOT DEFs.
             RegexMD(r'\[([^\]]+)\](?!(:(.+))|(\=(.+)))', '[{0}]', None),
-            # TODO: Next one kind of complex. Do we need this?
             RegexMD(r'<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>', '<{0}>', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
             RegexMD(r'\*{2}(?!\*)(.+?)\*{2}', '**{0}**', '<strong>{0}</strong>'),
             RegexMD(r'\*(.+?)\*', '*{0}*', '<em>{0}</em>'),
@@ -181,19 +187,21 @@ class AVScriptParser(object):
             for m in matches:
                 # if item.new_str is None, it means we have a link or a variable
                 if item.new_str is None:
-                    # If m[0] is an ID for a LINK, then replace apply the link URL to the text
                     if self._links.exists(m[0]):
+                        # m[0] is an ID for a LINK, apply the link URL to the text
                         s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(m[0]))
                     elif self._variables.exists(m[0]):
-                        # Get the variable value
+                        # m[0] is a variable name; get the variable value
                         varValue = self._variables.getText(m[0])
-                        # See if there is a link ID by that name
                         if self._links.exists(varValue):
+                            # There is a link ID by that name, wrap the text with hyperlink
                             s = s.replace(item.ori_str.format(m[0]), self._links.getLinkMarkup(varValue, m[0]))
                         else:
+                            # Substitute the variable name with the value
                             s = s.replace(item.ori_str.format(m[0]), self._variables.getText(m[0]))
                     else:
-                        pass    # TODO: should we do anything here?
+                        # No need to do anything here, just leave the unknown link/variable alone
+                        pass
                 else:
                     # These are the simple search/replace expressions...
                     s = s.replace(item.ori_str.format(m), item.new_str.format(m))
@@ -264,11 +272,12 @@ class AVScriptParser(object):
         return ""
 
     def _peekPlainText(self, element="p"):
-        """Gobble up all the normal lines after one or more shot descriptions. "Normal"
-           lines are the voiceover or narration that goes along with each shot. It's
-           common that there are more "lines" than shots, so we want to read them all,
-           and place them within the same DIV section. Each of these narrative lines
-           can have it's own class override...
+        """Gobble up all the normal lines after one or more shot descriptions.
+        
+        "Normal" lines are the voiceover (VO) or narration that goes along with 
+        each shot. Usually, there are more "VO lines" than shots, so we want to
+        read them all, and place them within the same DIV section. Each of these
+        narrative lines can have it's own class override...
         """
         if (self._readNextLine() == ''):
             return ""   # if we hit EOF return ''
@@ -314,14 +323,39 @@ class AVScriptParser(object):
         print(self._html.formatLine(str, -1))
         print(self._html.formatLine("</div>"))
 
-    def parse(self):
+    def parse(self, avscript=None):
+        """Parse an A/V Script File in text format and emit HTML code.
+        
+        Arguments:
+        avscript -- the script to parse or None to parse sys.stdin
+        """
+        class Line(object):
+            """A wrapper class for a line of input."""
+            def __init__(self, curLine, oriLine):
+                self.curLine = curLine
+                self.oriLine = oriLine
+        
         def testLine(regex_obj, line_obj):
+            """See if the current line matches the test_regex() expression."""
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.test_regex(), line)
 
         def matchLine(regex_obj, line_obj):
+            """See if the current line matches the match_regex() expression."""
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.match_regex(), line)
+
+        # Ok, open the specified file (or sys.stdin if avscript is None)
+        try:
+            if(avscript is not None):
+                # If the file doesn't exist, bail now.
+                if not isfile(avscript):
+                    return 1
+
+            self._av.open(avscript)
+
+        except IOError:
+            return 2
 
         rc = 0
 
@@ -332,13 +366,7 @@ class AVScriptParser(object):
                 # Start by stripping any class override from the beginning of the line
                 cssClass, curLine = self._stripClass(self._line)
 
-                # TODO: would this (a line class) be better to help doc code below?
-                class C_LineObj:
-                    def __init__(self, curLine, oriLine):
-                        self.curLine = curLine
-                        self.oriLine = oriLine
-
-                lineObj = C_LineObj(curLine, self._ori_line)
+                lineObj = Line(curLine, self._ori_line)
 
                 if (testLine(self._regex('shot'), lineObj)):
                     m = matchLine(self._regex('shot'), lineObj)
@@ -391,8 +419,6 @@ class AVScriptParser(object):
                         except FileError as fe:
                             print(fe.errmsg)
 
-                    # TODO: Need to handle error here and print if we cannot open the file, etc.
-
                 elif(testLine(self._regex('shotlist'), lineObj)):
                     print(self._html.formatLine("<div class=\"shotlist\">", 1))
                     print(self._html.formatLine("<hr />"))
@@ -428,7 +454,6 @@ class AVScriptParser(object):
 
                     optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
 
-                    # TODO: Should we markdown the Link Text?? m.group(1)?
                     if(m is not None and len(m.groups()) == 4):
                         self._links.addLink(m.group(1), m.group(2), optTitle)
                         # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
@@ -438,7 +463,6 @@ class AVScriptParser(object):
                 elif(testLine(self._regex('alias'), lineObj)):
                     m = matchLine(self._regex('alias'), lineObj)
 
-                    # TODO: Should we markdown the Link Text?? m.group(1)?
                     if(m is not None and len(m.groups()) == 3):
                         self._variables.addVar(m.group(1), m.group(3))
                     else:
@@ -529,28 +553,6 @@ class AVScriptParser(object):
 
         return rc
 
-    def load(self, avscript=None):
-        """This method is used to open and initiate a parse on an AV format text file.
-           If the scriptname is passed in, open it for reading, and invoke the parser.
-           Otherwise, invoke the parser with the default input stream, which is stdin."""
-
-        rc = 0
-
-        # Ok, open the file and process each line we find in there.
-        try:
-            if(avscript is not None):
-                # If the file doesn't exist, bail now.
-                if not isfile(avscript):
-                    return 1
-
-            self._av.open(avscript)
-
-            rc = self.parse()
-
-        except IOError:
-            rc = 2
-
-        return rc
 
 def av_parse_file(args=None):
     """Parse specified input file as AV Script Format text file.
@@ -571,7 +573,7 @@ def av_parse_file(args=None):
     parser.add_argument('-f', '--filename', help='the file that you want to parse')
     args = parser.parse_args()
     
-    return AVScriptParser().load(args.filename)
+    return AVScriptParser().parse(args.filename)
     
 
 if __name__ == '__main__':

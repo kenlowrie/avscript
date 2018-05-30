@@ -121,7 +121,7 @@ class AVScriptParser(object):
             #                   NewDiv RawLine Prefix   Test Regex                                        Match Regex
             'shot': RegexMain(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
             'div': RegexMain(True, False, True, r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
-            'h#': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
+            'header': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
@@ -342,7 +342,8 @@ class AVScriptParser(object):
         """
         class Line(object):
             """A wrapper class for a line of input."""
-            def __init__(self, curLine, oriLine):
+            def __init__(self, cssClass, curLine, oriLine):
+                self.cssClass = cssClass
                 self.curLine = curLine
                 self.oriLine = oriLine
         
@@ -355,6 +356,155 @@ class AVScriptParser(object):
             """See if the current line matches the match_regex() expression."""
             line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
             return re.match(regex_obj.match_regex(), line)
+
+        def handle_shot(m,lineObj):
+            if(m is not None):
+                li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
+                divstr = self._html.formatLine("<div id=\"av\">\n", 1)
+                divstr += self._html.formatLine("<ul>\n", 1)
+                divstr += self._addBookmark(li)
+                divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, lineObj.cssClass))
+                divstr += self._peekNextLine("li", True)
+                divstr += self._html.formatLine("</ul>\n", -1, False)
+                divstr += self._peekPlainText()
+                divstr += self._html.formatLine("</div>", -1, False)
+                print(divstr)
+            else:
+                print(lineObj.curLine)
+
+        def handle_div(m,lineObj):
+            if(m is not None):
+                divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), lineObj.cssClass)
+                divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
+                divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
+                divstr = self._html.formatLine("<div%s>\n" % divID, 1)
+                divstr += self._html.formatLine("<p%s>%s</p>\n" % (divPcls, divText.rstrip('\n')))
+                divstr += self._peekNextLine()
+                divstr += self._html.formatLine("</div>", -1, False)
+
+                print(divstr)
+
+            else:
+                print(lineObj.curLine)
+
+
+        def handle_header(m,lineObj):
+            if(m is not None and len(m.groups()) > 1):
+                hnum = len(m.group(1))
+                self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), lineObj.cssClass))
+            else:
+                print(lineObj.curLine)
+
+
+        def handle_import(m,lineObj):
+            if(m is not None and len(m.groups()) == 1):
+                try:
+                    self._av.open(m.group(1))
+                except FileError as fe:
+                    print(fe.errmsg)
+
+        def handle_shotlist(m,lineObj):
+            print(self._html.formatLine("<div class=\"shotlist\">", 1))
+            print(self._html.formatLine("<hr />"))
+            shotnum = 1
+            for shot in self._shotListQ.getBookmarkList():
+                print(self._html.formatLine("<div id=\"shot\">", 1))
+                print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
+                print(self._html.formatLine("</div>"))
+                shotnum += 1
+
+            print(self._html.formatLine("</div>", -1, False))
+
+        def handle_variables(m,lineObj):
+            print(self._html.formatLine("<div class=\"variables\">", 1))
+            print(self._html.formatLine("<hr />"))
+            self._variables.dumpVars(self._html.getIndent())
+            print(self._html.formatLine("</div>", -1, False))
+
+        def handle_dumplinks(m,lineObj):
+            print(self._html.formatLine("<div class=\"links\">", 1))
+            print(self._html.formatLine("<hr />"))
+            self._links.dumpLinks(self._html.getIndent())
+            print(self._html.formatLine("</div>", -1, False))
+
+        def handle_links(m,lineObj):
+            optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
+
+            if(m is not None and len(m.groups()) == 4):
+                self._links.addLink(m.group(1), m.group(2), optTitle)
+                # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
+            else:
+                print(lineObj.oriLine)
+
+
+        def handle_alias(m,lineObj):
+            if(m is not None and len(m.groups()) == 3):
+                self._variables.addVar(m.group(1), m.group(3))
+            else:
+                print(lineObj.oriLine)
+
+
+        def handle_anchor(m,lineObj):
+            # For this case, we just need to drop an anchor.
+            if(m is not None and len(m.groups()) == 1):
+                print(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
+            else:
+                print(lineObj.oriLine)
+
+        def handle_cover(m,lineObj):
+            if(m is not None):
+                title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
+                author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
+                summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
+
+                divstr = self._html.formatLine("<div id=\"cover\">\n", 1)
+                if title:
+                    divstr += self._html.formatLine("<h3>%s</h3>\n" % title)
+                if author:
+                    divstr += self._html.formatLine("<p>%s</p>\n" % author)
+                if summary:
+                    divstr += self._html.formatLine("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
+                divstr += self._html.formatLine("</div>", -1, False)
+
+                print(divstr)
+            else:
+                print(lineObj.oriLine)
+
+
+        def handle_revision(m,lineObj):
+            if(m is not None and len(m.groups()) == 1):
+                from time import strftime
+                revision = self._markdown(m.group(1))
+
+                divstr = self._html.formatLine("<div id=\"revision\">\n", 1)
+                divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
+                divstr += self._html.formatLine("</div>")
+
+                print(divstr)
+            else:
+                print(lineObj.oriLine)
+
+        def handle_contact(m,lineObj):
+            if(m is not None):
+                cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
+                cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
+                cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
+                cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
+                cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
+                cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
+
+                divstr = self._html.formatLine("<div id=\"contact\">\n", 1)
+                divstr += self._html.formatLine("<table>\n", 1)
+                divstr += self._html.formatLine("<tr>\n", 1)
+                divstr += self._html.formatLine("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
+                divstr += self._html.formatLine("<td class=\"right\">{0}{1}{2}</td>\n".format(cName, cPhone, cEmail), -1)
+                divstr += self._html.formatLine("</tr>\n", -1)
+                divstr += self._html.formatLine("</table>\n", -1)
+                divstr += self._html.formatLine("</div>")
+
+                print(divstr)
+            else:
+                print(lineObj.oriLine)
 
         # Ok, open the specified file (or sys.stdin if avscript is None)
         try:
@@ -370,191 +520,43 @@ class AVScriptParser(object):
 
         rc = 0
 
+        # A map linking link parse types to processor functions
+        parseTypes = [
+            ('shot', handle_shot),
+            ('div', handle_div),
+            ('header', handle_header),
+            ('import', handle_import),
+            ('shotlist', handle_shotlist),
+            ('variables', handle_variables),
+            ('dumplinks', handle_dumplinks),
+            ('links', handle_links),
+            ('alias', handle_alias),
+            ('anchor', handle_anchor),
+            ('cover', handle_cover),
+            ('revision', handle_revision),
+            ('contact', handle_contact),
+        ]
+
         try:
             print(self._html.formatLine("<div id=\"wrapper\">", 1))
             while(self._readNextLine() != ''):
-                # DOC this entire method better...
                 # Start by stripping any class override from the beginning of the line
                 cssClass, curLine = self._stripClass(self._line)
 
-                lineObj = Line(curLine, self._ori_line)
+                lineObj = Line(cssClass,curLine,self._ori_line)
+                
+                # For each parse type
+                matched = False
+                for key, parse_func in parseTypes:
+                    parse_obj = self._regex_main[key]
+                    if(testLine(parse_obj,lineObj)):
+                        m = matchLine(parse_obj,lineObj)
+                        parse_func(m,lineObj)
+                        matched = True
+                        break
 
-                if (testLine(self._regex('shot'), lineObj)):
-                    m = matchLine(self._regex('shot'), lineObj)
-
-                    if(m is not None):
-                        li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
-                        divstr = self._html.formatLine("<div id=\"av\">\n", 1)
-                        divstr += self._html.formatLine("<ul>\n", 1)
-                        divstr += self._addBookmark(li)
-                        divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, cssClass))
-                        divstr += self._peekNextLine("li", True)
-                        divstr += self._html.formatLine("</ul>\n", -1, False)
-                        divstr += self._peekPlainText()
-                        divstr += self._html.formatLine("</div>", -1, False)
-                        print(divstr)
-                    else:
-                        print(curLine)
-
-                elif(testLine(self._regex('div'), lineObj)):
-                    m = matchLine(self._regex('div'), lineObj)
-
-                    if(m is not None):
-                        divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), cssClass)
-                        divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
-                        divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
-                        divstr = self._html.formatLine("<div%s>\n" % divID, 1)
-                        divstr += self._html.formatLine("<p%s>%s</p>\n" % (divPcls, divText.rstrip('\n')))
-                        divstr += self._peekNextLine()
-                        divstr += self._html.formatLine("</div>", -1, False)
-
-                        print(divstr)
-
-                    else:
-                        print(curLine)
-
-                elif(testLine(self._regex('h#'), lineObj)):
-                    m = matchLine(self._regex('h#'), lineObj)
-
-                    if(m is not None and len(m.groups()) > 1):
-                        hnum = len(m.group(1))
-                        self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), cssClass))
-                    else:
-                        print(curLine)
-
-                elif(testLine(self._regex('import'), lineObj)):
-                    m = matchLine(self._regex('import'), lineObj)
-                    if(m is not None and len(m.groups()) == 1):
-                        try:
-                            self._av.open(m.group(1))
-                        except FileError as fe:
-                            print(fe.errmsg)
-
-                elif(testLine(self._regex('shotlist'), lineObj)):
-                    print(self._html.formatLine("<div class=\"shotlist\">", 1))
-                    print(self._html.formatLine("<hr />"))
-                    shotnum = 1
-                    for shot in self._shotListQ.getBookmarkList():
-                        print(self._html.formatLine("<div id=\"shot\">", 1))
-                        print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
-                        print(self._html.formatLine("</div>"))
-                        shotnum += 1
-
-                    print(self._html.formatLine("</div>", -1, False))
-
-                elif(testLine(self._regex('variables'), lineObj)):
-                    print(self._html.formatLine("<div class=\"variables\">", 1))
-                    print(self._html.formatLine("<hr />"))
-                    self._variables.dumpVars(self._html.getIndent())
-                    print(self._html.formatLine("</div>", -1, False))
-
-                elif(testLine(self._regex('dumplinks'), lineObj)):
-                    print(self._html.formatLine("<div class=\"links\">", 1))
-                    print(self._html.formatLine("<hr />"))
-                    self._links.dumpLinks(self._html.getIndent())
-                    print(self._html.formatLine("</div>", -1, False))
-
-                # links handles the various formats that allow a title to be specified.
-                # [linkID]:url "title"
-                # [linkID]:(url "title")
-                # [linkID]:url
-                # [linkID]:(url)
-                # This has precedence over the [var]:[value], so we process it first
-                elif(testLine(self._regex('links'), lineObj)):
-                    m = matchLine(self._regex('links'), lineObj)
-
-                    optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
-
-                    if(m is not None and len(m.groups()) == 4):
-                        self._links.addLink(m.group(1), m.group(2), optTitle)
-                        # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
-                    else:
-                        print(self._ori_line)
-
-                elif(testLine(self._regex('alias'), lineObj)):
-                    m = matchLine(self._regex('alias'), lineObj)
-
-                    if(m is not None and len(m.groups()) == 3):
-                        self._variables.addVar(m.group(1), m.group(3))
-                    else:
-                        print(self._ori_line)
-
-                elif(testLine(self._regex('anchor'), lineObj)):
-                    # For this case, we just need to drop an anchor.
-                    m = matchLine(self._regex('anchor'), lineObj)
-
-                    if(m is not None and len(m.groups()) == 1):
-                        print(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
-                    else:
-                        print(self._ori_line)
-
-                # These "special" keywords require that we use the original
-                # raw line and not the markdown line in order to parse. Once
-                # we parse out these special lines, we'll markdown the individual
-                # groups before writing them...
-                elif(testLine(self._regex('cover'), lineObj)):
-                    m = matchLine(self._regex('cover'), lineObj)
-
-                    if(m is not None):
-                        title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
-                        author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
-                        summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
-
-                        divstr = self._html.formatLine("<div id=\"cover\">\n", 1)
-                        if title:
-                            divstr += self._html.formatLine("<h3>%s</h3>\n" % title)
-                        if author:
-                            divstr += self._html.formatLine("<p>%s</p>\n" % author)
-                        if summary:
-                            divstr += self._html.formatLine("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
-                        divstr += self._html.formatLine("</div>", -1, False)
-
-                        print(divstr)
-                    else:
-                        print(self._ori_line)
-
-                elif(testLine(self._regex('revision'), lineObj)):
-                    m = matchLine(self._regex('revision'), lineObj)
-
-                    if(m is not None and len(m.groups()) == 1):
-                        from time import strftime
-                        revision = self._markdown(m.group(1))
-
-                        divstr = self._html.formatLine("<div id=\"revision\">\n", 1)
-                        divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
-                        divstr += self._html.formatLine("</div>")
-
-                        print(divstr)
-                    else:
-                        print(self._ori_line)
-
-                elif(testLine(self._regex('contact'), lineObj)):
-                    m = matchLine(self._regex('contact'), lineObj)
-
-                    if(m is not None):
-                        cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
-                        cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
-                        cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
-                        cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
-                        cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
-                        cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
-
-                        divstr = self._html.formatLine("<div id=\"contact\">\n", 1)
-                        divstr += self._html.formatLine("<table>\n", 1)
-                        divstr += self._html.formatLine("<tr>\n", 1)
-                        divstr += self._html.formatLine("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
-                        divstr += self._html.formatLine("<td class=\"right\">{0}{1}{2}</td>\n".format(cName, cPhone, cEmail), -1)
-                        divstr += self._html.formatLine("</tr>\n", -1)
-                        divstr += self._html.formatLine("</table>\n", -1)
-                        divstr += self._html.formatLine("</div>")
-
-                        print(divstr)
-                    else:
-                        print(self._ori_line)
-
-                else:
-                    if curLine.rstrip():
-                        self._printInExtrasDiv("<p{1}>{0}</p>".format(curLine.rstrip(), cssClass))
+                if not matched and lineObj.curLine.rstrip():
+                    self._printInExtrasDiv("<p{1}>{0}</p>".format(lineObj.curLine.rstrip(), lineObj.cssClass))
 
             print(self._html.formatLine("</div>", -1, False))
 

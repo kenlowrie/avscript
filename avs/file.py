@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+"""Abstraction for file handling in AVScript class.
+
+These classes support AVScript's implementation of @import; that is, the
+ability to import a new file while processing the current one. When a new
+file is imported, it is read until EOF, and then the class will fall back
+to processing the prior file. @imports can be nested to allow even more
+flexibility.
+"""
 
 from sys import stdin
 from os.path import join, split, abspath, isfile
@@ -44,12 +52,11 @@ class FileHandler(object):
         else:
             # If name is prefixed with '$', prefix the filename with the path of
             # current file being read.
-
             if(filename[0] == '$'):
                 # Make sure this isn't the first file we are opening
                 if(self.idx >= 0 and self.filestack[self.idx].name is not None):
                     filename = join(split(abspath(self.filestack[self.idx].name))[0], filename[1:])
-
+            # Make sure the specified file exists, and then open it
             if isfile(filename):
                 name = abspath(filename)
                 file = open(filename, "r")
@@ -62,13 +69,21 @@ class FileHandler(object):
     def readline(self):
         """Read the next line of input and return it. If we are at EOF and
         there's a file object on the stack, close the current file and then
-        pop the prior off the stack and return the next line from it."""
+        pop the prior off the stack and return the next line from it.
+        
+        Returns:
+            Next line of input OR '' if at EOF
+        """
         self.line = self.filestack[self.idx].file.readline()
         if(self.line == ''):
+            # We are at EOF. Do we have any other files opened?
             if(len(self.filestack)):
+                # Pop the current file from the stack
                 f = self.filestack.pop()
                 if (f.i_opened):
+                    # I opened it, so close it
                     f.file.close()
+                # set the index back 1, so future reads will use prior file
                 self.idx -= 1
 
                 if (self.idx >= 0):

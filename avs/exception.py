@@ -7,13 +7,18 @@ class _Error(Exception):
 
 
 class FileError(_Error):
-    """Various exceptions raised by this module."""
+    """File IO exceptions raised by this module."""
     def __init__(self, errno, errmsg):
         self.errno = errno
         self.errmsg = errmsg
         
 class RegexError(_Error):
-    """Various exceptions raised by this module."""
+    """Regex exceptions raised by this module."""
+    def __init__(self, errmsg):
+        self.errmsg = errmsg
+        
+class LogicError(_Error):
+    """Logic exceptions raised by this module."""
     def __init__(self, errmsg):
         self.errmsg = errmsg
         

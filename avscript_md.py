@@ -100,6 +100,47 @@ class RegexMain(object):
         return self.match_str if self.match_str else self.test_str
 
 
+class Line(object):
+    """A wrapper class for a line of input."""
+    def __init__(self, cssPrefix=None, curLine=None, oriLine=None, was_indented=False):
+        self._cssPrefix = cssPrefix
+        self._curLine = curLine
+        self._oriLine = oriLine
+        self._was_indented = was_indented
+
+    @property
+    def current_line(self):
+        return self._curLine
+
+    @current_line.setter
+    def current_line(self,line):
+        self._curLine = line
+
+    @property
+    def original_line(self):
+        return self._oriLine
+
+    @original_line.setter
+    def original_line(self,ori_line):
+        self._oriLine = ori_line
+
+    @property
+    def css_prefix(self):
+        return self._cssPrefix
+
+    @css_prefix.setter
+    def css_prefix(self,prefix):
+        self._cssPrefix = prefix
+
+    @property
+    def was_indented(self):
+        return self._was_indented
+
+    @was_indented.setter
+    def was_indented(self,value):
+        self._was_indented = value
+
+
 class AVScriptParser(object):
     """Parse a text file written in a markdown-like syntax and output HTML.
     
@@ -110,14 +151,13 @@ class AVScriptParser(object):
     """
     def __init__(self):
         """The constructor for the class. Initialize the required member variables."""
-        self._line = None                # the current line "marked down"
-        self._ori_line = None            # the current line as it was read in
-        self._html = HTMLFormatter()     # format HTML output (indent for readability)
-        self._lineInCache = False        # if we have a line in the cache
-        self._av = FileHandler()         # file handler stack
+        self._line = Line()             # current line of input
+        self._html = HTMLFormatter()    # format HTML output (indent for readability)
+        self._lineInCache = False       # if we have a line in the cache
+        self._av = FileHandler()        # file handler stack
         self._shotListQ = BookmarkList() # shot list link Q
 
-        self._links = LinkDict()         # dict of links
+        self._links = LinkDict()        # dict of links
         self._variables = VariableDict() # dict of document variables
 
         # Dictionary of each line type that we can process
@@ -168,6 +208,9 @@ class AVScriptParser(object):
 
     def _unreadLine(self):
         """Mark the current line in the buffer as unread, so it will be returned next time."""
+        if(self._lineInCache is True):
+            raise LogicError("ERROR: _unreadLine called with line in cache.")
+
         self._lineInCache = True
 
     def _markdown(self, s):
@@ -281,40 +324,58 @@ class AVScriptParser(object):
         """Read the next line from the buffer, unless something is cached, in which case return that"""
         if(self._lineInCache):
             self._lineInCache = False    # reset the flag since we are returning it
-            return self._line
+            return self._line.current_line
+
         # read the next line from the file buffer
         while(1):
-            self._ori_line = self._av.readline()
-            if self._ori_line[0:2] != '//':
+            line = self._av.readline()
+            if not line:
+                break;
+            if not line.strip().rstrip():
+                #print("-->IGNORE '{}'<--<br />".format(line))
+                continue
+            if line[0:2] != '//':
                 break
-            if self._ori_line[0:3] == '///':
+            if line[0:3] == '///':
                 break
 
-        # mark it down
-        self._line= self._markdown(self._ori_line)
+        # remember if this line was indented...
+        self._line.was_indented = True if re.match('[ \t]', line) else False
+
+        # save a copy of the original line...
+        self._line.original_line = line
+
+        # strip the class, if any, and initialize css_prefix
+        self._line.css_prefix, stripped_line = self._stripClass(line.strip())
+
+        # process any markdown
+        self._line.current_line = self._markdown(stripped_line)
+
+        #print("-->'{}'".format(self._line.current_line))
         # return the marked down version
-        return self._line
+        return self._line.current_line
         
     def _addBookmark(self, link):
         return self._html.formatLine("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(link)))
-
-    def _makeCSSclass(self, tmpClass):
-        # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
-        s = tmpClass.replace(" ", "").replace(".", " ").strip()
-
-        return " class=\"{0}\"".format(s)
 
     def _stripClass(self, line):
         """Strip the {:.class} prefix off the line, and return the class formatted
            for use as an HTML class ATTR, along with the rest of the line. If no
            class is present, just return the line as-is."""
+
+        def make_CSS_class(tmpClass):
+            # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
+            s = tmpClass.replace(" ", "").replace(".", " ").strip()
+
+            return " class=\"{0}\"".format(s)
+
         if(re.match(r'\{:([\s]?.\w[^\}]*)\}(.*)', line)):
             regex = r'\{:([\s]?.\w[^\}]*)\}(.*)'
             m = re.match(regex, line)
 
             if(m is not None and len(m.groups()) == 2):
                 # format it like this: " class=cls1"
-                return self._makeCSSclass(m.group(1)), m.group(2)
+                return make_CSS_class(m.group(1)), m.group(2)
 
         # no class found, so return '' and the line, as-is
         return '', line
@@ -327,14 +388,12 @@ class AVScriptParser(object):
         if (self._readNextLine() == ''):
             return ""   # if we hit EOF, return ''
 
-        if re.match('[ \t]', self._line):
-            # line was indented, strip any leading space, and then indent it at current level
-            self._line= self._line.strip()
-            cssClass, rest = self._stripClass(self._line)
+        # if line was indented, it's part of the previous element
+        if self._line.was_indented:
             # get the link anchor and insert it ahead of the shot
-            link = "" if not addLinks else self._addBookmark(rest)
+            link = "" if not addLinks else self._addBookmark(self._line.current_line)
             # return this, but call myself recursively in case there are more indented lines...
-            return self._html.formatLine("{3}<{0}{2}>{1}</{0}>\n".format(element, rest.rstrip('\n'), cssClass, link) + self._peekNextLine(element, addLinks))
+            return self._html.formatLine("{3}<{0}{2}>{1}</{0}>\n".format(element, self._line.current_line.rstrip('\n'), self._line.css_prefix, link) + self._peekNextLine(element, addLinks))
 
         # We read 1 too many lines, so mark the cache as dirty so we can process it next time.
         self._unreadLine()
@@ -354,7 +413,7 @@ class AVScriptParser(object):
         # This internal API detects if the next line is some type of BREAK.
         # e.g. a section, new shot, heading or link...
 
-        def isNewSection(line, ori_line):
+        def isNewSection(lineObj):
             # Look to see if the current line in the cache is the start of a new section
 
             for id in self._regex_main:
@@ -364,21 +423,16 @@ class AVScriptParser(object):
                     continue
                 # if this RE allows a class prefix, use the line with the
                 # prefix stripped off, otherwise, use the original line.
-                if re.match(obj.test_str, line if obj.allows_class_prefix else ori_line):
+                if re.match(obj.test_str, lineObj.current_line if obj.allows_class_prefix else lineObj.original_line):
                     return True
 
             return False
 
-        # Strip class, check the raw line to see if we should break
-        tCls, tRst = self._stripClass(self._ori_line.strip())
-
-        # if the RAW line is empty or if it's not a new section,
-        #   keep it and peek at next line
-        if not tRst or not isNewSection(tRst, self._ori_line.strip()):
-            tmpClass, rest = self._stripClass(self._line.strip())
+        # if it's not a new section, keep it and peek at next line
+        if not isNewSection(self._line):
             # add this line to the current DIV, and keep reading until we hit some
             # type of break element...
-            return self._html.formatLine("<{0}{2}>{1}</{0}>\n".format(element, rest, tmpClass) + self._peekPlainText(element))
+            return self._html.formatLine("<{0}{2}>{1}</{0}>\n".format(element, self._line.current_line, self._line.css_prefix) + self._peekPlainText(element))
 
         # read one too many lines, so cache the current line for the next time around...
         self._unreadLine()
@@ -398,21 +452,14 @@ class AVScriptParser(object):
         Arguments:
         avscript -- the script to parse or None to parse sys.stdin
         """
-        class Line(object):
-            """A wrapper class for a line of input."""
-            def __init__(self, cssClass, curLine, oriLine):
-                self.cssClass = cssClass
-                self.curLine = curLine
-                self.oriLine = oriLine
-        
         def testLine(regex_obj, line_obj):
             """See if the current line matches the test_regex() expression."""
-            line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
+            line = line_obj.current_line if not regex_obj.uses_raw_line else line_obj.original_line
             return re.match(regex_obj.test_regex(), line)
 
         def matchLine(regex_obj, line_obj):
             """See if the current line matches the match_regex() expression."""
-            line = line_obj.curLine if not regex_obj.uses_raw_line else line_obj.oriLine
+            line = line_obj.current_line if not regex_obj.uses_raw_line else line_obj.original_line
             return re.match(regex_obj.match_regex(), line)
 
         def handle_shot(m,lineObj):
@@ -421,18 +468,18 @@ class AVScriptParser(object):
                 divstr = self._html.formatLine("<div id=\"av\">\n", 1)
                 divstr += self._html.formatLine("<ul>\n", 1)
                 divstr += self._addBookmark(li)
-                divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, lineObj.cssClass))
+                divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, lineObj.css_prefix))
                 divstr += self._peekNextLine("li", True)
                 divstr += self._html.formatLine("</ul>\n", -1, False)
                 divstr += self._peekPlainText()
                 divstr += self._html.formatLine("</div>", -1, False)
                 print(divstr)
             else:
-                print(lineObj.curLine)
+                print(lineObj.current_line)
 
         def handle_div(m,lineObj):
             if(m is not None):
-                divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), lineObj.cssClass)
+                divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), lineObj.css_prefix)
                 divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
                 divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
                 divstr = self._html.formatLine("<div%s>\n" % divID, 1)
@@ -443,15 +490,15 @@ class AVScriptParser(object):
                 print(divstr)
 
             else:
-                print(lineObj.curLine)
+                print(lineObj.current_line)
 
 
         def handle_header(m,lineObj):
             if(m is not None and len(m.groups()) > 1):
                 hnum = len(m.group(1))
-                self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), lineObj.cssClass))
+                self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), lineObj.css_prefix))
             else:
-                print(lineObj.curLine)
+                print(lineObj.current_line)
 
 
         def handle_import(m,lineObj):
@@ -492,14 +539,14 @@ class AVScriptParser(object):
                 self._links.addLink(m.group(1), m.group(2), optTitle)
                 # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
 
         def handle_alias(m,lineObj):
             if(m is not None and len(m.groups()) == 3):
                 self._variables.addVar(m.group(1), m.group(3))
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
 
         def handle_anchor(m,lineObj):
@@ -507,7 +554,7 @@ class AVScriptParser(object):
             if(m is not None and len(m.groups()) == 1):
                 print(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
         def handle_cover(m,lineObj):
             if(m is not None):
@@ -526,7 +573,7 @@ class AVScriptParser(object):
 
                 print(divstr)
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
 
         def handle_revision(m,lineObj):
@@ -540,7 +587,7 @@ class AVScriptParser(object):
 
                 print(divstr)
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
         def handle_contact(m,lineObj):
             if(m is not None):
@@ -562,7 +609,7 @@ class AVScriptParser(object):
 
                 print(divstr)
             else:
-                print(lineObj.oriLine)
+                print(lineObj.original_line)
 
         # Ok, open the specified file (or sys.stdin if avscript is None)
         try:
@@ -578,7 +625,7 @@ class AVScriptParser(object):
 
         rc = 0
 
-        # A map linking link parse types to processor functions
+        # A map linking line parse types to processor functions
         parseTypes = [
             ('shot', handle_shot),
             ('div', handle_div),
@@ -597,24 +644,22 @@ class AVScriptParser(object):
 
         try:
             print(self._html.formatLine("<div id=\"wrapper\">", 1))
-            while(self._readNextLine() != ''):
-                # Start by stripping any class override from the beginning of the line
-                cssClass, curLine = self._stripClass(self._line)
 
-                lineObj = Line(cssClass,curLine,self._ori_line)
-                
+            while(self._readNextLine() != ''):
                 # For each parse type
                 matched = False
                 for key, parse_func in parseTypes:
                     parse_obj = self._regex_main[key]
-                    if(testLine(parse_obj,lineObj)):
-                        m = matchLine(parse_obj,lineObj)
-                        parse_func(m,lineObj)
+                    if(testLine(parse_obj,self._line)):
+                        m = matchLine(parse_obj,self._line)
+                        parse_func(m,self._line)
                         matched = True
                         break
 
-                if not matched and lineObj.curLine.rstrip():
-                    self._printInExtrasDiv("<p{1}>{0}</p>".format(lineObj.curLine.rstrip(), lineObj.cssClass))
+                if not matched and self._line.current_line.rstrip():
+                    divstr = self._line.current_line
+                    divstr += self._peekPlainText("span")
+                    self._printInExtrasDiv("<p{1}>{0}</p>".format(divstr, self._line.css_prefix))
 
             print(self._html.formatLine("</div>", -1, False))
 

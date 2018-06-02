@@ -78,6 +78,7 @@ class FileHandler(object):
             self.line = ''
         else:
             self.line = self.filestack[self.idx].file.readline()
+
         if(self.line == ''):
             # We are at EOF. Do we have any other files opened?
             if(len(self.filestack)):

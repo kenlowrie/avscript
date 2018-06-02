@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class _Variable(object):
     """Class to abstract a variable (alias). Keep track of the ID (name) and
     the value (text)."""

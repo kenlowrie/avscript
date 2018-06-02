@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class _Link(object):
     """Class to abstract a reference link. Keep track of the URL (url) and
     the optional title (title). We don't track the name here, that is done

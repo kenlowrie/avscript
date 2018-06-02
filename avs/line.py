@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class Line(object):
     """A wrapper class for a line of input."""
     def __init__(self, cssPrefix=None, curLine=None, oriLine=None, was_indented=False):

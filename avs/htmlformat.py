@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+"""Abstraction for HTML formatter in AVScript class.
+
+This class keeps track of the indentation level of the HTML we are
+writing, so that it stays readable. That is, each new <div> that is
+written increases subsequent line indentation until the closing </div>
+is encountered. Just makes it easier to read the output.
+"""
+
+
 class HTMLFormatter(object):
     _current_level = 0
     

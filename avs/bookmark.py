@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class BookmarkList(object):
     """This class keeps track of bookmarks in the document being processed by AVScript.
 

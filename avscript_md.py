@@ -16,6 +16,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+------------------------------------------------------------------------------
 
 When invoked from BBEdit, it reads from sys.stdin, which will be the current 
 contents of the AV markdown document you are editing, formats it on the fly, 
@@ -51,8 +52,6 @@ Future - aka Wish List
 
 
 TODO (Punch list):
-1. Finish the docstrings for all modules
-2. Finish user documentation
 3. Test with Python2 and Python3
 4. Make it pass flake8 (mostly)
 5. Create unit tests and automate testing with Travis CI
@@ -60,63 +59,25 @@ TODO (Punch list):
 
 CSS Clean Up
 1. Reorganize, make consistent.
-2. Make it pass lint
+2. Make the HTML output pass lint
 3. Add more useful styles
 4. Create multiple versions: All, Visuals and Narration only, User Guide
 5. Ability to pass requested version to mkavscript_md
 
 """
 
-import re
-
+from re import IGNORECASE, findall, match
 from sys import exit
 from os.path import isfile
 
 from avs.file import FileHandler
 from avs.line import Line
 from avs.link import LinkDict
+from avs.regex import RegexMD, RegexMain
 from avs.variable import VariableDict
 from avs.bookmark import BookmarkList
 from avs.htmlformat import HTMLFormatter
 from avs.exception import *
-
-
-class RegexMD(object):
-    """This class holds the regular expressions used when applying markdown
-    to inline formatting syntax."""
-    def __init__(self, regex, new_repl_str, flags=0):
-        self.regex = re.compile(regex, flags)
-        self.new_str = new_repl_str
-
-
-class RegexMain(object):
-    """This class holds the regular expressions used for the main parsing loop."""
-    def __init__(self, starts_new_div, uses_raw_line, allows_class_prefix, test, match):
-        """Constructor for the RegexMain class.
-        
-        Arguments:
-        starts_new_div -- signals whether this regex will stop the peekplaintext() from processing new lines
-        uses_raw_line -- signals whether this regex should process the raw line or the marked_down line
-        allows_class_prefix -- signals whether this regex can be prefixed with a class override
-        test_str -- this is the regex string used to detect if the line is a match
-        match_str -- this is the regex string used when parsing the line into groups. If None, uses test_str
-        """
-        self.test_str = re.compile(test)
-        self.match_str = None if not match else re.compile(match)
-        self.starts_new_div = starts_new_div
-        self.uses_raw_line = uses_raw_line
-        self.allows_class_prefix = allows_class_prefix
-
-    def test_regex(self):
-        """Return the regex used to test if the current line matches a parse type."""
-        return self.test_str
-
-    def match_regex(self):
-        """Return the regex used to match a parse type and breakdown the elements.
-        
-        If their is no match regex defined, this method returns the regex for
-        testing if the line matches a specific parse type."""
-        return self.match_str if self.match_str else self.test_str
 
 
 class AVScriptParser(object):
@@ -161,7 +122,7 @@ class AVScriptParser(object):
             'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
             'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
             'links_and_vars': RegexMD(r'(\[([^\]]+)\](?!(:(.+))|(\=(.+))))', None),
-            'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', re.IGNORECASE),
+            'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', IGNORECASE),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)','<em>{0}</em>'),
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})','<ins>{0}</ins>'),
@@ -291,7 +252,7 @@ class AVScriptParser(object):
         # For each type of markdown
         for key, md_func in markdownTypes:
             md_obj = self._regex_markdown[key]
-            matches = re.findall(md_obj.regex,s)    # find all the matches
+            matches = findall(md_obj.regex,s)    # find all the matches
             for m in matches:
                 # for each match, process it
                 s = md_func(m,s,md_obj.new_str)
@@ -318,7 +279,7 @@ class AVScriptParser(object):
                 break
 
         # remember if this line was indented...
-        self._line.was_indented = True if re.match('[ \t]', line) else False
+        self._line.was_indented = True if match('[ \t]', line) else False
 
         # save a copy of the original line...
         self._line.original_line = line
@@ -329,12 +290,19 @@ class AVScriptParser(object):
         # process any markdown
         self._line.current_line = self._markdown(stripped_line)
 
-        #print("-->'{}'".format(self._line.current_line))
         # return the marked down version
         return self._line.current_line
         
-    def _addBookmark(self, link):
-        return self._html.formatLine("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(link)))
+    def _addBookmark(self, linktext):
+        """Generate a unique HTML bookmark and return the inline <a> tag to define it.
+        
+        Arguments:
+            linktext -- optional text to wrap the <a> element around.
+            
+        Returns:
+            HTML <a> element as string: <a id="GENERATED UNIQUE_ID">linktext</a>
+        """
+        return self._html.formatLine("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(linktext)))
 
     def _stripClass(self, line):
         """Strip the {:.class} prefix off the line, and return the class formatted
@@ -342,14 +310,23 @@ class AVScriptParser(object):
            class is present, just return the line as-is."""
 
         def make_CSS_class(tmpClass):
+            """Create a proper class="class1 class2" string from .class1.class2 notation.
+            
+            Arguments:
+                The class(es) specified in the {:.class1.class2} wrapper
+                
+            Returns:
+                String in proper class attribute format. e.g.:
+                    {:.ignore.red} would become ' class="ignore red"'
+            """
             # remove all extraneous spaces, then change '.' to ' ' then strip leading blanks
             s = tmpClass.replace(" ", "").replace(".", " ").strip()
 
             return " class=\"{0}\"".format(s)
 
-        if(re.match(r'\{:([\s]?.\w[^\}]*)\}(.*)', line)):
+        if(match(r'\{:([\s]?.\w[^\}]*)\}(.*)', line)):
             regex = r'\{:([\s]?.\w[^\}]*)\}(.*)'
-            m = re.match(regex, line)
+            m = match(regex, line)
 
             if(m is not None and len(m.groups()) == 2):
                 # format it like this: " class=cls1"
@@ -390,8 +367,16 @@ class AVScriptParser(object):
 
         # This internal API detects if the next line is some type of BREAK.
         # e.g. a section, new shot, heading or link...
-
         def isNewSection(lineObj):
+            """Determines if the current line is the start of a new section.
+            
+            Arguments:
+                lineObj -- a Line() instance
+                
+            Returns:
+                True -- if the current line should start a new section
+                False -- if the current line is part of the current section
+            """
             # Look to see if the current line in the cache is the start of a new section
 
             for id in self._regex_main:
@@ -401,7 +386,7 @@ class AVScriptParser(object):
                     continue
                 # if this RE allows a class prefix, use the line with the
                 # prefix stripped off, otherwise, use the original line.
-                if re.match(obj.test_str, lineObj.current_line if obj.allows_class_prefix else lineObj.original_line):
+                if match(obj.test_str, lineObj.current_line if obj.allows_class_prefix else lineObj.original_line):
                     return True
 
             return False
@@ -440,12 +425,12 @@ class AVScriptParser(object):
         def testLine(regex_obj, line_obj):
             """See if the current line matches the test_regex() expression."""
             line = line_obj.current_line if not regex_obj.uses_raw_line else line_obj.original_line
-            return re.match(regex_obj.test_regex(), line)
+            return match(regex_obj.test_regex(), line)
 
         def matchLine(regex_obj, line_obj):
             """See if the current line matches the match_regex() expression."""
             line = line_obj.current_line if not regex_obj.uses_raw_line else line_obj.original_line
-            return re.match(regex_obj.match_regex(), line)
+            return match(regex_obj.match_regex(), line)
 
         def handle_shot(m,lineObj):
             """Handle a shot parse line"""
@@ -479,7 +464,6 @@ class AVScriptParser(object):
             else:
                 print(lineObj.current_line)
 
-
         def handle_header(m,lineObj):
             """Handle a header parse line"""
             if(m is not None and len(m.groups()) > 1):
@@ -487,7 +471,6 @@ class AVScriptParser(object):
                 self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), lineObj.css_prefix))
             else:
                 print(lineObj.current_line)
-
 
         def handle_import(m,lineObj):
             """Handle an import parse line"""
@@ -534,14 +517,12 @@ class AVScriptParser(object):
             else:
                 print(lineObj.original_line)
 
-
         def handle_alias(m,lineObj):
             """Handle the alias parse line type"""
             if(m is not None and len(m.groups()) == 3):
                 self._variables.addVar(m.group(1), m.group(3))
             else:
                 print(lineObj.original_line)
-
 
         def handle_anchor(m,lineObj):
             """Handle an anchor parse line type"""
@@ -570,7 +551,6 @@ class AVScriptParser(object):
                 print(divstr)
             else:
                 print(lineObj.original_line)
-
 
         def handle_revision(m,lineObj):
             """Handle the revision parse line type"""
@@ -609,6 +589,7 @@ class AVScriptParser(object):
             else:
                 print(lineObj.original_line)
 
+        # --------------------------------------------------------------------
         # This is the ENTRY point to the parse() method!
         # Ok, open the specified file (or sys.stdin if avscript is None)
         try:

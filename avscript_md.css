@@ -77,10 +77,10 @@ del{
     text-align:center;
 }
 
-#wrapper {
+.wrapper {
 }
 
-#cover {
+div.cover {
     clear:both;
     text-align:center;
     border: 1px solid #ccc;
@@ -88,7 +88,7 @@ del{
     margin: .5em;
 }    
 
-div#cover p{
+div.cover p{
     border:none;
     float: none;
     width: inherit;
@@ -97,12 +97,15 @@ div#cover p{
 }
 
 .coverSummary{
+    float: none;
+    width: inherit;
     display:block;
     font-size: .8em;
+	font-family:inherit;
 }
 
 
-#revision {
+div.revision {
     clear:both;
     display:block;
     text-align:center;
@@ -111,7 +114,7 @@ div#cover p{
     margin: .5em;
 }
 
-div#revision p{
+div.revision p{
     clear:both;
     border:none;
     float: none;
@@ -123,7 +126,7 @@ div#revision p{
     font-weight:bold;
 }
 
-#contact {
+div.contact {
     clear:both;
     display:block;
     border: 1px solid #ccc;
@@ -132,14 +135,14 @@ div#revision p{
     page-break-after: always;
 }    
 
-div#contact p{
+div.contact p{
     border:none;
     float: none;
     width: inherit;
 	font-family:inherit;
 }    
 
-#section, #unused, #link {
+div.toc{
     clear:both;
     border: 2px solid #000;
     margin: .5em;
@@ -147,14 +150,7 @@ div#contact p{
 	background-color: #c0c0c0;
 }
 
-div#section p, div#unused p{
-    border:none;
-    float: none;
-    width: inherit;
-	font-family:inherit;
-}
-
-div#link p{
+div.toc p{
     margin:0;
     padding:0;
     border:none;
@@ -163,17 +159,32 @@ div#link p{
 	font-family:inherit;
 }
 
-div#unused p{
+div.section, div.unused {
+    clear:both;
+    border: 2px solid #000;
+    margin: .5em;
+    padding: 10px;
+	background-color: #c0c0c0;
+}
+
+div.section p, div.unused p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+div.unused p{
 	margin-bottom: 0;
 }
 
-#plain {
+div.plain {
     clear:both;
     margin: .5em;
     padding: 10px;
 }
 
-div#plain p{
+div.plain p{
     border:none;
     float: none;
     padding: 20px;
@@ -181,26 +192,27 @@ div#plain p{
 	font-family:inherit;
 }
 
-div#plain p.plainTitle{
+div.plain p.plainTitle{
     padding: 10px;
     font-weight: bold;
     font-size: 1.2em;
     border-bottom: 2px solid black;
 }
 
-#extras {
+.extras {
     clear:both;
     margin: .5em;
     padding: 0px 10px 0 10px;
 }
 
-div#extras p{
+div.extras p{
     border:none;
     float: none;
     width: inherit;
 	font-family:inherit;
 }
-#note {
+
+div.review {
     clear: both;
     padding: .5em;
     border: 2px dashed #ff0000;
@@ -208,7 +220,7 @@ div#extras p{
 	background-color: #f7f7f7;
 }
 
-div#note p{
+div.review p{
     border:none;
     float: none;
     width: inherit;
@@ -216,7 +228,7 @@ div#note p{
 	font-family:inherit;
 }
 
-.noteTitle{
+.divTitle{
     font-weight: bold;
     font-size: 1.2em;
 }
@@ -283,7 +295,7 @@ p {
 	border-top: 1px solid #ccc;
 }
 
-div#av p, div#av ul{
+div.av p, div.av ul{
 	font-size: 1.3em;
 }
 
@@ -354,25 +366,26 @@ em {
 	font-size: 1.3em;
 }
 
-#shot {
-	clear:both;
-    float:none;
-    width:inherit;
+div.shot {
+    margin-left: 1em;
 }
 
-div#shot p{
+div.shot p{
+    clear:both;
+    margin-left: 1em;
     float:none;
-    width:inherit;
     border:none;
+    width:90%;
 }
 
 div.links, div.variables{
 	clear:both;
     float:none;
     width:inherit;
+    margin-left:1em;
 }
 
-.indent, div#link p.indent{
+.indent,div.toc p.indent{
     margin-left:3em;
 }
 

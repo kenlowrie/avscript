@@ -73,7 +73,7 @@ from os.path import isfile
 from avs.file import FileHandler
 from avs.line import Line
 from avs.link import LinkDict
-from avs.regex import RegexMD, RegexMain
+from avs.regex import Regex, RegexMD, RegexMain
 from avs.variable import VariableDict
 from avs.bookmark import BookmarkList
 from avs.htmlformat import HTMLFormatter
@@ -98,6 +98,8 @@ class AVScriptParser(object):
 
         self._links = LinkDict()        # dict of links
         self._variables = VariableDict() # dict of document variables
+        
+        self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
 
         # Dictionary of each line type that we can process
         self._regex_main = {
@@ -324,9 +326,8 @@ class AVScriptParser(object):
 
             return " class=\"{0}\"".format(s)
 
-        if(match(r'\{:([\s]?.\w[^\}]*)\}(.*)', line)):
-            regex = r'\{:([\s]?.\w[^\}]*)\}(.*)'
-            m = match(regex, line)
+        if(match(self._css_class_prefix.regex, line)):
+            m = match(self._css_class_prefix.regex, line)
 
             if(m is not None and len(m.groups()) == 2):
                 # format it like this: " class=cls1"
@@ -386,7 +387,7 @@ class AVScriptParser(object):
                     continue
                 # if this RE allows a class prefix, use the line with the
                 # prefix stripped off, otherwise, use the original line.
-                if match(obj.test_str, lineObj.current_line if obj.allows_class_prefix else lineObj.original_line):
+                if match(obj.test_str.regex, lineObj.current_line if obj.allows_class_prefix else lineObj.original_line):
                     return True
 
             return False

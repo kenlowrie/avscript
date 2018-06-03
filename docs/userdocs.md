@@ -5,7 +5,7 @@
 [path]=/Users/ken/Dropbox/shared/src/script/avscript/docs/import
 @import '[path]/userguideheading.md'
 [SP]=&nbsp;
-@@@ link noteTitle Table of Contents
+{:.toc}@@@ divTitle Table of Contents
     [SP]
     @:[inlinemd]<<Inline Markdown>> - **Formatting content inline**
     @:[links]<<Links>> - **Inline and Reference Link Styles**
@@ -33,10 +33,12 @@ Let's see a quick example now. The next line will begin with an ***&#42;*** and 
 *WS:Sunrise
 There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
-// When you want to force the document out of shot mode, use a heading. That will reset the floats. See how the document leaves the narration mode of the prior shot, and starts a new block paragraph.
-#
-You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc.
-
+// When you want to force the document out of shot mode, use a class prefix on an empty line. That will reset the floats. See how the document leaves the narration mode of the prior shot, and starts a new block paragraph.
+{:.note}
+You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc. To add another shot, just repeat the steps above, like this:
+*CU:Coffee pot heating on wire rack of fire pit
+There's nothing like waking up to the smell of coffee percolating in the outdoors.
+{:.ignore}
 Lines that begin with a double forward slash [***//***] are treated as comments, and are discarded by AVScript. They will not appear in the HTML at all.
 @+[inlinemd]
 ###Inline Markdown
@@ -45,8 +47,8 @@ A few of the standard markdown span elements are supported, as are a couple of s
 
 {:.indent}###&#42; - wrap text in a single asterisk for *emphasis*
 {:.indent}###&#42;&#42; - wrap text in double asterisks for bold
-{:.indent}###&#43;&#43; - wrap text in double plus signs for ++&ltins>++
-{:.indent}###&#126;&#126; - wrap text in double tilde for ~~&ltdel>~~
+{:.indent}###&#43;&#43; - wrap text in double plus signs for ++&lt;ins>++
+{:.indent}###&#126;&#126; - wrap text in double tilde for ~~&lt;del>~~
 
 Here are a few examples:
 
@@ -54,7 +56,7 @@ When I write **&#42;text&#42;**, it becomes *text*, and when I write **&#42;&#42
 
 You can stack them too, so that **&#42;&#42;&#42;text&#42;&#42;&#42;** becomes ***text***
 
-When you want to wrap text with &ltins>, use the double plus signs like this: ++Stuff that's been added++. Similarly, when you want to wrap text with &ltdel> tags, do it like this: ~~Stuff that's been removed~~.
+When you want to wrap text with &lt;ins>, use the double plus signs like this: ++Stuff that's been added++. Similarly, when you want to wrap text with &lt;del> tags, do it like this: ~~Stuff that's been removed~~.
 
 That's a brief look at using AVScript's built-in span element support. Now, let's take a look at support for links, the remaining span element.
 
@@ -90,10 +92,11 @@ Now, when I write &#91;Google], it is wrapped with a link tag like so: [Google].
 You can also use the inline link format at the start of a line, as in the following example for **[inline 1]**.
 {:.indent}###&#91;inline 1]:(https://cloudylogic.com "inline link title") 
 [inline 1]:(https://cloudylogic.com "inline link title")
-Now, when we write &#91inline 1], it has been defined just like a normal reference link, like this: [inline 1]
+Now, when we write &#91;inline 1], it has been defined just like a normal reference link, like this: [inline 1]
 When you use the inline link syntax at the start of a line, however, everything following the closing parenthesis is ignored. For example, if we write:
 {:.indent}###**&#91;inline 2]:(https://cloudylogic.com) - you won't see any of this text...**
 Then the inline link isn't expanded inline as normal, and any text following the closing parenthesis is ignored.
+
 {:.note.red}If you look at the source document immediately following this note,  you'll see the inline definition of **inline 2**, but it isn't displayed like normal inline links, it is only defined for use later.
 
 [inline 2]:(https://cloudylogic.com)-you won't see any of this text...
@@ -109,11 +112,11 @@ The final type of link format is automatic links? Automatic links are created by
 Aliases (aka Variables), which is essentially text substitution, is supported using a similar syntax to reference links. **[variable]=value**. Take the following example:
 {:.indent}###[my name]=Ken Lowrie
 [my name]=Ken Lowrie
-Now, anywhere I write &#91;my name], it will be replaced with "Ken Lowrie". Let's do that now: [my name] <-- Should be Ken Lowrie.
+Now, anywhere I write &#91;my name], it will be replaced with "Ken Lowrie". Let's do that now: [my name] &lt;-- Should be Ken Lowrie.
 
 If I instead write: &#91;my name]=[&#42;Ken Lowrie*], then everywhere I write &#91;my name], it will be replaced with &lt;em>Ken Lowrie&lt;/em>. Okay, let's go ahead and do that now. 
 [my name]=*Ken Lowrie*
-And now, [my name] <-- should be Ken Lowrie wrapped with &lt;em> tags.
+And now, [my name] &lt;-- should be Ken Lowrie wrapped with &lt;em> tags.
 ## Link aliases
 
 Building on that, we can create aliases for inline links. Say I define a reference link like this: 
@@ -129,12 +132,22 @@ Now, when I write [Cloudy Logic], it is wrapped with the link for *cls*. Cool!
 ##Divs
 You can create a new DIV using ***---*** or ***@@@*** at the start of a new line. The complete syntax is: 
 
-###&lt;***---*** | ***@@@***&gt; &lt;***cssID***&gt; &lt;***className | .***&gt; &#91;optional title&#93;
+###&#91;{:.class}&lt;***---*** | ***@@@***&gt; &lt;***title_className | .***&gt; &#91;optional title&#93;
 
-For example, when I write ***@@@ section noteTitle This is my new DIV section*** at the start of a new line, I get this:
---- section noteTitle This is my new DIV section
+The class prefix is optional, but handy if you want your DIV to be styled in a unique way. You can list one or more classes in dotted notation. E.g.: **{:.myclass}** or **{:.myclass1.myclass2}**. Then an optional class for the title, or '.' to indicate no title class, and finally, the optional title. Let's take a look at an example:
 
-There are a several built-in CSS ID's that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
+When I write ***{:.section}@@@ divTitle This is my new DIV section*** at the start of a new line, I get this:
+{:.section}--- divTitle This is my new DIV section
+
+If I indent subsequent lines immediately following the DIV declaration, they become part of the DIV as a regular paragraph. For example, I'll add four (4) indented lines immediately after the previous DIV declaration and I get this:
+
+{:.section}--- divTitle This is my new DIV section
+    This is line 1
+    This is line 2
+    This is line 3
+    This is line 4
+
+There are a several built-in CSS classes that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
 
 @+[headers]
 ##Headers
@@ -195,7 +208,7 @@ To see these tags in action, take a look at the userguideheading.md document in 
 @+[imports]
 ##Importing documents
 
-@@@ link noteTitle Syntax:
+{:.toc}@@@ divTitle Syntax:
     {:.indent}**@import "filename"**
     {:.indent}**@import "/abs/path/to/filename"**
     {:.indent}**@import "../relative/path/to/filename"**

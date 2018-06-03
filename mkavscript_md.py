@@ -68,11 +68,12 @@ def gethead(mdfile,cssFile):
     file,ext = os.path.splitext(name)
     
     head = """<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>"""
     head += file
     head += """</title>
+    <meta charset="UTF-8">
     <link rel='stylesheet' href='{0}' />
 </head>
 <body>

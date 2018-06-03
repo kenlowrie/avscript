@@ -6,7 +6,7 @@ class _Link(object):
     the optional title (title). We don't track the name here, that is done
     in the C_Links class."""
     def __init__(self, url, title=None):
-        self.url = url
+        self.url = url.replace(" ","%20")
         self.title = title
 
 

@@ -52,14 +52,13 @@ Future - aka Wish List
 
 
 TODO (Punch list):
+1. Refactor mkavscript_md.py with command line args, import, etc.
 3. Test with Python2 and Python3
 4. Make it pass flake8 (mostly)
 5. Create unit tests and automate testing with Travis CI
 6. Consider setup_tools based install? Maybe
 
 CSS Clean Up
-1. Reorganize, make consistent.
-2. Make the HTML output pass lint
 3. Add more useful styles
 4. Create multiple versions: All, Visuals and Narration only, User Guide
 5. Ability to pass requested version to mkavscript_md
@@ -105,7 +104,7 @@ class AVScriptParser(object):
         self._regex_main = {
             #                   NewDiv RawLine Prefix   Test Regex                                        Match Regex
             'shot': RegexMain(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
-            'div': RegexMain(True, False, True, r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([^\s]+)[ ]*([\w\.]+)?[ ]*(.*)'),
+            'div': RegexMain(True, False, True, r'^[-@]{3}[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([\w\.]+)?[ ]*(.*)'),
             'header': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
@@ -406,7 +405,7 @@ class AVScriptParser(object):
         """Print the passed in string inside of a DIV with ID="extras". This allows
            orphaned elements to be kept out of the shot/narrative sections, where
            floats are active."""
-        print(self._html.formatLine("<div id=\"extras\">", 1))
+        print(self._html.formatLine("<div class=\"extras\">", 1))
         print(self._html.formatLine(str, -1))
         print(self._html.formatLine("</div>"))
 
@@ -437,9 +436,9 @@ class AVScriptParser(object):
             """Handle a shot parse line"""
             if(m is not None):
                 li = "" if len(m.groups()) < 1 else "%s" % m.group(1)
-                divstr = self._html.formatLine("<div id=\"av\">\n", 1)
-                divstr += self._html.formatLine("<ul>\n", 1)
+                divstr = self._html.formatLine("<div class=\"av\">\n", 1)
                 divstr += self._addBookmark(li)
+                divstr += self._html.formatLine("<ul>\n", 1)
                 divstr += self._html.formatLine("<li{1}>{0}</li>\n".format(li, lineObj.css_prefix))
                 divstr += self._peekNextLine("li", True)
                 divstr += self._html.formatLine("</ul>\n", -1, False)
@@ -452,10 +451,10 @@ class AVScriptParser(object):
         def handle_div(m,lineObj):
             """handle a DIV parse line"""
             if(m is not None):
-                divID = "" if len(m.groups()) < 1 else " id=\"{0}\"{1}".format(m.group(1), lineObj.css_prefix)
-                divPcls = "" if len(m.groups()) < 2 or m.group(2) == "." else " class=\"%s\"" % m.group(2)
-                divText = "" if len(m.groups()) < 3 else "%s\n" % m.group(3)
-                divstr = self._html.formatLine("<div%s>\n" % divID, 1)
+                divClas = "" if not lineObj.css_prefix else lineObj.css_prefix
+                divPcls = "" if len(m.groups()) < 1 or m.group(1) == "." else " class=\"%s\"" % m.group(1)
+                divText = "" if len(m.groups()) < 2 else "%s\n" % m.group(2)
+                divstr = self._html.formatLine("<div%s>\n" % divClas, 1)
                 divstr += self._html.formatLine("<p%s>%s</p>\n" % (divPcls, divText.rstrip('\n')))
                 divstr += self._peekNextLine()
                 divstr += self._html.formatLine("</div>", -1, False)
@@ -487,8 +486,8 @@ class AVScriptParser(object):
             print(self._html.formatLine("<hr />"))
             shotnum = 1
             for shot in self._shotListQ.getBookmarkList():
-                print(self._html.formatLine("<div id=\"shot\">", 1))
-                print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rev=\"shotlist\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
+                print(self._html.formatLine("<div class=\"shot\">", 1))
+                print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rel=\"tag\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
                 print(self._html.formatLine("</div>"))
                 shotnum += 1
 
@@ -513,7 +512,7 @@ class AVScriptParser(object):
             optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
 
             if(m is not None and len(m.groups()) == 4):
-                self._links.addLink(m.group(1), m.group(2), optTitle)
+                self._links.addLink(m.group(1), self._markdown(m.group(2)), optTitle)
                 # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
             else:
                 print(lineObj.original_line)
@@ -521,7 +520,7 @@ class AVScriptParser(object):
         def handle_alias(m,lineObj):
             """Handle the alias parse line type"""
             if(m is not None and len(m.groups()) == 3):
-                self._variables.addVar(m.group(1), m.group(3))
+                self._variables.addVar(m.group(1), self._markdown(m.group(3)))
             else:
                 print(lineObj.original_line)
 
@@ -540,7 +539,7 @@ class AVScriptParser(object):
                 author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
                 summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
 
-                divstr = self._html.formatLine("<div id=\"cover\">\n", 1)
+                divstr = self._html.formatLine("<div class=\"cover\">\n", 1)
                 if title:
                     divstr += self._html.formatLine("<h3>%s</h3>\n" % title)
                 if author:
@@ -559,7 +558,7 @@ class AVScriptParser(object):
                 from time import strftime
                 revision = self._markdown(m.group(1))
 
-                divstr = self._html.formatLine("<div id=\"revision\">\n", 1)
+                divstr = self._html.formatLine("<div class=\"revision\">\n", 1)
                 divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
                 divstr += self._html.formatLine("</div>")
 
@@ -577,7 +576,7 @@ class AVScriptParser(object):
                 cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
                 cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
 
-                divstr = self._html.formatLine("<div id=\"contact\">\n", 1)
+                divstr = self._html.formatLine("<div class=\"contact\">\n", 1)
                 divstr += self._html.formatLine("<table>\n", 1)
                 divstr += self._html.formatLine("<tr>\n", 1)
                 divstr += self._html.formatLine("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
@@ -625,7 +624,7 @@ class AVScriptParser(object):
 
         try:
             # Print the outer DIV header
-            print(self._html.formatLine("<div id=\"wrapper\">", 1))
+            print(self._html.formatLine("<div class=\"wrapper\">", 1))
 
             # Read the file until EOF and parse each line
             while(self._readNextLine() != ''):
@@ -643,7 +642,7 @@ class AVScriptParser(object):
                 # line that should be printed in an extras DIV...
                 if not matched and self._line.current_line.rstrip():
                     divstr = self._line.current_line
-                    divstr += self._peekPlainText("span")
+                    #divstr += self._peekPlainText("span")
                     self._printInExtrasDiv("<p{1}>{0}</p>".format(divstr, self._line.css_prefix))
 
             # Now close off the outer DIV from above.

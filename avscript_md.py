@@ -53,14 +53,13 @@ Future - aka Wish List
 
 TODO (Punch list):
 1. Refactor mkavscript_md.py with command line args, import, etc.
+2. Make the $$cover and $$contact regex's less brain dead. Allow true optionals..
 3. Test with Python2 and Python3
 4. Make it pass flake8 (mostly)
 5. Create unit tests and automate testing with Travis CI
 6. Consider setup_tools based install? Maybe
 
 CSS Clean Up
-3. Add more useful styles
-4. Create multiple versions: All, Visuals and Narration only, User Guide
 5. Ability to pass requested version to mkavscript_md
 
 """

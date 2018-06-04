@@ -17,12 +17,8 @@
    for loading in a browser, since avscript_md is intended to be used with BBEdit's
    Markdown preview only...
    
-   TODO: This needs a LOT OF CLEANUP work. Once I finish with the remaining
-   features in avscript_md, I'll reorganize this, clean it up, and make it
-   more consistent. Promise.
-   
    TODO: Might want to look at Mark Boszko's latest version of the original CSS
-   file. He's added a TON of stuff that looks quite interesting...
+   file. He's added a TON of stuff that looks very interesting...
    */
 
 body
@@ -40,7 +36,6 @@ html>body
 
 h1 {
 	font-size: 3em;
-    text-align:center;
 }
 
 h2 {
@@ -75,6 +70,14 @@ del{
 
 .center{
     text-align:center;
+}
+
+.left {
+    text-align:left;
+}
+
+.right {
+    text-align:right;
 }
 
 .wrapper {
@@ -142,7 +145,23 @@ div.contact p{
 	font-family:inherit;
 }    
 
-div.toc{
+div.review {
+    clear: both;
+    padding: .5em;
+    border: 2px dashed #ff0000;
+    margin: .5em;
+	background-color: #f7f7f7;
+}
+
+div.review p{
+    border:none;
+    float: none;
+    width: inherit;
+    margin-bottom: 0;
+	font-family:inherit;
+}
+
+div.toc, div.section, div.unused, div.syntax {
     clear:both;
     border: 2px solid #000;
     margin: .5em;
@@ -150,28 +169,24 @@ div.toc{
 	background-color: #c0c0c0;
 }
 
-div.toc p{
+div.toc p, div.section p, div.unused p, div.syntax p{
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+div.toc{
+	background-color: #dfcfcf;
+}
+
+div.toc p, div.syntax p{
     margin:0;
     padding:0;
-    border:none;
-    float: none;
-    width: inherit;
-	font-family:inherit;
 }
 
-div.section, div.unused {
-    clear:both;
-    border: 2px solid #000;
-    margin: .5em;
-    padding: 10px;
-	background-color: #c0c0c0;
-}
-
-div.section p, div.unused p{
-    border:none;
-    float: none;
-    width: inherit;
-	font-family:inherit;
+div.syntax{
+	background-color: #ffcfcf;
 }
 
 div.unused p{
@@ -212,22 +227,6 @@ div.extras p{
 	font-family:inherit;
 }
 
-div.review {
-    clear: both;
-    padding: .5em;
-    border: 2px dashed #ff0000;
-    margin: .5em;
-	background-color: #f7f7f7;
-}
-
-div.review p{
-    border:none;
-    float: none;
-    width: inherit;
-    margin-bottom: 0;
-	font-family:inherit;
-}
-
 .divTitle{
     font-weight: bold;
     font-size: 1.2em;
@@ -264,15 +263,6 @@ div.review p{
 td {
     width: 100%;
 }
-
-.left {
-    text-align:left;
-}
-
-.right {
-    text-align:right;
-}
-
 
 /* @group AV Format */
 
@@ -321,12 +311,8 @@ p + p {
 	background-color: #f7f7f7;
 }
 
-.widenote {
+.width90 {
     width: 90%;
-    padding: 5px;
-    margin: 2em;
-    border: 2px dotted #777777;
-	background-color: #f7f7f7;
 }
 
 .question {
@@ -385,7 +371,7 @@ div.links, div.variables{
     margin-left:1em;
 }
 
-.indent,div.toc p.indent{
+p.indent, div.toc p.indent, div.syntax p.indent{
     margin-left:3em;
 }
 

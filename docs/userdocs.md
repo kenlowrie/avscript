@@ -1,4 +1,4 @@
-{:.blue}#AVScript User Manual
+{:.blue.center}#AVScript User Manual
 [workingtitle]=AVScript Markdown Utility
 [storysummary]=This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
 //You will probably need to update this path to make this work
@@ -18,6 +18,7 @@
     @:[anchors]<<Anchors>> - **Using Bookmarks**
     @:[special+sections]<<Special Sections>> - **Covers, Revisions &amp; Contact sections**
     @:[imports]<<Imports>> - **Importing files**
+    @:[predefined classes]<<Predefined Classes>> - **Using predefined CSS classes**
     @:[shotlist]<<Shotlist>> - **Displaying the shotlist**
     @:[debug]<<Debug>> - **Dumping variables and links**
     @:[summary]<<Summary>> - **Summary of the User Guide**
@@ -97,7 +98,7 @@ When you use the inline link syntax at the start of a line, however, everything 
 {:.indent}###**&#91;inline 2]:(https://cloudylogic.com) - you won't see any of this text...**
 Then the inline link isn't expanded inline as normal, and any text following the closing parenthesis is ignored.
 
-{:.note.red}If you look at the source document immediately following this note,  you'll see the inline definition of **inline 2**, but it isn't displayed like normal inline links, it is only defined for use later.
+{:.note.red.width90}If you look at the source document immediately following this note,  you'll see the inline definition of **inline 2**, but it isn't displayed like normal inline links, it is only defined for use later.
 
 [inline 2]:(https://cloudylogic.com)-you won't see any of this text...
 
@@ -208,7 +209,7 @@ To see these tags in action, take a look at the userguideheading.md document in 
 @+[imports]
 ##Importing documents
 
-{:.toc}@@@ divTitle Syntax:
+{:.syntax}@@@ divTitle Syntax:
     {:.indent}**@import "filename"**
     {:.indent}**@import "/abs/path/to/filename"**
     {:.indent}**@import "../relative/path/to/filename"**
@@ -220,7 +221,31 @@ The @import statement can be used to include documents that contain commonly use
 
 Would be the same as writing **@import "/mydir/vars.md"**. This is useful because it doesn't require that you use absolute paths for everything.
 
-    {:.note.blue}There is a gotcha when using this with BBEdit's Markup Preview. There is no context for the top level file, since it is passed to the Python script as sys.stdin. Because of that, you can't rely on avscript_md to determine the relative path of the top level file. It will work just fine when using mkavscript_md, but that won't be useful if you are using BBEdit's Markup Preview to write your documents...
+{:.note.blue}There is a gotcha when using this with BBEdit's Markup Preview. There is no context for the top level file, since it is passed to the Python script as sys.stdin. Because of that, you can't rely on avscript_md to determine the relative path of the top level file. It will work just fine when using mkavscript_md, but that won't be useful if you are using BBEdit's Markup Preview to write your documents...
+
+@+[predefined classes]
+##Predefined classes
+There are a number of predefined classes in the primary CSS file that can be used to quickly style your AV scripts. You can add others as required, and decorate your elements as needed. Here are a few of them, used outside the AV DIV, and then again inside an AV DIV.
+
+{:.syntax}@@@ divTitle Predefined classes
+    [SP]
+    {:.indent}&#123;:.question}This is a question.
+    {:.indent}&#123;:.vo}This is a VO note
+    {:.indent}&#123;:.important}This is important.
+
+Here they are used outside an AV DIV Section.
+
+{:.question}This is a question.
+{:.vo}This is a VO note
+{:.important}This is important.
+
+*CU: Predefined Classes used inside AV section
+Here they are again, used inside an AV DIV section
+
+{:.question}This is a question.
+{:.vo}This is a VO note
+{:.important}This is important.
+
 
 @+[shotlist]
 ##Shotlist

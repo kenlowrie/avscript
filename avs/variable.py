@@ -31,8 +31,11 @@ class VariableDict(object):
 
     def dumpVars(self, indent=''):
         """Dumps the variable list, names and values."""
+        def escape_html(s):
+            return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+    
         for var in self.vars:
-            print("{2}{0}:{1}<br />".format(self.vars[var].id, self.vars[var].text, indent))
+            print("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, escape_html(self.vars[var].text), indent))
 
 
 if __name__ == '__main__':

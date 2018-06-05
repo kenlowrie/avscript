@@ -47,7 +47,7 @@ class LinkDict(object):
     def dumpLinks(self, indent=''):
         """Dumps the links list, names, urls and titles."""
         for link in self.links:
-            print("{3}{0}:{1}:{2}<br />".format(link, self.links[link].url, self.links[link].title, indent))
+            print("{3}<strong>{0}:</strong>{1}<em>:{2}</em><br />".format(link, self.links[link].url, self.links[link].title, indent))
 
 if __name__ == '__main__':
     print("Library module. Not directly callable.")

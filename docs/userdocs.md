@@ -34,8 +34,8 @@ Let's see a quick example now. The next line will begin with an ***&#42;*** and 
 *WS:Sunrise
 There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
-// When you want to force the document out of shot mode, use a class prefix on an empty line. That will reset the floats. See how the document leaves the narration mode of the prior shot, and starts a new block paragraph.
-{:.note}
+@break
+{:.note.red.indent}When you want to force the document out of shot mode, use ***@break*** or ***@exit*** on an empty line. That will reset the floats which are controlling the AV formatting, and start a new section. See how the document leaves the narration mode of the prior shot, and starts this new block paragraph?
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc. To add another shot, just repeat the steps above, like this:
 *CU:Coffee pot heating on wire rack of fire pit
 There's nothing like waking up to the smell of coffee percolating in the outdoors.
@@ -65,12 +65,13 @@ That's a brief look at using AVScript's built-in span element support. Now, let'
 ###Links
 
 Both inline and reference style links are supported. The syntax for each style is:
-{:.indent}###Inline: &lt;***&#91;LinkID&#93;***&gt; &lt;*** :( ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;*** )***
 
-{:.indent}###Reference: &lt;***&#91;LinkID&#93;***&gt; &lt;*** : ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;
+{:.syntax}@@@ divTitle Link Syntax
+    {:.indent.bigandbold}Inline: &lt;***&#91;LinkID&#93;***&gt; &lt;*** :( ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;*** )***
+    {:.indent.bigandbold}Reference: &lt;***&#91;LinkID&#93;***&gt; &lt;*** : ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;
 
 @+[inline+links]
-####Inline Style:
+###Inline Style:
 
 The next paragraph has the following inline links defined within it: This is **&#91;an example]:(http://example.com/ "Inline Link Sample")** of an inline link. **&#91;This inline link]:(http://example.net/)** has no title attribute.
 
@@ -79,7 +80,7 @@ This is [an example]:(http://example.com/ "Inline Link Sample") of an inline lin
 Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: [an example].
 
 @+[ref+links]
-####Reference Style:
+###Reference Style:
 Reference links use the format [linkID]:url "optional title". Essentially, just like inline links, but without the ( ) surrounding the URL and optional title.
 
 The reference link style must be placed at the beginning of a line. Unlike true Markdown, reference links *must* be defined before they are referenced in the document. Let's create a reference link for the Google Home Page.
@@ -89,7 +90,7 @@ The reference link style must be placed at the beginning of a line. Unlike true 
 
 Now, when I write &#91;Google], it is wrapped with a link tag like so: [Google].
 
-####Inline links at the start of a new line
+###Inline links at the start of a new line
 You can also use the inline link format at the start of a line, as in the following example for **[inline 1]**.
 {:.indent}###&#91;inline 1]:(https://cloudylogic.com "inline link title") 
 [inline 1]:(https://cloudylogic.com "inline link title")
@@ -104,7 +105,7 @@ Then the inline link isn't expanded inline as normal, and any text following the
 
 Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it's a valid link!
 @+[auto+inks]
-####Automatic links
+###Automatic links
 The final type of link format is automatic links? Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL. I'm still on the fence as to whether support for automatic links will remain in the script, so don't get too comfortable with them just yet...
 
 @+[aliases]
@@ -192,15 +193,15 @@ There are three (3) specialized sections that can be defined within your documen
 
 The details for each type of section are as follows:
 
-####$$cover$$&lt;&lt;title of script&gt;&gt;:&lt;&lt;short summary&gt;&gt;:&lt;&lt;long description&gt;&gt;
+###$$cover$$&lt;&lt;title of script&gt;&gt;:&lt;&lt;short summary&gt;&gt;:&lt;&lt;long description&gt;&gt;
 
 Each element within the ***&lt;&lt;[SP]&gt;&gt;*** is optional. The ***&lt;&lt;[SP]&gt;&gt;*** are required, even if you don't want to specify the element!
 
 
-####$$revision$$&lt;&lt;revision of script&gt;&gt;
+###$$revision$$&lt;&lt;revision of script&gt;&gt;
 Specify the revision number of your document within the angle brackets. Note that the current date and time of the document at the time of processing will also be inserted immediately following the revision number. This provides additional clarification of the version, in case you forget to bump the version number.
 
-####$$contact$$&lt;&lt;contact name&gt;&gt;:&lt;&lt;contact phone&gt;&gt;:&lt;&lt;contact email&gt;&gt;:&lt;&lt;copyright statement 1&gt;&gt;:&lt;&lt;copyright statement 2&gt;&gt;:&lt;&lt;copyright statement 3&gt;&gt;
+###$$contact$$&lt;&lt;contact name&gt;&gt;:&lt;&lt;contact phone&gt;&gt;:&lt;&lt;contact email&gt;&gt;:&lt;&lt;copyright statement 1&gt;&gt;:&lt;&lt;copyright statement 2&gt;&gt;:&lt;&lt;copyright statement 3&gt;&gt;
 
 Each element within the ***&lt;&lt;[SP]&gt;&gt;*** is optional. The ***&lt;&lt;[SP]&gt;&gt;*** are required, even if you don't want to specify the element! 
 
@@ -217,7 +218,7 @@ To see these tags in action, take a look at the userguideheading.md document in 
 
 The @import statement can be used to include documents that contain commonly used contents for your scripts, such as common aliases, links, headers, sections, etc. You can use fully qualified paths, relative paths, or paths based on the current file being processed. The latter uses the symbol '$' to designate that the path to this file should begin with the path the current file being processed. For example, assume the current file being processed is: /mydir/myfile.md. The statement:
 
-#### @import "$/vars.md"
+### @import "$/vars.md"
 
 Would be the same as writing **@import "/mydir/vars.md"**. This is useful because it doesn't require that you use absolute paths for everything.
 
@@ -229,23 +230,48 @@ There are a number of predefined classes in the primary CSS file that can be use
 
 {:.syntax}@@@ divTitle Predefined classes
     [SP]
-    {:.indent}&#123;:.question}This is a question.
-    {:.indent}&#123;:.vo}This is a VO note
-    {:.indent}&#123;:.important}This is important.
+    {:.indent.bigandbold}&#123;:.note} -- This is a note.
+    {:.indent.bigandbold}&#123;:.question} -- This is a question.
+    {:.indent.bigandbold}&#123;:.vo} -- This is a VO note
+    {:.indent.bigandbold}&#123;:.important} -- This is important.
+    {:.indent.bigandbold}&#123;:.greyout} -- This is not as important.
 
 Here they are used outside an AV DIV Section.
 
+{:.note}This is a note.
 {:.question}This is a question.
 {:.vo}This is a VO note
 {:.important}This is important.
+{:.greyout}This is not as important.
 
 *CU: Predefined Classes used inside AV section
 Here they are again, used inside an AV DIV section
 
+{:.note}This is a note.
 {:.question}This is a question.
 {:.vo}This is a VO note
 {:.important}This is important.
+{:.greyout}This is not as important.
 
+@exit
+Here are a few more of the predefined classes available, and remember, you can tailor these or add more as required for your particular purpose.
+
+{:.syntax.width70}@@@ divTitle More predefined classes
+    [SP]
+    {:.indent}**&#123;:.pbb}**Page Break Before (when printing).
+    {:.indent}**&#123;:.pba}**Page Break After (when printing).
+    {:.indent}**&#123;:.red}**To color text red.
+    {:.indent}**&#123;:.green}**To color text green.
+    {:.indent}**&#123;:.blue}**To color text blue.
+    {:.indent}**&#123;:.center}**To center text.
+    {:.indent}**&#123;:.left}**To left align text.
+    {:.indent}**&#123;:.right}**To right align text.
+    {:.indent}**&#123;:.bigandbold}T**o increase text size and make it bold.
+    {:.indent}**&#123;:.ignore}**So it won't display in the output.
+
+You can stack multiple classes by simply stringing them together. For example, on the next line, I'll write **{:.note.bigandbold.blue}This is a big and bold blue note.**
+
+{:.note.bigandbold.blue}This is a big and bold blue note.
 
 @+[shotlist]
 ##Shotlist
@@ -262,7 +288,7 @@ There are two debugging tags that can be used in your document, and like ***///S
 {:.indent}###///Links/// - dumps all the links defined so far
 {:.indent}###///Variables/// - dumps all the variables (aliases) defined
 
-For convenience, here are those two tags in action for this document.
+Here are those two tags in action for this document.
 
 ///Links///
 ///Variables///

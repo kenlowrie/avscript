@@ -108,6 +108,7 @@ class AVScriptParser(object):
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
+            'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
@@ -479,10 +480,16 @@ class AVScriptParser(object):
                 except FileError as fe:
                     print(fe.errmsg)
 
+        def handle_break(m,lineObj):
+            """Handle a break parse line"""
+            pass    # don't do anything with @break or @exit
+
         def handle_shotlist(m,lineObj):
             """Handle a shotlist parse line."""
             print(self._html.formatLine("<div class=\"shotlist\">", 1))
             print(self._html.formatLine("<hr />"))
+            print(self._html.formatLine("<p>Shotlist</p>"))
+            print(self._html.formatLine("<code>",1))
             shotnum = 1
             for shot in self._shotListQ.getBookmarkList():
                 print(self._html.formatLine("<div class=\"shot\">", 1))
@@ -490,20 +497,27 @@ class AVScriptParser(object):
                 print(self._html.formatLine("</div>"))
                 shotnum += 1
 
+            print(self._html.formatLine("</code>",-1, False))
             print(self._html.formatLine("</div>", -1, False))
 
         def handle_variables(m,lineObj):
             """Handle the variables parse line"""
             print(self._html.formatLine("<div class=\"variables\">", 1))
             print(self._html.formatLine("<hr />"))
+            print(self._html.formatLine("<p>Variables</p>"))
+            print(self._html.formatLine("<code>",1))
             self._variables.dumpVars(self._html.getIndent())
+            print(self._html.formatLine("</code>",-1, False))
             print(self._html.formatLine("</div>", -1, False))
 
         def handle_dumplinks(m,lineObj):
             """Handle the dumplinks parse line"""
             print(self._html.formatLine("<div class=\"links\">", 1))
             print(self._html.formatLine("<hr />"))
+            print(self._html.formatLine("<p>External Links</p>"))
+            print(self._html.formatLine("<code>",1))
             self._links.dumpLinks(self._html.getIndent())
+            print(self._html.formatLine("</code>",-1, False))
             print(self._html.formatLine("</div>", -1, False))
 
         def handle_links(m,lineObj):
@@ -610,6 +624,7 @@ class AVScriptParser(object):
             ('div', handle_div),
             ('header', handle_header),
             ('import', handle_import),
+            ('break', handle_break),
             ('shotlist', handle_shotlist),
             ('variables', handle_variables),
             ('dumplinks', handle_dumplinks),

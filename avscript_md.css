@@ -83,85 +83,41 @@ del{
 .wrapper {
 }
 
-div.cover {
+div.cover, div.revision, div.contact {
     clear:both;
-    text-align:center;
-    border: 1px solid #ccc;
-    font-size: 1.5em;
+    display:block;
     margin: .5em;
+    border: 1px solid #ccc;
+}
+
+div.cover p, div.revision p, div.contact p {
+    border:none;
+    float: none;
+    width: inherit;
+	font-family:inherit;
+}
+
+div.cover, div.revision {
+    text-align:center;
+    font-size: 1.5em;
 }    
 
-div.cover p{
-    border:none;
-    float: none;
-    width: inherit;
-	margin-bottom: 0;
-	font-family:inherit;
-}
-
 .coverSummary{
-    float: none;
-    width: inherit;
-    display:block;
     font-size: .8em;
-	font-family:inherit;
 }
 
-
-div.revision {
-    clear:both;
-    display:block;
-    text-align:center;
-    border: 1px solid #ccc;
-    font-size: 1.5em;
-    margin: .5em;
-}
-
-div.revision p{
-    clear:both;
-    border:none;
-    float: none;
-    width: inherit;
-	font-family:inherit;
-}
 
 .revTitle {
     font-weight:bold;
 }
 
 div.contact {
-    clear:both;
-    display:block;
-    border: 1px solid #ccc;
     padding: 10px;
-    margin: .5em;
     page-break-after: always;
 }    
 
-div.contact p{
-    border:none;
-    float: none;
-    width: inherit;
-	font-family:inherit;
-}    
 
-div.review {
-    clear: both;
-    padding: .5em;
-    border: 2px dashed #ff0000;
-    margin: .5em;
-	background-color: #f7f7f7;
-}
-
-div.review p{
-    border:none;
-    float: none;
-    width: inherit;
-    margin-bottom: 0;
-	font-family:inherit;
-}
-
-div.toc, div.section, div.unused, div.syntax {
+div.toc, div.section, div.unused, div.syntax, div.review {
     clear:both;
     border: 2px solid #000;
     margin: .5em;
@@ -169,11 +125,23 @@ div.toc, div.section, div.unused, div.syntax {
 	background-color: #c0c0c0;
 }
 
-div.toc p, div.section p, div.unused p, div.syntax p{
+div.toc p, div.section p, div.unused p, div.syntax p, div.review p{
     border:none;
     float: none;
     width: inherit;
 	font-family:inherit;
+}
+
+div.review {
+    padding: .5em;
+    border: 1.5px dashed #ff0000;
+	background-color: #f7f7f7;
+}
+
+div.review p{
+    margin-bottom: 0;
+    padding: .5em;
+    font-size: 1.2em;
 }
 
 div.toc{
@@ -224,21 +192,15 @@ div.extras p{
     border:none;
     float: none;
     width: inherit;
+    font-size: 1.2em;
 	font-family:inherit;
 }
 
 .divTitle{
     font-weight: bold;
-    font-size: 1.2em;
-}
-
-.list{
+    font-size: 1.4em;
     margin:0;
     padding:0;
-    margin-left:2em;
-    padding-left:1.5em;
-    font-weight:500;
-    font-size:1.2em;
 }
 
 .pba, .pbb {
@@ -251,16 +213,6 @@ div.extras p{
 
 .ignore {
     display:none;
-}
-
-.greyout {
-    display:block;
-    white-space: 32;
-    padding: .5em;
-    border: 2px solid #000000;
-    color: gray;
-    margin: .5em;
-	background-color: #f7f7f7;
 }
 
 td {
@@ -306,43 +258,48 @@ p + p {
 	margin-top: 0;
 }
 
-.note {
+.note, .question, .vo, .important, .greyout {
     width: 40%;
     padding: 5px;
-    margin: 2em;
+    margin: 1em;
+}
+
+.note, div.extras p.note {
     border: 2px dotted #777777;
 	background-color: #f7f7f7;
 }
 
-.width90 {
-    width: 90%;
-}
-
-.question {
-    width: 40%;
-    padding: 5px;
-    margin: 2em;
+.question, div.extras p.question {
     color: red;
     border: 2px dotted #777777;
 	background-color: #f7f7f7;
 }
 
-.important {
-    padding: 15px;
-    margin: 1.3em;
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-.vo {
-    width: 40%;
-    padding: 5px;
-    margin: 2em;
+.vo, div.extras p.vo {
     color: blue;
     border: 2px dotted #777777;
 	background-color: #f7f7f7;
 	/*white-space: pre;*/
 }
+
+.important, div.extras p.important {
+    padding: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-transform:uppercase;
+}
+
+.greyout, div.extras p.greyout {
+    border: 2px solid #000000;
+    color: gray;
+	background-color: #f7f7f7;
+}
+
+.width50 { width: 50%; }
+.width60 { width: 60%; }
+.width70 { width: 70%; }
+.width80 { width: 80%; }
+.width90 { width: 90%; }
 
 em {
     color: red;
@@ -350,9 +307,14 @@ em {
 
 .shotlist {
     clear:both;
-    float:none;
     width:inherit;
 	font-size: 1.3em;
+}
+
+div.shotlist p {
+    border:none;
+    float:none;
+    font-weight:bold;
 }
 
 div.shot {
@@ -360,18 +322,25 @@ div.shot {
 }
 
 div.shot p{
-    clear:both;
-    margin-left: 1em;
     float:none;
     border:none;
+    font-weight:normal;
     width:90%;
 }
 
 div.links, div.variables{
 	clear:both;
-    float:none;
     width:inherit;
     margin-left:1em;
+}
+
+div.links p, div.variables p {
+    border:none;
+    float:none;
+    padding: 0;
+    margin-bottom: 1em;
+    font-weight: bold;
+    font-size: 1.3em;
 }
 
 p.indent, div.toc p.indent, div.syntax p.indent{

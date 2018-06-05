@@ -242,6 +242,9 @@ div.extras p{
 }
 
 .pba, .pbb {
+}
+
+.bigandbold{
     font-weight: bold;
     font-size: 1.2em;
 }

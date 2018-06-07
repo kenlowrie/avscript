@@ -67,8 +67,13 @@ That's a brief look at using AVScript's built-in span element support. Now, let'
 Both inline and reference style links are supported. The syntax for each style is:
 
 {:.syntax}@@@ divTitle Link Syntax
-    {:.indent.bigandbold}Inline: &lt;***&#91;LinkID&#93;***&gt; &lt;*** :( ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;*** )***
-    {:.indent.bigandbold}Reference: &lt;***&#91;LinkID&#93;***&gt; &lt;*** : ***&gt; &lt;***url***&gt; &#91;"optional title"&#93;
+    {:.indent2.bigandbold}Inline: &lt;&#91;*LinkID*&#93;&gt; &lt; :( &gt; &lt;***url***&gt; &#91;"*optional title*"&#93; &lt; ) &gt;
+    {:.indent2.bigandbold}Reference: &lt;&#91;***LinkID***&#93;&gt; &lt; : &gt; &lt;*url*&gt; &#91;"*optional title*"&#93;
+    [SP]
+    {:.indent2.bigandbold}Examples:
+    [SP]
+    {:.indent3.bigandbold}&#91;MyLinkID&#93;:(http://url.com "title") *&lt;-- Inline Link Example - Parenthesis around URL &amp; Title*
+    {:.indent3.bigandbold}&#91;MyLinkID&#93;:http://url.com "title" *&lt;-- Reference Link Example - Must be at beginning of line*
 
 @+[inline+links]
 ###Inline Style:
@@ -234,7 +239,7 @@ There are a number of predefined classes in the primary CSS file that can be use
     {:.indent.bigandbold}&#123;:.question} -- This is a question.
     {:.indent.bigandbold}&#123;:.vo} -- This is a VO note
     {:.indent.bigandbold}&#123;:.important} -- This is important.
-    {:.indent.bigandbold}&#123;:.greyout} -- This is not as important.
+    {:.indent.bigandbold}&#123;:.greyout} -- This is grey text on grey background.
 
 Here they are used outside an AV DIV Section.
 
@@ -242,7 +247,7 @@ Here they are used outside an AV DIV Section.
 {:.question}This is a question.
 {:.vo}This is a VO note
 {:.important}This is important.
-{:.greyout}This is not as important.
+{:.greyout}This is grey text on grey background.
 
 *CU: Predefined Classes used inside AV section
 Here they are again, used inside an AV DIV section
@@ -251,27 +256,30 @@ Here they are again, used inside an AV DIV section
 {:.question}This is a question.
 {:.vo}This is a VO note
 {:.important}This is important.
-{:.greyout}This is not as important.
+{:.greyout}This is grey text on grey background.
 
 @exit
 Here are a few more of the predefined classes available, and remember, you can tailor these or add more as required for your particular purpose.
 
 {:.syntax.width70}@@@ divTitle More predefined classes
     [SP]
-    {:.indent}**&#123;:.pbb}**Page Break Before (when printing).
-    {:.indent}**&#123;:.pba}**Page Break After (when printing).
-    {:.indent}**&#123;:.red}**To color text red.
-    {:.indent}**&#123;:.green}**To color text green.
-    {:.indent}**&#123;:.blue}**To color text blue.
-    {:.indent}**&#123;:.center}**To center text.
-    {:.indent}**&#123;:.left}**To left align text.
-    {:.indent}**&#123;:.right}**To right align text.
-    {:.indent}**&#123;:.bigandbold}T**o increase text size and make it bold.
-    {:.indent}**&#123;:.ignore}**So it won't display in the output.
+    {:.indent}**&#123;:.pbb}** -- Page Break Before (when printing).
+    {:.indent}**&#123;:.pba}** -- Page Break After (when printing).
+    {:.indent}**&#123;:.red}** -- To color text red.
+    {:.indent}**&#123;:.green}** -- To color text green.
+    {:.indent}**&#123;:.blue}** -- To color text blue.
+    {:.indent}**&#123;:.center}** -- To center text.
+    {:.indent}**&#123;:.left}** -- To left align text.
+    {:.indent}**&#123;:.right}** -- To right align text.
+    {:.indent}**&#123;:.bigandbold}** -- To increase text size and make it bold.
+    {:.indent}**&#123;:.box}** -- To put a box around it.
+    {:.indent}**&#123;:.dashed}** -- To put a dashed line around it.
+    {:.indent}**&#123;:.greybg}** -- To make the background grey.
+    {:.indent}**&#123;:.ignore}** -- So it won't display in the output.
 
-You can stack multiple classes by simply stringing them together. For example, on the next line, I'll write **{:.note.bigandbold.blue}This is a big and bold blue note.**
+You can stack multiple classes by simply stringing them together. For example, on the next line, I'll write **{:.greybg.bigandbold.blue}This is a big and bold blue note on a grey background.**
 
-{:.note.bigandbold.blue}This is a big and bold blue note.
+{:.greybg.bigandbold.blue}This is a big and bold blue note on a grey background.
 
 @+[shotlist]
 ##Shotlist

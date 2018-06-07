@@ -258,6 +258,20 @@ p + p {
 	margin-top: 0;
 }
 
+.greybg {
+	background-color: #f7f7f7;
+}
+
+.dashed {
+    padding: 5px;
+    border: 2px dotted #777777;
+}
+
+.box {
+    padding: 5px;
+    border: 2px solid #000000;
+}
+
 .note, .question, .vo, .important, .greyout {
     width: 40%;
     padding: 5px;
@@ -290,7 +304,6 @@ p + p {
 }
 
 .greyout, div.extras p.greyout {
-    border: 2px solid #000000;
     color: gray;
 	background-color: #f7f7f7;
 }
@@ -345,6 +358,22 @@ div.links p, div.variables p {
 
 p.indent, div.toc p.indent, div.syntax p.indent{
     margin-left:3em;
+}
+
+p.indent1, div.toc p.indent1, div.syntax p.indent1{
+    margin-left:1em;
+}
+
+p.indent2, div.toc p.indent2, div.syntax p.indent2{
+    margin-left:2em;
+}
+
+p.indent3, div.toc p.indent3, div.syntax p.indent3{
+    margin-left:3em;
+}
+
+p.indent4, div.toc p.indent4, div.syntax p.indent4{
+    margin-left:4em;
 }
 
 @media print

@@ -68,30 +68,33 @@ from re import IGNORECASE, findall, match
 from sys import exit
 from os.path import isfile
 
-from avs.file import FileHandler
 from avs.line import Line
 from avs.link import LinkDict
 from avs.regex import Regex, RegexMD, RegexMain
+from avs.stdio import StdioWrapper
 from avs.variable import VariableDict
 from avs.bookmark import BookmarkList
 from avs.htmlformat import HTMLFormatter
 from avs.exception import *
 
 
-class AVScriptParser(object):
-    """Parse a text file written in a markdown-like syntax and output HTML.
+class AVScriptParser(StdioWrapper):
+    """
+    Parse a text file written in a markdown-like syntax and output HTML.
     
-    Reads a text file (or reads from sys.stdin) and outputs HTML in a format suitable
-    for Audio-Visual (AV) scripts. AV Scripts are a type of script format used to describe
-    visuals (shots) and the corresponding narrative (voiceover) that would accompany the
-    visual when made into a video. 
+    Reads a text file (or reads from sys.stdin) and outputs HTML in a format 
+    suitable for Audio-Visual (AV) scripts. AV Scripts are a type of script
+    format used to describe visuals (shots) and the corresponding narrative
+    (voiceover) that would accompany the visual when made into a video. 
     """
     def __init__(self):
-        """The constructor for the class. Initialize the required member variables."""
+        """
+        Initialize the required instance variables for this class.
+        """
+        super(AVScriptParser, self).__init__()  # Initialize the base class(es)
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
         self._lineInCache = False       # if we have a line in the cache
-        self._av = FileHandler()        # file handler stack
         self._shotListQ = BookmarkList() # shot list link Q
 
         self._links = LinkDict()        # dict of links
@@ -268,11 +271,10 @@ class AVScriptParser(object):
 
         # read the next line from the file buffer
         while(1):
-            line = self._av.readline()
+            line = self.ireadline()
             if not line:
                 break;
             if not line.strip().rstrip():
-                #print("-->IGNORE '{}'<--<br />".format(line))
                 continue
             if line[0:2] != '//':
                 break
@@ -405,9 +407,9 @@ class AVScriptParser(object):
         """Print the passed in string inside of a DIV with ID="extras". This allows
            orphaned elements to be kept out of the shot/narrative sections, where
            floats are active."""
-        print(self._html.formatLine("<div class=\"extras\">", 1))
-        print(self._html.formatLine(str, -1))
-        print(self._html.formatLine("</div>"))
+        self.oprint(self._html.formatLine("<div class=\"extras\">", 1))
+        self.oprint(self._html.formatLine(str, -1))
+        self.oprint(self._html.formatLine("</div>"))
 
     def parse(self, avscript=None):
         """Parse an A/V Script File in text format and emit HTML code.
@@ -444,9 +446,9 @@ class AVScriptParser(object):
                 divstr += self._html.formatLine("</ul>\n", -1, False)
                 divstr += self._peekPlainText()
                 divstr += self._html.formatLine("</div>", -1, False)
-                print(divstr)
+                self.oprint(divstr)
             else:
-                print(lineObj.current_line)
+               self.oprint(lineObj.current_line)
 
         def handle_div(m,lineObj):
             """handle a DIV parse line"""
@@ -459,10 +461,10 @@ class AVScriptParser(object):
                 divstr += self._peekNextLine()
                 divstr += self._html.formatLine("</div>", -1, False)
 
-                print(divstr)
+                self.oprint(divstr)
 
             else:
-                print(lineObj.current_line)
+                self.oprint(lineObj.current_line)
 
         def handle_header(m,lineObj):
             """Handle a header parse line"""
@@ -470,15 +472,15 @@ class AVScriptParser(object):
                 hnum = len(m.group(1))
                 self._printInExtrasDiv("<h{0}{2}>{1}</h{0}>".format(hnum, m.group(2).strip(), lineObj.css_prefix))
             else:
-                print(lineObj.current_line)
+                self.oprint(lineObj.current_line)
 
         def handle_import(m,lineObj):
             """Handle an import parse line"""
             if(m is not None and len(m.groups()) == 1):
                 try:
-                    self._av.open(m.group(1))
+                    self.iopen(m.group(1))
                 except FileError as fe:
-                    print(fe.errmsg)
+                   self.oprint(fe.errmsg)
 
         def handle_break(m,lineObj):
             """Handle a break parse line"""
@@ -486,39 +488,39 @@ class AVScriptParser(object):
 
         def handle_shotlist(m,lineObj):
             """Handle a shotlist parse line."""
-            print(self._html.formatLine("<div class=\"shotlist\">", 1))
-            print(self._html.formatLine("<hr />"))
-            print(self._html.formatLine("<p>Shotlist</p>"))
-            print(self._html.formatLine("<code>",1))
+            self.oprint(self._html.formatLine("<div class=\"shotlist\">", 1))
+            self.oprint(self._html.formatLine("<hr />"))
+            self.oprint(self._html.formatLine("<p>Shotlist</p>"))
+            self.oprint(self._html.formatLine("<code>",1))
             shotnum = 1
             for shot in self._shotListQ.getBookmarkList():
-                print(self._html.formatLine("<div class=\"shot\">", 1))
-                print(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rel=\"tag\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
-                print(self._html.formatLine("</div>"))
+                self.oprint(self._html.formatLine("<div class=\"shot\">", 1))
+                self.oprint(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rel=\"tag\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
+                self.oprint(self._html.formatLine("</div>"))
                 shotnum += 1
 
-            print(self._html.formatLine("</code>",-1, False))
-            print(self._html.formatLine("</div>", -1, False))
+            self.oprint(self._html.formatLine("</code>",-1, False))
+            self.oprint(self._html.formatLine("</div>", -1, False))
 
         def handle_variables(m,lineObj):
             """Handle the variables parse line"""
-            print(self._html.formatLine("<div class=\"variables\">", 1))
-            print(self._html.formatLine("<hr />"))
-            print(self._html.formatLine("<p>Variables</p>"))
-            print(self._html.formatLine("<code>",1))
+            self.oprint(self._html.formatLine("<div class=\"variables\">", 1))
+            self.oprint(self._html.formatLine("<hr />"))
+            self.oprint(self._html.formatLine("<p>Variables</p>"))
+            self.oprint(self._html.formatLine("<code>",1))
             self._variables.dumpVars(self._html.getIndent())
-            print(self._html.formatLine("</code>",-1, False))
-            print(self._html.formatLine("</div>", -1, False))
+            self.oprint(self._html.formatLine("</code>",-1, False))
+            self.oprint(self._html.formatLine("</div>", -1, False))
 
         def handle_dumplinks(m,lineObj):
             """Handle the dumplinks parse line"""
-            print(self._html.formatLine("<div class=\"links\">", 1))
-            print(self._html.formatLine("<hr />"))
-            print(self._html.formatLine("<p>External Links</p>"))
-            print(self._html.formatLine("<code>",1))
+            self.oprint(self._html.formatLine("<div class=\"links\">", 1))
+            self.oprint(self._html.formatLine("<hr />"))
+            self.oprint(self._html.formatLine("<p>External Links</p>"))
+            self.oprint(self._html.formatLine("<code>",1))
             self._links.dumpLinks(self._html.getIndent())
-            print(self._html.formatLine("</code>",-1, False))
-            print(self._html.formatLine("</div>", -1, False))
+            self.oprint(self._html.formatLine("</code>",-1, False))
+            self.oprint(self._html.formatLine("</div>", -1, False))
 
         def handle_links(m,lineObj):
             """Handle the links parse line"""
@@ -526,24 +528,24 @@ class AVScriptParser(object):
 
             if(m is not None and len(m.groups()) == 4):
                 self._links.addLink(m.group(1), self._markdown(m.group(2)), optTitle)
-                # print("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
+                #self.oprint("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         def handle_alias(m,lineObj):
             """Handle the alias parse line type"""
             if(m is not None and len(m.groups()) == 3):
                 self._variables.addVar(m.group(1), self._markdown(m.group(3)))
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         def handle_anchor(m,lineObj):
             """Handle an anchor parse line type"""
             # For this case, we just need to drop an anchor.
             if(m is not None and len(m.groups()) == 1):
-                print(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
+                self.oprint(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         def handle_cover(m,lineObj):
             """Handle the cover parse line type"""
@@ -561,9 +563,9 @@ class AVScriptParser(object):
                     divstr += self._html.formatLine("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
                 divstr += self._html.formatLine("</div>", -1, False)
 
-                print(divstr)
+                self.oprint(divstr)
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         def handle_revision(m,lineObj):
             """Handle the revision parse line type"""
@@ -575,9 +577,9 @@ class AVScriptParser(object):
                 divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
                 divstr += self._html.formatLine("</div>")
 
-                print(divstr)
+                self.oprint(divstr)
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         def handle_contact(m,lineObj):
             """Handle the contact parse line type."""
@@ -598,9 +600,9 @@ class AVScriptParser(object):
                 divstr += self._html.formatLine("</table>\n", -1)
                 divstr += self._html.formatLine("</div>")
 
-                print(divstr)
+                self.oprint(divstr)
             else:
-                print(lineObj.original_line)
+                self.oprint(lineObj.original_line)
 
         # --------------------------------------------------------------------
         # This is the ENTRY point to the parse() method!
@@ -611,7 +613,7 @@ class AVScriptParser(object):
                 if not isfile(avscript):
                     return 1
 
-            self._av.open(avscript)
+            self.iopen(avscript)
 
         except IOError:
             return 2
@@ -638,7 +640,7 @@ class AVScriptParser(object):
 
         try:
             # Print the outer DIV header
-            print(self._html.formatLine("<div class=\"wrapper\">", 1))
+            self.oprint(self._html.formatLine("<div class=\"wrapper\">", 1))
 
             # Read the file until EOF and parse each line
             while(self._readNextLine() != ''):
@@ -660,10 +662,10 @@ class AVScriptParser(object):
                     self._printInExtrasDiv("<p{1}>{0}</p>".format(divstr, self._line.css_prefix))
 
             # Now close off the outer DIV from above.
-            print(self._html.formatLine("</div>", -1, False))
+            self.oprint(self._html.formatLine("</div>", -1, False))
 
         except RegexError as regex_error:
-            print("{}".format(regex_error.errmsg))
+            self.oprint("{}".format(regex_error.errmsg))
             rc = 3
 
         return rc

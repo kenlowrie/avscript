@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-from .file import *
 from .link import *
 from .line import *
 from .regex import *
+from .stdio import *
+from .stream import *
 from .variable import *
 from .bookmark import *
 from .exception import *

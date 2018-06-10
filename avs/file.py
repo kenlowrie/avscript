@@ -22,19 +22,22 @@ class _OpenFile(object):
 
 
 class FileHandler(object):
-    """This class abstracts the readline() built-in API so it can support
+    """
+    This class abstracts the readline() built-in API so it can support
     having multiple files open, ala the @import keyword. When a new file
     is opened, the current file object is saved on a stack, and the file
     becomes the current file until EOF. At that point, it's closed, and
     the previous file is then popped off the stack, and we resume reading
-    from it until EOF."""
+    from it until EOF.
+    """
     def __init__(self):
         self.filestack = []
         self.idx = -1
         self.line = ''
 
     def open(self, filename):
-        """Open a file.
+        """
+        Open a file.
         
         Arguments:
         filename -- name of the file to open, or None to process sys.stdin
@@ -67,7 +70,8 @@ class FileHandler(object):
                 raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
 
     def readline(self):
-        """Read the next line of input and return it. If we are at EOF and
+        """
+        Read the next line of input and return it. If we are at EOF and
         there's a file object on the stack, close the current file and then
         pop the prior off the stack and return the next line from it.
         

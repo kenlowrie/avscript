@@ -11,7 +11,7 @@ flexibility.
 from sys import stdin
 from os.path import join, split, abspath, isfile
 
-from exception import FileError
+from avs.exception import FileError
 
 class _OpenFile(object):
     """A simple class to keep track of files that are opened."""

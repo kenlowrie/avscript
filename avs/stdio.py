@@ -10,6 +10,8 @@ class is intended to be a base class for others.
 Next feature:
 
 """
+from io import IOBase
+
 
 class StdioWrapper(object):    
     def __init__(self):
@@ -20,7 +22,7 @@ class StdioWrapper(object):
         for the class to operate
         """
         from sys import stdin, stdout, stderr
-        from stream import StreamHandler
+        from avs.stream import StreamHandler
         self._stdinput = StreamHandler()
         self._stdoutput = stdout
         self._stderror = stderr
@@ -42,7 +44,7 @@ class StdioWrapper(object):
 
     @stdinput.setter
     def stdinput(self,new_input_file):
-        if(type(new_input_file) is not file):
+        if(not isinstance(new_input_file,IOBase)):
             self._raise_wrong_type('new_input_file')
 
         elif(new_input_file.mode not in ['r','rb']):
@@ -62,7 +64,7 @@ class StdioWrapper(object):
 
     @stdoutput.setter
     def stdoutput(self,new_output_file):
-        if(type(new_output_file) is not file):
+        if(not isinstance(new_output_file, IOBase)):
             self._throw_wrong_type('new_output_file')
 
         elif(new_output_file.mode not in ['w','wb']):
@@ -82,7 +84,7 @@ class StdioWrapper(object):
 
     @stderror.setter
     def stderror(self,new_error_file):
-        if(type(new_error_file) is not file):
+        if(not isinstance(new_error_file,IOBase)):
             self._throw_wrong_type('new_error_file')
 
         elif(new_error_file.mode not in ['w','wb']):

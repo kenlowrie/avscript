@@ -44,10 +44,10 @@ class LinkDict(object):
 
         return '<a href=\"{0}\"{2}>{1}</a>'.format(self.getLinkUrl(id), linkText, title)
 
-    def dumpLinks(self, indent=''):
+    def dumpLinks(self, indent='',output=print):
         """Dumps the links list, names, urls and titles."""
         for link in self.links:
-            print("{3}<strong>{0}:</strong>{1}<em>:{2}</em><br />".format(link, self.links[link].url, self.links[link].title, indent))
+            output("{3}<strong>{0}:</strong>{1}<em>:{2}</em><br />".format(link, self.links[link].url, self.links[link].title, indent))
 
 if __name__ == '__main__':
     print("Library module. Not directly callable.")

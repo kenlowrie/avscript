@@ -29,13 +29,13 @@ class VariableDict(object):
         TODO: Should this just return an empty string if undefined?"""
         return "(undefined)" if not self.exists(id) else self.vars[id].text
 
-    def dumpVars(self, indent=''):
+    def dumpVars(self, indent='',output=print):
         """Dumps the variable list, names and values."""
         def escape_html(s):
             return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
     
         for var in self.vars:
-            print("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, escape_html(self.vars[var].text), indent))
+            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, escape_html(self.vars[var].text), indent))
 
 
 if __name__ == '__main__':

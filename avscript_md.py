@@ -508,7 +508,7 @@ class AVScriptParser(StdioWrapper):
             self.oprint(self._html.formatLine("<hr />"))
             self.oprint(self._html.formatLine("<p>Variables</p>"))
             self.oprint(self._html.formatLine("<code>",1))
-            self._variables.dumpVars(self._html.getIndent())
+            self._variables.dumpVars(self._html.getIndent(),self.oprint)
             self.oprint(self._html.formatLine("</code>",-1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
 
@@ -518,7 +518,7 @@ class AVScriptParser(StdioWrapper):
             self.oprint(self._html.formatLine("<hr />"))
             self.oprint(self._html.formatLine("<p>External Links</p>"))
             self.oprint(self._html.formatLine("<code>",1))
-            self._links.dumpLinks(self._html.getIndent())
+            self._links.dumpLinks(self._html.getIndent(),self.oprint)
             self.oprint(self._html.formatLine("</code>",-1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
 

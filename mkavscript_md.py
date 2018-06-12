@@ -92,19 +92,16 @@ def get_head(mdfile,cssFile):
 def get_tail():
     return """
 </body>
-</html>"""
+</html>
+"""
 
 def message(msgstr): print('{0}: {1}'.format(me.alias(),msgstr))
 
-def add_header(fileobj,cssFile):
-    htmlfile = open(fileobj.HTML_filename, "w")
+def add_header(htmlfile,fileobj,cssFile):
     htmlfile.write(get_head(fileobj.rootname,cssFile))
-    htmlfile.close()
 
-def add_footer(fileobj):
-    htmlfile = open(fileobj.HTML_filename, "a")
+def add_footer(htmlfile):
     htmlfile.write(get_tail())
-    htmlfile.close()
 
 
 """
@@ -116,28 +113,51 @@ doing the transfer.
 outpath should also be handled better so that we can use relative or absolute
 and it will do the right thing with either.
 
-We need to open the file, and then modify these APIs to write to it, instead
-of using the system shell to do the work. i.e. make it pure Python.
-
 """
-def _mkhtml(mdfile,cssfile, outpath, open_output_file):
-
-    fileobj = FileName(mdfile,outpath)
-    cssSrcPath = join(me.whereami(),cssfile)
+def _mkhtml(mdfile, cssfile, outpath, open_output_file):
+    """
+    Process 'mdfile'
+    
+    Arguments:
+        mdfile -- the markdown file to process
+        cssfile -- the CSS file to use for styling. Default is avscript_md.css
+        outpath -- the location for the HTML output. Relative to mdfile path.
+        open_output_file -- Whether to open the created HTML file
+    """
+    fileobj = FileName(mdfile, outpath)
+    
+    cssSrcPath,basename = split(cssfile)
+    if(not cssSrcPath):
+        # no path specified on the cssfile; assume it's where the Python script is
+        cssSrcPath = join(me.whereami(), cssfile)
+    else:
+        cssSrcPath = cssfile
+        
     if not isfile(cssSrcPath):
-        print("Can't find [{}] or [{}]. Giving up.".format(cssfile,cssSrcPath))
+        print("Can't find [{}] or [{}]. Giving up.".format(cssfile, cssSrcPath))
         return 1
-
-    avscript_md = join(me.whereami(),"avscript_md.py")
 
     if not isdir(outpath):
         mkdir(outpath)
-    system("cp \"{0}\" {2}/{1}".format(cssSrcPath,cssfile,outpath))
-    command = "{0} < \"{1}\" >> \"{2}\"".format(avscript_md,mdfile,fileobj.HTML_filename)
+    from shutil import copy2
+    try:
+        copy2(cssSrcPath,outpath)
+    except OSError as why:
+        print("Error copying CSS file: [{}]".format(str(why)))
+
+    htmlfile = open(fileobj.HTML_filename, "w")
+    
+    from avscript_md import AVScriptParser
+    
     message("Creating: " + fileobj.rootname)
-    add_header(fileobj,cssfile)
-    system(command)
-    add_footer(fileobj)
+    add_header(htmlfile,fileobj,cssfile)
+
+    avscript_obj = AVScriptParser()
+    avscript_obj.stdoutput = htmlfile
+    avscript_obj.parse(mdfile)
+
+    add_footer(htmlfile)
+    htmlfile.close()
     if(open_output_file):
         system("open \"{0}\"".format(fileobj.HTML_filename))
 

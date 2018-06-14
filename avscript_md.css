@@ -19,19 +19,19 @@
    
    TODO: Might want to look at Mark Boszko's latest version of the original CSS
    file. He's added a TON of stuff that looks very interesting...
-   */
+*/
 
 body
 {
     -webkit-font-smoothing:antialiased;
 	font-style: normal;
 	margin:0;
-	font-family: "Proxima Nova Alt", "Proxima Nova", "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
 }
 
 html>body
 {
-    font-size:13px
+    font-size:12px
 }
 
 h1 {
@@ -81,6 +81,7 @@ del{
 }
 
 .wrapper {
+    clear:both;
 }
 
 div.cover, div.revision, div.contact {
@@ -113,7 +114,6 @@ div.cover, div.revision {
 
 div.contact {
     padding: 10px;
-    page-break-after: always;
 }    
 
 
@@ -151,6 +151,7 @@ div.toc{
 div.toc p, div.syntax p{
     margin:0;
     padding:0;
+    font-size: 1.1em;
 }
 
 div.syntax{
@@ -175,7 +176,7 @@ div.plain p{
 	font-family:inherit;
 }
 
-div.plain p.plainTitle{
+div.plain .plainTitle{
     padding: 10px;
     font-weight: bold;
     font-size: 1.2em;
@@ -185,7 +186,7 @@ div.plain p.plainTitle{
 .extras {
     clear:both;
     margin: .5em;
-    padding: 0px 10px 0 10px;
+    padding: 0 10px 0 10px;
 }
 
 div.extras p{
@@ -201,9 +202,6 @@ div.extras p{
     font-size: 1.4em;
     margin:0;
     padding:0;
-}
-
-.pba, .pbb {
 }
 
 .bigandbold{
@@ -382,7 +380,7 @@ p.indent4, div.toc p.indent4, div.syntax p.indent4{
 		/*page-break-inside: avoid;
 		display:inline;*/
 	}
-	#plain{
+	.plain{
 		page-break-inside: avoid;
 	}
     .pbb{

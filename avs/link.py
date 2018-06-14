@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 
 class _Link(object):
     """Class to abstract a reference link. Keep track of the URL (url) and

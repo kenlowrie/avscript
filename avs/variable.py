@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 
 class _Variable(object):
     """Class to abstract a variable (alias). Keep track of the ID (name) and

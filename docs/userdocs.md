@@ -111,9 +111,11 @@ Then the inline link isn't expanded inline as normal, and any text following the
 Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it's a valid link!
 @+[auto+inks]
 ###Automatic links
-The final type of link format is automatic links? Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL. I'm still on the fence as to whether support for automatic links will remain in the script, so don't get too comfortable with them just yet...
+The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL.
+{:.note}**NOTE: **I'm still on the fence as to whether support for automatic links will remain in AVScript, so don't get too comfortable with them just yet...
 
 @+[aliases]
+{:.plain}@@@ plainTitle
 ## Aliases or Variables
 
 Aliases (aka Variables), which is essentially text substitution, is supported using a similar syntax to reference links. **[variable]=value**. Take the following example:
@@ -136,6 +138,7 @@ And that's all good. It's concise, I only have to write *cls* in [ ] and it is w
 Now, when I write [Cloudy Logic], it is wrapped with the link for *cls*. Cool!
 
 @+[divs]
+{:.plain}@@@ plainTitle
 ##Divs
 You can create a new DIV using ***---*** or ***@@@*** at the start of a new line. The complete syntax is: 
 
@@ -157,6 +160,7 @@ If I indent subsequent lines immediately following the DIV declaration, they bec
 There are a several built-in CSS classes that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
 
 @+[headers]
+{:.plain}@@@ plainTitle
 ##Headers
 
 Just like in standard Markdown, you can use the # symbol at the beginning of a line to designate an HTML &lt;H1&gt; element. ## symbols designate an &lt;H2&gt; element, and so on, up to ###### for &lt;H6&gt;. Here are examples of each.
@@ -213,6 +217,7 @@ Each element within the ***&lt;&lt;[SP]&gt;&gt;*** is optional. The ***&lt;&lt;[
 To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.
 
 @+[imports]
+{:.plain}@@@ plainTitle
 ##Importing documents
 
 {:.syntax}@@@ divTitle Syntax:
@@ -230,6 +235,7 @@ Would be the same as writing **@import "/mydir/vars.md"**. This is useful becaus
 {:.note.blue}There is a gotcha when using this with BBEdit's Markup Preview. There is no context for the top level file, since it is passed to the Python script as sys.stdin. Because of that, you can't rely on avscript_md to determine the relative path of the top level file. It will work just fine when using mkavscript_md, but that won't be useful if you are using BBEdit's Markup Preview to write your documents...
 
 @+[predefined classes]
+{:.plain}@@@ plainTitle
 ##Predefined classes
 There are a number of predefined classes in the primary CSS file that can be used to quickly style your AV scripts. You can add others as required, and decorate your elements as needed. Here are a few of them, used outside the AV DIV, and then again inside an AV DIV.
 
@@ -282,6 +288,7 @@ You can stack multiple classes by simply stringing them together. For example, o
 {:.greybg.bigandbold.blue}This is a big and bold blue note on a grey background.
 
 @+[shotlist]
+{:.plain}@@@ plainTitle
 ##Shotlist
 
 For convenience, you can list all of the defined shots in a list at the end of your script by using the ***///Shotlist///*** tag. This tag must begin on a line of its own, and it is replaced on the fly with all the shots that have been defined up to that point. The following shows what it would do for this document:
@@ -289,7 +296,8 @@ For convenience, you can list all of the defined shots in a list at the end of y
 ///Shotlist///
 
 @+[debug]
-##Debugging
+{:.plain}@@@ plainTitle
+{:.plainTitle}##Debugging
 
 There are two debugging tags that can be used in your document, and like ***///Shotlist///***, they must be on a line of their own.
 
@@ -302,6 +310,7 @@ Here are those two tags in action for this document.
 ///Variables///
 
 @+[summary]
+{:.plain}@@@ plainTitle
 ## Summary
 
 Well that's it! Hope you've enjoyed reading the docs for the avscript_md utility. More importantly, I hope that you can use this app to streamline your audio/visual script development!

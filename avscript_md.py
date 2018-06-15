@@ -54,13 +54,9 @@ Future - aka Wish List
 TODO (Punch list):
 1. Refactor mkavscript_md.py with command line args, import, etc.
 2. Make the $$cover and $$contact regex's less brain dead. Allow true optionals..
-3. Test with Python2 and Python3
 4. Make it pass flake8 (mostly)
 5. Create unit tests and automate testing with Travis CI
 6. Consider setup_tools based install? Maybe
-
-CSS Clean Up
-5. Ability to pass requested version to mkavscript_md
 
 """
 
@@ -294,7 +290,7 @@ class AVScriptParser(StdioWrapper):
         self._line.current_line = self._markdown(stripped_line)
 
         # return the marked down version
-        return self._line.current_line
+        return self._line.original_line
         
     def _addBookmark(self, linktext):
         """Generate a unique HTML bookmark and return the inline <a> tag to define it.
@@ -411,12 +407,8 @@ class AVScriptParser(StdioWrapper):
         self.oprint(self._html.formatLine(str, -1))
         self.oprint(self._html.formatLine("</div>"))
 
-    def parse(self, avscript=None):
-        """Parse an A/V Script File in text format and emit HTML code.
-        
-        Arguments:
-        avscript -- the script to parse or None to parse sys.stdin
-        """
+    def parse(self):
+        """Parse an A/V Script File in text format and emit HTML code."""
 
         """Following are the helper functions for the parse() method.
         
@@ -606,18 +598,6 @@ class AVScriptParser(StdioWrapper):
 
         # --------------------------------------------------------------------
         # This is the ENTRY point to the parse() method!
-        # Ok, open the specified file (or sys.stdin if avscript is None)
-        try:
-            if(avscript is not None):
-                # If the file doesn't exist, bail now.
-                if not isfile(avscript):
-                    return 1
-
-            self.iopen(avscript)
-
-        except IOError:
-            return 2
-
         rc = 0
 
         # A map linking line parse types to processor functions
@@ -670,6 +650,26 @@ class AVScriptParser(StdioWrapper):
 
         return rc
 
+    def load_and_parse(self, avscript=None):
+        """Open an A/V Script File in text format and emit HTML code.
+        
+        Arguments:
+        avscript -- the script to parse or None to parse sys.stdin
+        """
+        # Ok, open the specified file (or sys.stdin if avscript is None)
+        try:
+            if(avscript is not None):
+                # If the file doesn't exist, bail now.
+                if not isfile(avscript):
+                    return 1
+
+            self.iopen(avscript)
+
+        except IOError:
+            return 2
+
+        return self.parse()
+
 
 def av_parse_file(args=None):
     """Parse specified input file as AV Script Format text file.
@@ -688,9 +688,9 @@ def av_parse_file(args=None):
     parser = ArgumentParser(description='Parse AV Format text files into HTML format.', 
                             epilog='If filename is not specified, program reads from stdin.')
     parser.add_argument('-f', '--filename', help='the file that you want to parse')
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     
-    return AVScriptParser().parse(args.filename)
+    return AVScriptParser().load_and_parse(args.filename)
     
 
 if __name__ == '__main__':

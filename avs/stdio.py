@@ -33,24 +33,26 @@ class StdioWrapper(object):
     def _raise_wrong_mode(self, file, mode):
         raise IOError("{} file mode must be {}".format(which, mode))
 
-    # TODO: The setter for stdinput is wrong. Need to decide how to
-    #       handle it correctly, since it is no longer a simple stream,
-    #       but an instance of a StreamHandler(). Maybe allow a file
-    #       to be passed in to pushed onto the stack? Not sure. Need to
-    #       think about how it should behave and implement it.
     @property
     def stdinput(self):
         return self._stdinput
 
     @stdinput.setter
     def stdinput(self,new_input_file):
+        """
+        Set the standard input stream to new_input_file
+        
+        This method will push the passed open file onto the stdinput
+        file stack. The passed file must be open in 'r' or 'rb', and
+        must be an instance of IOBase.
+        """
         if(not isinstance(new_input_file,IOBase)):
             self._raise_wrong_type('new_input_file')
 
         elif(new_input_file.mode not in ['r','rb']):
             self._raise_wrong_mode(new_input_file.name,'r')
 
-        self._stdinput = new_input_file
+        self._stdinput.push(new_input_file)
 
     def iopen(self,filename):
         self.stdinput.open(filename)

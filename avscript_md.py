@@ -650,7 +650,7 @@ class AVScriptParser(StdioWrapper):
 
         return rc
 
-    def load_and_parse(self, avscript=None):
+    def open_and_parse(self, avscript=None):
         """Open an A/V Script File in text format and emit HTML code.
         
         Arguments:
@@ -690,7 +690,7 @@ def av_parse_file(args=None):
     parser.add_argument('-f', '--filename', help='the file that you want to parse')
     args = parser.parse_args(args)
     
-    return AVScriptParser().load_and_parse(args.filename)
+    return AVScriptParser().open_and_parse(args.filename)
     
 
 if __name__ == '__main__':

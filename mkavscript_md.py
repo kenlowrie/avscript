@@ -154,7 +154,7 @@ def _mkhtml(mdfile, cssfile, outpath, open_output_file):
 
     avscript_obj = AVScriptParser()
     avscript_obj.stdoutput = htmlfile
-    avscript_obj.load_and_parse(mdfile)
+    avscript_obj.open_and_parse(mdfile)
     #avscript_obj.stdinput = open(mdfile,'r')
     #avscript_obj.parse()
 

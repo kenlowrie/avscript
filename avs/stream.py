@@ -35,7 +35,18 @@ class StreamHandler(object):
         self.filestack = []
         self.idx = -1
         self.line = ''
+        self._reading_from_stdin = False
 
+    def push(self, fh, name=None):
+        """
+        Push an open file onto the stack for readline()
+        
+        This method can be used to push an open file onto the filestack,
+        as an alternative to passing in a filename (open() method).
+        """
+        self.filestack.append(_OpenFile(fh, name))
+        self.idx += 1
+        
     def open(self, filename):
         """
         Open a file and place the handle on the stack for readline()
@@ -54,7 +65,7 @@ class StreamHandler(object):
         if(filename is None):
             """sys.stdin can only be opened as the first file."""
             if(self.idx is not -1):
-                raise FileError(2,"ERROR: sys.stdin cannot only be opened at start")
+                raise FileError(2,"ERROR: sys.stdin can only be opened at start")
 
         else:
             # If name is prefixed with '$', prefix the filename with the path of
@@ -67,8 +78,7 @@ class StreamHandler(object):
             if isfile(filename):
                 name = abspath(filename)
                 file = open(filename, "r")
-                self.filestack.append(_OpenFile(file, name))
-                self.idx += 1
+                self.push(file,name)
 
             else:
                 raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
@@ -89,6 +99,12 @@ class StreamHandler(object):
         and fall back to the previous file.
         """
         if self.idx < 0:
+            # Once we've read from sys.stdin, we need to remember that,
+            # so that if we've imported a file, we will fall back to
+            # reading from sys.stdin after we hit EOF on the imported file. 
+            if not self._reading_from_stdin:
+                self._reading_from_stdin = True
+
             # If no file is opened, fall back to reading from sys.stdin
             self.line = stdin.readline()
         else:
@@ -104,7 +120,7 @@ class StreamHandler(object):
                 # set the index back 1, so future reads will use prior file
                 self.idx -= 1
 
-                if (self.idx >= 0):
+                if (self.idx >= 0 or self._reading_from_stdin):
                     return self.readline()
 
         return self.line

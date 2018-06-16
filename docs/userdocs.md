@@ -11,6 +11,7 @@
     @:[links]<<Links>> - **Inline and Reference Link Styles**
     {:.indent}@:[inline+links]<<Inline Links>> - **Creating links inline**
     {:.indent}@:[ref+links]<<Reference Links>> - **Creating reference links**
+    {:.indent}@:[mailto+links]<<mailto Links>> - **Creating mailto links**
     {:.indent}@:[auto+links]<<Automatic Links>> - **Creating automatic links**
     @:[aliases]<<Aliases>>  - **Text substitution aka Variables**
     @:[div]<<DIV>> - **Creating new DIV sections**
@@ -109,7 +110,23 @@ Then the inline link isn't expanded inline as normal, and any text following the
 [inline 2]:(https://cloudylogic.com)-you won't see any of this text...
 
 Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it's a valid link!
-@+[auto+inks]
+@+[mailto+links]
+###mailto links
+You can create mailto: links in your document too, which enables users to click on a link to automatically compose an email addressed to the specified email address. AVScript will encode the entire mailto: link URL using a mix of decimal and hexadecimal HTML entities as a deterrent to spam bots that mine email addresses from HTML documents. Here's the syntax for a *mailto:* link:
+ 
+{:.syntax}@@@ divTitle mailto Link Syntax
+    {:.indent2.bigandbold}&lt;&#91;*LinkID*&#93;&gt; &lt; : &gt; &lt;***mailto:you@yourdomain.com***&gt;
+    [SP]
+    {:.indent2.bigandbold}Examples:
+    [SP]
+    {:.indent3.bigandbold}&#91;email_me&#93;:mailto:user@mydomain.com *&lt;-- mailto Link Example*
+    {:.indent3.bigandbold}&#91;feedback&#93;:mailto:user@mydomain.com?subject=feature%20feedback*&lt;-- mailto link with subject*
+[email_me]:mailto:user@mydomain.com
+[feedback]:mailto:user@mydomain.com?subject=feature%20feedback
+
+I've defined the previous examples inline in the user docs, so now we can use them by embedding the link id within square brackets, like so: [email_me]. Or using the second form, send me [feedback].
+
+@+[auto+links]
 ###Automatic links
 The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL.
 {:.note}**NOTE: **I'm still on the fence as to whether support for automatic links will remain in AVScript, so don't get too comfortable with them just yet...

@@ -101,7 +101,7 @@ class LinkDict(object):
 
     def dumpLinks(self, indent='',output=print):
         """Dumps the links list, names, urls and titles."""
-        for link in self.links:
+        for link in sorted(self.links):
             output("{3}<strong>{0}:</strong>{1}<em>:{2}</em><br />".format(link, self.links[link].url, self.links[link].title, indent))
 
 if __name__ == '__main__':

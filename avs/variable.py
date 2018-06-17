@@ -36,7 +36,7 @@ class VariableDict(object):
         def escape_html(s):
             return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
     
-        for var in self.vars:
+        for var in sorted(self.vars):
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, escape_html(self.vars[var].text), indent))
 
 

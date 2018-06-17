@@ -53,9 +53,8 @@ Future - aka Wish List
 
 TODO (Punch list):
 1. Refactor mkavscript_md.py with command line args, import, etc.
-2. Make the $$cover and $$contact regex's less brain dead. Allow true optionals..
 4. Make it pass flake8 (mostly)
-5. Create unit tests and automate testing with Travis CI
+5. Automate testing with Travis CI
 6. Consider setup_tools based install? Maybe
 
 """
@@ -112,9 +111,9 @@ class AVScriptParser(StdioWrapper):
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
             'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
-            'cover': RegexMain(True, True, False, r'^[\$]{2}cover[\$]{2}:(.*)', r'^[\$]{2}cover[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'cover': RegexMain(True, True, False, r'^[\$]{2}cover[\$]{2}:(.*)', r'^[\$]{2}cover[\$]{2}(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?'),
             'revision': RegexMain(True, True, False, r'^[\$]{2}revision[\$]{2}:(.*)', r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
-            'contact': RegexMain(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}:[\<]{2}(\w*[^\>]*)[\>]{2}'),
+            'contact': RegexMain(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?'),
         }
 
         # Dictionary of each markdown type that we process on each line
@@ -542,9 +541,9 @@ class AVScriptParser(StdioWrapper):
         def handle_cover(m,lineObj):
             """Handle the cover parse line type"""
             if(m is not None):
-                title = "" if len(m.groups()) < 1 or not m.group(1) else self._markdown(m.group(1))
-                author = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
-                summary = "" if len(m.groups()) < 3 or not m.group(3) else self._markdown(m.group(3))
+                title = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
+                author = "" if len(m.groups()) < 4 or not m.group(4) else self._markdown(m.group(4))
+                summary = "" if len(m.groups()) < 6 or not m.group(6) else self._markdown(m.group(6))
 
                 divstr = self._html.formatLine("<div class=\"cover\">\n", 1)
                 if title:
@@ -576,12 +575,12 @@ class AVScriptParser(StdioWrapper):
         def handle_contact(m,lineObj):
             """Handle the contact parse line type."""
             if(m is not None):
-                cName = "" if len(m.groups()) < 1 or not m.group(1) else "{0}<br />".format(self._markdown(m.group(1)))
-                cPhone = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2)))
-                cEmail = "" if len(m.groups()) < 3 or not m.group(3) else "{0}<br />".format(self._markdown(m.group(3)))
-                cLine1 = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
-                cLine2 = "" if len(m.groups()) < 5 or not m.group(5) else "{0}<br />".format(self._markdown(m.group(5)))
-                cLine3 = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
+                cName = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2).replace(' ','&nbsp;')))
+                cPhone = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
+                cEmail = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
+                cLine1 = "" if len(m.groups()) < 8 or not m.group(8) else "{0}<br />".format(self._markdown(m.group(8)))
+                cLine2 = "" if len(m.groups()) < 10 or not m.group(10) else "{0}<br />".format(self._markdown(m.group(10)))
+                cLine3 = "" if len(m.groups()) < 12 or not m.group(12) else "{0}<br />".format(self._markdown(m.group(12)))
 
                 divstr = self._html.formatLine("<div class=\"contact\">\n", 1)
                 divstr += self._html.formatLine("<table>\n", 1)

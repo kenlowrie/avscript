@@ -1,0 +1,108 @@
+<div class="wrapper">
+    <a id="divs"></a>
+    <div class="plain">
+        <p class="plainTitle"></p>
+    </div>
+    <div class="extras">
+        <h2>Divs</h2>
+    </div>
+    <div class="extras">
+        <p>You can create a new DIV using <em><strong>---</strong></em> or <em><strong>@@@</strong></em> at the start of a new line. The complete syntax is:</p>
+    </div>
+    <div class="extras">
+        <h3>&#91;{:.class}&lt;<em><strong>---</strong></em> | <em><strong>@@@</strong></em>&gt; &lt;<em><strong>title_className | .</strong></em>&gt; &#91;optional title&#93;</h3>
+    </div>
+    <div class="extras">
+        <p>The class prefix is optional, but handy if you want your DIV to be styled in a unique way. You can list one or more classes in dotted notation. E.g.: <strong>{:.myclass}</strong> or <strong>{:.myclass1.myclass2}</strong>. Then an optional class for the title, or '.' to indicate no title class, and finally, the optional title. Let's take a look at an example:</p>
+    </div>
+    <div class="extras">
+        <p>When I write <em><strong>{:.section}@@@ divTitle This is my new DIV section</strong></em> at the start of a new line, I get this:</p>
+    </div>
+    <div class="section">
+        <p class="divTitle">This is my new DIV section</p>
+    </div>
+    <div class="extras">
+        <p>If I indent subsequent lines immediately following the DIV declaration, they become part of the DIV as a regular paragraph. For example, I'll add four (4) indented lines immediately after the previous DIV declaration and I get this:</p>
+    </div>
+    <div class="section">
+        <p class="divTitle">This is my new DIV section</p>
+        <p>This is line 1</p>
+        <p>This is line 2</p>
+        <p>This is line 3</p>
+        <p>This is line 4</p>
+    </div>
+    <div class="extras">
+        <p>There are a several built-in CSS classes that are defined in the accompanying <strong>avscript_md.css</strong> file, and you can add your own to get new DIVs formatted to your liking.</p>
+    </div>
+    <a id="headers"></a>
+    <div class="plain">
+        <p class="plainTitle"></p>
+    </div>
+    <div class="extras">
+        <h2>Headers</h2>
+    </div>
+    <div class="extras">
+        <p>Just like in standard Markdown, you can use the # symbol at the beginning of a line to designate an HTML &lt;H1&gt; element. ## symbols designate an &lt;H2&gt; element, and so on, up to ###### for &lt;H6&gt;. Here are examples of each.</p>
+    </div>
+    <div class="extras">
+        <h3 class="indent"># H1</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">## H2</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">### H3</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">#### H4</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">##### H5</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">###### H6</h3>
+    </div>
+    <div class="extras">
+        <p>And this is how they will look in the document when it's formatted:</p>
+    </div>
+    <div class="extras">
+        <h1>H1</h1>
+    </div>
+    <div class="extras">
+        <h2>H2</h2>
+    </div>
+    <div class="extras">
+        <h3>H3</h3>
+    </div>
+    <div class="extras">
+        <h4>H4</h4>
+    </div>
+    <div class="extras">
+        <h5>H5</h5>
+    </div>
+    <div class="extras">
+        <h6>H6</h6>
+    </div>
+    <div class="extras">
+        <p>You may want to style the headers to your liking in the avscript_md.css file.</p>
+    </div>
+    <a id="anchors"></a>
+    <div class="extras">
+        <h2>Bookmarks</h2>
+    </div>
+    <div class="extras">
+        <p>You can also define bookmarks in your document, and then reference them with links using the following syntax:</p>
+    </div>
+    <div class="extras">
+        <h3 class="indent">@&#43;&#91;bookmark name&#93; - Define local bookmark</h3>
+    </div>
+    <div class="extras">
+        <h3 class="indent">@&#58;&#91;bookmark name&#93; - Create hyperlink to bookmark</h3>
+    </div>
+    <div class="extras">
+        <p>This is useful for creating things like a table of contents (TOC) for your document, or anywhere that you want to provide a hyperlink to a different part of your doc. These do not have to be defined in any particular order. That is, you can create the hyperlink before the bookmark has been defined.</p>
+    </div>
+    <div class="extras">
+        <p>For an example of bookmarks, just take a look at how this user guide defined and uses its own TOC.</p>
+    </div>
+</div>

@@ -40,10 +40,10 @@ Description
 $$contact$$:<<A>>:<<B>>:<<C>>:<<D>>:<<E>>:<<F>>
 - Shot
 Description
-// ///Variables///
+///Variables///
 - Shot
 Description
-// ///Links///
+///Links///
 - Shot
 Description
 ///Shotlist///

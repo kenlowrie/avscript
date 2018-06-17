@@ -7,3 +7,6 @@
 [b]=123
 [c]=[a][b]
 And here's my test: [a][b] and finally [c]
+
+///Variables///
+///Links///

@@ -84,6 +84,6 @@ Remember, variable definitions and reference link definitions must be declared o
 [varName]=varValue is okay.
 But [varName]=varValue is not...
 
-// /Variables///
+///Variables///
 
-// /Links///
+///Links///

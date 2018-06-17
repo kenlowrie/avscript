@@ -92,3 +92,6 @@ Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it'
 The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL.
 
 &nbsp;
+
+///Variables///
+///Links///

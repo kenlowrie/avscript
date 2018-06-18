@@ -15,11 +15,11 @@ class BookmarkList(object):
 
     def addBookmarkUsingID(self, id, text):
         """Add a bookmark to the list of bookmarks.
-        
+
         Arguments:
             id - the id of the bookmark.
             text - the text to associate with this bookmark.
-            
+
         Returns:
             id
         """
@@ -30,13 +30,13 @@ class BookmarkList(object):
 
     def addBookmark(self, text):
         """Add a bookmark to the list of bookmarks.
-        
+
         Generates a unique ID and then adds a bookmark to the list with
         that ID.
-        
+
         Arguments:
             text can be associated with the ID if needed.
-            
+
         Returns:
             The generated ID for the added bookmark.
         """
@@ -48,7 +48,7 @@ class BookmarkList(object):
 
     def dumpBookmarks(self):
         """Dump the list of bookmarks currently defined.
-        
+
         This is a debug feature which isn't currently used.
         """
         for bookmark in self.bookmarks:

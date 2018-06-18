@@ -13,6 +13,7 @@ from os.path import join, split, abspath, isfile
 
 from avs.exception import FileError
 
+
 class _OpenFile(object):
     """A simple class to keep track of files that are opened."""
     def __init__(self, f, name):
@@ -23,7 +24,7 @@ class _OpenFile(object):
 class StreamHandler(object):
     """
     Abstract open() and readline() to implement @import support
-    
+
     This class abstracts the open() & readline() APIs so they can support
     having multiple files open, ala the @import keyword. When a new file
     is opened, the current file object is saved on a stack, and the file
@@ -40,24 +41,24 @@ class StreamHandler(object):
     def push(self, fh, name=None):
         """
         Push an open file onto the stack for readline()
-        
+
         This method can be used to push an open file onto the filestack,
         as an alternative to passing in a filename (open() method).
         """
         self.filestack.append(_OpenFile(fh, name))
         self.idx += 1
-        
+
     def open(self, filename):
         """
         Open a file and place the handle on the stack for readline()
-        
+
         Once a file has been opened, subsequent calls to readline() use
         that handle to return data.
-        
+
         None can be passed to signify that sys.stdin should be used, however
         it's not required, since that's the default behavior of this class.
         This is done primarily as a convenience for the consumer of the class.
-        
+
         Arguments:
         filename -- name of the file to open, or None to process sys.stdin
         """
@@ -65,7 +66,7 @@ class StreamHandler(object):
         if(filename is None):
             """sys.stdin can only be opened as the first file."""
             if(self.idx is not -1):
-                raise FileError(2,"ERROR: sys.stdin can only be opened at start")
+                raise FileError(2, "ERROR: sys.stdin can only be opened at start")
 
         else:
             # If name is prefixed with '$', prefix the filename with the path of
@@ -78,22 +79,22 @@ class StreamHandler(object):
             if isfile(filename):
                 name = abspath(filename)
                 file = open(filename, "r")
-                self.push(file,name)
+                self.push(file, name)
 
             else:
                 raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
 
     def readline(self):
         """
-        Read the next line of input and return it. 
-        
+        Read the next line of input and return it.
+
         If no file is currently opened, reads from sys.stdin. Once you hit
         EOF, return an empty string ''. This is the basic (default) behavior.
 
         If you open a file (via the open method of this class), the behaviour
         changes as follows. Read the next line until you hit EOF, and then,
         fall back to reading from sys.stdin until EOF.
-        
+
         If another file is opened (via open() method) while reading from the
         current file, we read from the new file until EOF, and then close it,
         and fall back to the previous file.
@@ -101,7 +102,7 @@ class StreamHandler(object):
         if self.idx < 0:
             # Once we've read from sys.stdin, we need to remember that,
             # so that if we've imported a file, we will fall back to
-            # reading from sys.stdin after we hit EOF on the imported file. 
+            # reading from sys.stdin after we hit EOF on the imported file.
             if not self._reading_from_stdin:
                 self._reading_from_stdin = True
 

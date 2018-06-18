@@ -3,14 +3,14 @@
 from __future__ import print_function
 
 
-def str_to_html_entity_mix( string ):
+def str_to_html_entity_mix(string):
     """
     Encodes a string using decimal or hexadecimal HTML character entities
-    
+
     Encodes each character of the given string as either a decimal
     or hexadecimal entity, in the hopes of foiling most email address
     harvesting bots.
-    
+
     Note that running the same string through this function produces
     different results (intentionally). That's good, but it makes testing
     a little more challenging.
@@ -29,7 +29,7 @@ def str_to_html_entity_mix( string ):
     from random import randint
     from binascii import crc32
     # generate a pseudo-random seed
-    seed = randint(0,int(abs(crc32(str.encode(string)) / len(string))))
+    seed = randint(0, int(abs(crc32(str.encode(string)) / len(string))))
 
     # for each character in the string
     for key in range(len(chars)):
@@ -39,7 +39,7 @@ def str_to_html_entity_mix( string ):
         # ascii only
         if ordc < 128:
 
-            r = (seed * (1 + key)) % 100;
+            r = (seed * (1 + key)) % 100
 
             if(r > 75 and char not in ['@', '.', ':', ' ']):
                 # if r > 75 and char is not [@.: ], leave it intact
@@ -53,15 +53,16 @@ def str_to_html_entity_mix( string ):
 
     return ''.join(chars)   # return the new encoded string
 
+
 class _Link(object):
     """Class to abstract a reference link. Keep track of the URL (url) and
     the optional title (title). We don't track the name here, that is done
     in the C_Links class."""
     def __init__(self, url, title=None):
         if(url[0:7] == 'mailto:'):
-            self.url = str_to_html_entity_mix(url.replace(" ","%20"))
+            self.url = str_to_html_entity_mix(url.replace(" ", "%20"))
         else:
-            self.url = url.replace(" ","%20")
+            self.url = url.replace(" ", "%20")
         self.title = title
 
 
@@ -99,10 +100,11 @@ class LinkDict(object):
 
         return '<a href=\"{0}\"{2}>{1}</a>'.format(self.getLinkUrl(id), linkText, title)
 
-    def dumpLinks(self, indent='',output=print):
+    def dumpLinks(self, indent='', output=print):
         """Dumps the links list, names, urls and titles."""
         for link in sorted(self.links):
             output("{3}<strong>{0}:</strong>{1}<em>:{2}</em><br />".format(link, self.links[link].url, self.links[link].title, indent))
+
 
 if __name__ == '__main__':
     print("Library module. Not directly callable.")

@@ -11,7 +11,7 @@ is encountered. Just makes it easier to read the output.
 
 class HTMLFormatter(object):
     _current_level = 0
-    
+
     def getIndent(self, dedent_after=True):
         """Create a string of blanks for indenting a line to keep things aligned properly."""
         howmany = self._current_level if dedent_after else self._current_level - 1
@@ -19,7 +19,7 @@ class HTMLFormatter(object):
 
     def formatLine(self, str, indent_level=0, dedent_after=True):
         """Prefix the string passed in so it will align properly in the HTML output file.
-        
+
         Arguments:
         str -- the string to indent
         indent_level -- -1 to decrease, 0 to retain, 1 to increase the indent level

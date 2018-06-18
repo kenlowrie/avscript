@@ -14,7 +14,7 @@ class Line(object):
         return self._curLine
 
     @current_line.setter
-    def current_line(self,line):
+    def current_line(self, line):
         self._curLine = line
 
     @property
@@ -22,7 +22,7 @@ class Line(object):
         return self._oriLine
 
     @original_line.setter
-    def original_line(self,ori_line):
+    def original_line(self, ori_line):
         self._oriLine = ori_line
 
     @property
@@ -30,7 +30,7 @@ class Line(object):
         return self._cssPrefix
 
     @css_prefix.setter
-    def css_prefix(self,prefix):
+    def css_prefix(self, prefix):
         self._cssPrefix = prefix
 
     @property
@@ -38,7 +38,7 @@ class Line(object):
         return self._was_indented
 
     @was_indented.setter
-    def was_indented(self,value):
+    def was_indented(self, value):
         self._was_indented = value
 
 

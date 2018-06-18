@@ -3,132 +3,144 @@
 
 There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:
 
-{:.indent}###$$cover$$ - To add a cover section
-{:.indent}###$$revision$$ - To add a revision section
-{:.indent}###$$contact$$ - To add a contact section
+{:.indent}###@cover - To add a cover section
+{:.indent}###@revision - To add a revision section
+{:.indent}###@contact - To add a contact section
 
 The details for each type of section are as follows:
 
-###$$cover$$&lt;&lt;title of script&gt;&gt;:&lt;&lt;short summary&gt;&gt;:&lt;&lt;long description&gt;&gt;
+### Cover Title
 
-Each element within the ***&lt;&lt;[SP]&gt;&gt;*** is optional. The ***&lt;&lt;[SP]&gt;&gt;*** are required, even if you don't want to specify the element!
+{:.syntax}@@@ divTitle Cover Title Syntax
+    &nbsp;
+    {:.indent}@cover title="title of script" author="written by" logline="logline or short description"
 
+Each element is optional, and they can appear in any order. Also note that the value of any parameter can be whatever you want. Just because it says "author", doesn't mean you have to put the author name there. You could instead write "Roses are Red", and that would be just fine...
 
-###$$revision$$&lt;&lt;revision of script&gt;&gt;
-Specify the revision number of your document within the angle brackets. Note that the current date and time of the document at the time of processing will also be inserted immediately following the revision number. This provides additional clarification of the version, in case you forget to bump the version number.
+###@revision v="revision" timestamp="yes"
+Specify the revision number of your document within the angle brackets. If timestamp is either not specified or has any value other than "No", "Off", "False" or "0", the current date and time of the document at the time of processing will also be inserted immediately following the revision number. This provides additional clarification of the version, in case you forget to bump the version number.
 
-###$$contact$$&lt;&lt;contact name&gt;&gt;:&lt;&lt;contact phone&gt;&gt;:&lt;&lt;contact email&gt;&gt;:&lt;&lt;copyright statement 1&gt;&gt;:&lt;&lt;copyright statement 2&gt;&gt;:&lt;&lt;copyright statement 3&gt;&gt;
+If you specify timestamp="No" | "Off" | "False" | "0", then the timestamp will not be added to the revision string.
 
-Each element within the ***&lt;&lt;[SP]&gt;&gt;*** is optional. The ***&lt;&lt;[SP]&gt;&gt;*** are required, even if you don't want to specify the element! 
+###@contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"
+
+Each element is optional, and the elements can appear in any order.
 
 To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.
 
 // And now let's try various versions
-$$cover$$:
-$$cover$$:<<>>
-$$cover$$:<<>>:<<>>
-$$cover$$:<<>>:<<>>:<<>>
-$$cover$$:<<Title of Script>>:<<>>:<<>>
-$$cover$$:<<Title of Script>>:<<Script Author>>:<<>>
-$$cover$$:<<Title of Script>>:<<Script Author>>:<<Log Line>>
-$$cover$$:<<>>:<<Script Author>>:<<>>
-$$cover$$:<<>>:<<>>:<<Log Line>>
-$$cover$$:<<>>:<<Script Author>>:<<Log Line>>
-$$cover$$:<<Title of Script>>:<<>>:<<Log Line>>
-$$cover$$:<<Title of Script>>
-$$cover$$:<<Title of Script>>:<<Script Author>>
-$$cover$$:<<>>:<<Script Author>>
+
+@cover title="Title of Script" author="Script Author"
+@cover title="Title of Script" author="Script Author" logline="Logline"
+@cover author="Script Author"
+@cover logline="Logline"
+@cover author="Script Author" logline="Logline"
+@cover title="Title of Script" logline="Logline"
+@cover title="Title of Script"
+@cover title="" author="Script Author" logline=""
+
+@cover title =     "Title of Script" author   =   "Script Author"
+@cover   title="Title of Script" author  ="Script Author" logline=  "Logline"
+@cover      author    =    "Script Author"    
+@cover
+@cover author="author"
+@cover author="author" title="title" logline="logline"
+
+Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... Need to handle that a different way for testing...
+
+@revision timestamp="no"
+@revision v="1.0" timestamp="False"
+@revision v="1.1" timestamp="0"
+ @revision
+ @ revision
+@revision v="" timestamp="OFF"
 
 
-$$contact$$:
-$$contact$$:<<>>
-$$contact$$:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<Contact Name>>:<<>>:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact  
+@contact cn=""
+@contact ph=""
+@contact em=""
+@contact c1=""
+@contact c2=""
+@contact c3="" 
+@contact cn=""  c2=""
+@contact c2=""  cn=""
 
-$$contact$$:<<Contact Names>>
-$$contact$$:<<Contact Name>>:<<Phones>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<emails>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAMES, LLC.>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All My Rights Reserved.>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact cn ="Contact Name"      
+@contact cn="Contact Name" ph="210-555-1212"     
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"    
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3"
 
-$$contact$$:<<>>:<<Phone>>:<<>>:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAMEX, LLC.>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact  ph="210-555-1212"     
+@contact  ph="210-555-1212" em="email@mydomain.com"    
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
 
-$$contact$$:<<>>:<<>>:<<email>>:<<>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact   em="email@mydomain.com"    
+@contact   em="email@mydomain.com" c1="Copyright  Line 1"     
+@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   
+@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
 
-$$contact$$:<<>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact    c1="Copyright  Line 1"  
+@contact    c1="Copyright  Line 1"  c2="Copyright Line 2" 
+@contact    c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
 
-$$contact$$:<<>>:<<>>:<<>>:<<>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<>>:<<>>:<<>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact     c2="Copyright Line 2"
+@contact     c2="Copyright Line 2" c3="Copyright Line 3" 
 
-$$contact$$:<<>>:<<>>:<<>>:<<>>:<<>>:<<Copyright Line 3>>
+@contact      c3="Copyright Line 3" 
 
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
 
-$$contact$$:<<>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
+@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
 
 
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
 
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2"
 
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<>>
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"   c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2"
 
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<>>
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
 
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<>>
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name"   c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name"   c1="Copyright  Line 1"  
 
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2"
 
 
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<>>:<<Copyright Line 3>>
-$$contact$$:<<>>:<<Phone>>:<<email>>:<<Copyright (c) 2018 by YOURNAME, LLC.>>:<<All Rights Reserved.>>:<<>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
-$$contact$$:<<Contact Name>>:<<>>:<<email>>:<<>>:<<All Rights Reserved.>>:<<Copyright Line 3>>
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
+@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
+@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
+@contact cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 

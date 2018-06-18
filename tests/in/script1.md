@@ -2,9 +2,9 @@
 [domain]:https://yourdomain.com
 [me]:email@yourdomain.com
 [feedback]:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
-$$cover$$:<<Title of Script>>:<<Script Author>>:<<Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever.>>
-//$$revision$$:<<1a>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<[me]>>:<<Copyright (c) 2018 by YOURNAME.>>:<<All Rights Reserved.>>:<<Don't steal my script>>
+@cover title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever."
+@revision v="1a" timestamp="No"
+@contact cn="Contact Name" ph="Phone" em="[me]" c1="Copyright (c) 2018 by YOURNAME." c2="All Rights Reserved." c3="Don't steal my script"
 {:.review}---    noteTitle       Notes to Reviewers
     Please send [me] any and all [feedback], preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. ++additions are marked like this++ ~~deletions are marked like this~~
 

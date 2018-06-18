@@ -32,7 +32,7 @@ Here is my [jitlinkvar]
 Here is my [jitlinkvar2]
 
 {:.red.center}### avscript tester doc
-$$cover$$:<<User Manual>>:<<Ken Lowrie>>:<<This is a user manual for the AVScript utility.>>
+@cover title="User Manual" author="Ken Lowrie" logline="This is a user manual for the AVScript utility."
 // $$revision$$:<<*1b*>>
 {:.blue.plain}--- plainTitle Variables
 We can define variables using the syntax: ***[name]=value***. Here's an example. The next line will define the variable *whoami* and set it to *Ken Lowrie*.

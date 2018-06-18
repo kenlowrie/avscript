@@ -34,10 +34,10 @@ Description
 //$$revision$$:<<1b>>
 - Shot
 Description
-$$cover$$:<<A>>:<<B>>:<<C>>
+@cover title="A" author="B" logline="C"
 - Shot
 Description
-$$contact$$:<<A>>:<<B>>:<<C>>:<<D>>:<<E>>:<<F>>
+@contact c1="D" c2="E"  c3="F"  cn = "A"  ph  =  "B"    em   ="C"
 - Shot
 Description
 ///Variables///

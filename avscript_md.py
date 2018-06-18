@@ -95,6 +95,7 @@ class AVScriptParser(StdioWrapper):
         self._variables = VariableDict()    # dict of document variables
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
+        self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)\"')
 
         # Dictionary of each line type that we can process
         self._regex_main = {
@@ -110,9 +111,9 @@ class AVScriptParser(StdioWrapper):
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
             'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
-            'cover': RegexMain(True, True, False, r'^[\$]{2}cover[\$]{2}:(.*)', r'^[\$]{2}cover[\$]{2}(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?'),
-            'revision': RegexMain(True, True, False, r'^[\$]{2}revision[\$]{2}:(.*)', r'^[\$]{2}revision[\$]{2}:[\<]{2}(.[^\>]*)[\>]{2}'),
-            'contact': RegexMain(True, True, False, r'^[\$]{2}contact[\$]{2}:(.*)', r'^[\$]{2}contact[\$]{2}(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?(:<<(\w*[^\>]*)>>)?'),
+            'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\"){0,3})', None),
+            'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\"){0,2})', None),
+            'contact': RegexMain(True, True, False, r'^(@contact(\s*([\w]+)\s*=\s*\"(.*?)\"){0,6})', None),
         }
 
         # Dictionary of each markdown type that we process on each line
@@ -569,17 +570,14 @@ class AVScriptParser(StdioWrapper):
         def handle_cover(m, lineObj):
             """Handle the cover parse line type"""
             if(m is not None):
-                title = "" if len(m.groups()) < 2 or not m.group(2) else self._markdown(m.group(2))
-                author = "" if len(m.groups()) < 4 or not m.group(4) else self._markdown(m.group(4))
-                summary = "" if len(m.groups()) < 6 or not m.group(6) else self._markdown(m.group(6))
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                fmt = lambda x: "{0}".format(self._markdown(d.get(x))) if d.get(x) else ""
 
                 divstr = self._html.formatLine("<div class=\"cover\">\n", 1)
-                if title:
-                    divstr += self._html.formatLine("<h3>%s</h3>\n" % title)
-                if author:
-                    divstr += self._html.formatLine("<p>%s</p>\n" % author)
-                if summary:
-                    divstr += self._html.formatLine("<p class=\"coverSummary\">%s</p>\n" % summary.rstrip())
+                divstr += self._html.formatLine("<h3>{}</h3>\n".format(fmt("title")))
+                divstr += self._html.formatLine("<p>{}</p>\n".format(fmt("author")))
+                divstr += self._html.formatLine("<p class=\"coverSummary\">{}</p>\n".format(fmt("logline")))
                 divstr += self._html.formatLine("</div>", -1, False)
 
                 self.oprint(divstr)
@@ -588,12 +586,22 @@ class AVScriptParser(StdioWrapper):
 
         def handle_revision(m, lineObj):
             """Handle the revision parse line type"""
-            if(m is not None and len(m.groups()) == 1):
-                from time import strftime
-                revision = self._markdown(m.group(1))
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                fmt = lambda x: "{0}".format(self._markdown(d.get(x))) if d.get(x) else ""
+
+                #revision = self._markdown(m.group(1))
+                ts_key = "timestamp"
+
+                if d.get(ts_key) and d.get(ts_key).lower() in ['false', 'no', 'off', '0']:
+                    ts_str = ""
+                else:
+                    from time import strftime
+                    ts_str = " ({})".format(strftime("%Y%m%d @ %H:%M:%S"))
 
                 divstr = self._html.formatLine("<div class=\"revision\">\n", 1)
-                divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0} ({1})</p>\n".format(revision.rstrip(), strftime("%Y%m%d @ %H:%M:%S")), -1)
+                divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0}{1}</p>\n".format(fmt("v").rstrip(), ts_str), -1)
                 divstr += self._html.formatLine("</div>")
 
                 self.oprint(divstr)
@@ -603,18 +611,15 @@ class AVScriptParser(StdioWrapper):
         def handle_contact(m, lineObj):
             """Handle the contact parse line type."""
             if(m is not None):
-                cName = "" if len(m.groups()) < 2 or not m.group(2) else "{0}<br />".format(self._markdown(m.group(2).replace(' ', '&nbsp;')))
-                cPhone = "" if len(m.groups()) < 4 or not m.group(4) else "{0}<br />".format(self._markdown(m.group(4)))
-                cEmail = "" if len(m.groups()) < 6 or not m.group(6) else "{0}<br />".format(self._markdown(m.group(6)))
-                cLine1 = "" if len(m.groups()) < 8 or not m.group(8) else "{0}<br />".format(self._markdown(m.group(8)))
-                cLine2 = "" if len(m.groups()) < 10 or not m.group(10) else "{0}<br />".format(self._markdown(m.group(10)))
-                cLine3 = "" if len(m.groups()) < 12 or not m.group(12) else "{0}<br />".format(self._markdown(m.group(12)))
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
 
                 divstr = self._html.formatLine("<div class=\"contact\">\n", 1)
                 divstr += self._html.formatLine("<table>\n", 1)
                 divstr += self._html.formatLine("<tr>\n", 1)
-                divstr += self._html.formatLine("<td class=\"left\">{0}{1}{2}</td>\n".format(cLine1, cLine2, cLine3))
-                divstr += self._html.formatLine("<td class=\"right\">{0}{1}{2}</td>\n".format(cName, cPhone, cEmail), -1)
+                divstr += self._html.formatLine("<td class=\"left nowrap\">{0}{1}{2}</td>\n".format(fmt("c1"), fmt("c2"), fmt("c3")))
+                divstr += self._html.formatLine("<td class=\"right nowrap\">{0}{1}{2}</td>\n".format(fmt("cn"), fmt("ph"), fmt("em")), -1)
                 divstr += self._html.formatLine("</tr>\n", -1)
                 divstr += self._html.formatLine("</table>\n", -1)
                 divstr += self._html.formatLine("</div>")

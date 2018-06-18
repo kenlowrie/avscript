@@ -129,7 +129,8 @@ class AVScriptParser(StdioWrapper):
         }
 
     def _regex(self, id):
-        """Returns the RegexMain object for a specific parse type.
+        """
+        Returns the RegexMain object for a specific parse type.
         
         Arguments:
             id -- the parse type identifier that you want.
@@ -145,14 +146,19 @@ class AVScriptParser(StdioWrapper):
         raise RegexError("ERROR: Invalid regex ID: [{0}]".format(id))
 
     def _unreadLine(self):
-        """Mark the current line in the buffer as unread, so it will be returned next time."""
+        """
+        Mark the current line in the buffer as unread
+        
+        This will cause it to be returned on the next call to readline.
+        """
         if(self._lineInCache is True):
             raise LogicError("ERROR: _unreadLine called with line in cache.")
 
         self._lineInCache = True
 
     def _markdown(self, s):
-        """This method is used to apply markdown to the passed in string.
+        """
+        Apply markdown to the passed string.
         
         As each line is read, it is inspected for markdown tags and those
         tags are processed on the fly. That way, the line is ready to be
@@ -171,7 +177,8 @@ class AVScriptParser(StdioWrapper):
             A string that has all the markdown elements applied.
         """
 
-        """Start with some helper functions to process each markdown type.
+        """
+        Start with some helper functions to process each markdown type.
         Each markdown element has a method to handle the specifics. Each
         method is passed the following parameters:
         
@@ -189,7 +196,8 @@ class AVScriptParser(StdioWrapper):
         """
 
         def md_inline_links(m, s, new_str):
-            """Handle inline links: [linkname]:(url [optional_title])
+            """
+            Handle inline links: [linkname]:(url [optional_title])
             
             See docstring in code for argument information.
             """
@@ -199,7 +207,8 @@ class AVScriptParser(StdioWrapper):
             return s
             
         def md_link_to_bookmark(m, s, new_str):
-            """Handle converting inline link to bookmark: @:[linkname]<<link_text>>
+            """
+            Handle converting inline link to bookmark: @:[linkname]<<link_text>>
             
             See docstring in code for argument information.
             """
@@ -207,7 +216,8 @@ class AVScriptParser(StdioWrapper):
             return s
         
         def md_links_and_vars(m, s, new_str):
-            """Handle inline link and vars: [link_or_variable_name]
+            """
+            Handle inline link and vars: [link_or_variable_name]
             
             See docstring in code for argument information.
             """
@@ -230,7 +240,8 @@ class AVScriptParser(StdioWrapper):
             return s
 
         def md_plain(m, s, new_str):
-            """Handle simple replacement markdown. e.g. *foo* or **bar**, etc.
+            """
+            Handle simple replacement markdown. e.g. *foo* or **bar**, etc.
             
             See docstring in code for argument information.
             """
@@ -259,7 +270,11 @@ class AVScriptParser(StdioWrapper):
         return s    # return the processed string
 
     def _readNextLine(self):
-        """Read the next line from the buffer, unless something is cached, in which case return that"""
+        """
+        Read next line from the current file (or whatever is cached)
+        
+        If something is in the cache, return that instead
+        """
         if(self._lineInCache):
             self._lineInCache = False    # reset the flag since we are returning it
             return self._line.current_line
@@ -292,7 +307,8 @@ class AVScriptParser(StdioWrapper):
         return self._line.original_line
         
     def _addBookmark(self, linktext):
-        """Generate a unique HTML bookmark and return the inline <a> tag to define it.
+        """
+        Generate unique HTML bookmark and return the inline <a> tag to define it.
         
         Arguments:
             linktext -- optional text to wrap the <a> element around.
@@ -303,9 +319,12 @@ class AVScriptParser(StdioWrapper):
         return self._html.formatLine("<a id=\"{0}\"></a>\n".format(self._shotListQ.addBookmark(linktext)))
 
     def _stripClass(self, line):
-        """Strip the {:.class} prefix off the line, and return the class formatted
-           for use as an HTML class ATTR, along with the rest of the line. If no
-           class is present, just return the line as-is."""
+        """
+        Strip the {:.class} prefix off line, and return tuple of (class, line)
+        
+        The class is formatted for use as an HTML class ATTR, along with the 
+        rest of the line. If no class is present, just return the line as-is.
+        """
 
         def make_CSS_class(tmpClass):
             """Create a proper class="class1 class2" string from .class1.class2 notation.
@@ -333,10 +352,15 @@ class AVScriptParser(StdioWrapper):
         return '', line
 
     def _peekNextLine(self, element="p", addLinks=False):
-        """Read the next line, and if it's got white space at the beginning, then add it to the
-           current line as a new <p> or whatever 'element' is. Then keep looking, in case there
-           are more indented lines. This allows us to have multiple lines for DIVs that are section
-           headers, and it's also used to gather multiple shots when we are processing an AV DIV."""
+        """
+        Read next line, and if indented, add it as a new <element>
+        
+        If the next line has white space at the beginning, then add it to the
+        current line as a new <p> or whatever 'element' is. Then keep looking, 
+        in case there are more indented lines. This allows us to have multiple
+        lines for DIVs that are section headers, and it's also used to gather
+        multiple shots when we are processing an AV DIV.
+        """
         if (self._readNextLine() == ''):
             return ""   # if we hit EOF, return ''
 
@@ -352,7 +376,8 @@ class AVScriptParser(StdioWrapper):
         return ""
 
     def _peekPlainText(self, element="p"):
-        """Gobble up all the normal lines after one or more shot descriptions.
+        """
+        Gobble up all the normal lines after one or more shot descriptions.
         
         "Normal" lines are the voiceover (VO) or narration that goes along with 
         each shot. Usually, there are more "VO lines" than shots, so we want to
@@ -399,9 +424,12 @@ class AVScriptParser(StdioWrapper):
         return ""
 
     def _printInExtrasDiv(self, str):
-        """Print the passed in string inside of a DIV with ID="extras". This allows
-           orphaned elements to be kept out of the shot/narrative sections, where
-           floats are active."""
+        """
+        Print the string argument inside an HTML DIV Element with class="extras"
+        
+        This allows orphaned elements to be kept out of the shot/narrative
+        sections, where floats are active.
+        """
         self.oprint(self._html.formatLine("<div class=\"extras\">", 1))
         self.oprint(self._html.formatLine(str, -1))
         self.oprint(self._html.formatLine("</div>"))
@@ -409,7 +437,8 @@ class AVScriptParser(StdioWrapper):
     def parse(self):
         """Parse an A/V Script File in text format and emit HTML code."""
 
-        """Following are the helper functions for the parse() method.
+        """
+        Following are the helper functions for the parse() method.
         
         testLine() and matchLine() are used in the main loop below, and
         then each line parse type has a method that can process it and

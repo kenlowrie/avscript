@@ -37,11 +37,18 @@ There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
 @break
 {:.note.red.indent}When you want to force the document out of shot mode, use ***@break*** or ***@exit*** on an empty line. That will reset the floats which are controlling the AV formatting, and start a new section. See how the document leaves the narration mode of the prior shot, and starts this new block paragraph?
+**&#64;break** &lt;--Use @break or @exit to close a shot DIV.
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc. To add another shot, just repeat the steps above, like this:
 *CU:Coffee pot heating on wire rack of fire pit
 There's nothing like waking up to the smell of coffee percolating in the outdoors.
-{:.ignore}
-Lines that begin with a double forward slash [***//***] are treated as comments, and are discarded by AVScript. They will not appear in the HTML at all.
+@exit
+If you have text you want included in the HTML document, but do not want it rendered by the browser, use the **{:.ignore}** class prefix. For example, on the next line, we'll write {:.ignore}You won't see this.
+{:.ignore}You won't see this.
+When you examine the HTML, you'll see the prior text wrapped in **&lt;p&gt;** tags, inside **&lt;div class="extras"&gt;** markup. However, it will not be rendered by the browser, unless you modify the CSS rule for the ignore class.
+Lines that begin with a double forward slash [***//***] are treated as comments, and are discarded by AVScript. They will not appear in the HTML at all. As another example, we'll write *//This will not appear in the HTML* on the next line.
+//This will not appear in the HTML
+If you examine the HTML output, you will not see the previous line in the output.
+
 @+[inlinemd]
 ###Inline Markdown
 
@@ -175,6 +182,17 @@ If I indent subsequent lines immediately following the DIV declaration, they bec
     This is line 4
 
 There are a several built-in CSS classes that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
+
+{:.syntax}@@@ divTitle Predefined DIVs
+    [SP]
+    {:.indent.bigandbold}&#123;:.toc} -- For Table of Contents sections.
+    {:.indent.bigandbold}&#123;:.section} -- Generic section.
+    {:.indent.bigandbold}&#123;:.unused} -- Unused section.
+    {:.indent.bigandbold}&#123;:.syntax} -- Syntax section.
+    {:.indent.bigandbold}&#123;:.review} -- Review section.
+    {:.indent.bigandbold}&#123;:.plain} -- Plain section.
+
+Remember, you can add your own classes in a CSS file, and then reference them using the built-in formatting of **avscript_md**.
 
 @+[headers]
 {:.plain}@@@ plainTitle

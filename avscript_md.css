@@ -80,6 +80,10 @@ del{
     text-align:right;
 }
 
+.nowrap{
+    white-space: nowrap;
+}    
+
 .wrapper {
     clear:both;
 }
@@ -114,8 +118,7 @@ div.cover, div.revision {
 
 div.contact {
     padding: 10px;
-}    
-
+}
 
 div.toc, div.section, div.unused, div.syntax, div.review {
     clear:both;

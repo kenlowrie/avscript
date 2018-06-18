@@ -1,80 +1,64 @@
-Series: Video Series Name Here
-Title: TITLE OF VIDEO HERE
-Summary: This is the ?????? video ... 
-    It introduces the ...
-Author: Ken Lowrie
-Revision: 1a
-Copyright: Copyright (c) 2018 by COPYRIGHT HOLDER.
-    All Rights Reserved.
-Contact: Ken Lowrie
-    512-710-7257
-    ken@cloudylogic.com 
-
---- note "Notes to Reviewers" noteTitle
-    Please send me any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text directly, be sure to change your font color so that I can easily find the changes.\n\n
-    Notes that begin with "VOICEOVER NOTE", can be ignored; they are for the voiceover guy.\n\n
-    Additions ++are now marked like this++ and deletions ~~are now marked like this~~\n\n
+{:.center.blue}# Video Series Name Here
+$$cover$$:<<TITLE OF VIDEO HERE>>:<<Author>>:<<LogLine>>
+$$revision$$:<<1a>>
+$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright Line1>>:<<Copyright Line2>>:<<Copyright Line3>>
+{:.review}--- revTitle Notes to Reviewers
+    Please send me any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text directly, be sure to change your font color so that I can easily find the changes.
+    Notes that begin with "VOICEOVER NOTE", can be ignored; they are for the voiceover guy.
+    Additions ++are now marked like this++ and deletions ~~are now marked like this~~
     Thanks in advance for reviewing and commenting on the script!
 
---- section noteTitle Introduction Section
+{:.section}--- divTitle Introduction Section
+    For complete information on what you can use inside these markdown files, refer to the userdocs.md file that's included with avscript_md.py. This file provides a very basic starting template.
 
 You can create an email hyperlink using the syntax shown below.
 [feedback]:mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
 
 Now, when I write &#91;feedback], it will be substituted like this: [feedback]
 
-- VIDEO NOTES
+{:.section.vo.width90}@@@ divTitle Voiceover NOTES
+    Pronounce Widget Model names as follows:
+    AAT-08 --> AAT Zero Eight
+    AAT-15 --> AAT Fifteen
+    AAT-30 --> AAT Thirty
+    I'm trying to be consistent about how I write them in the script, but just in case, use this as your guide. :)
 
-**VOICEOVER NOTE**\n\n
-VO DUDE: Pronounce AAT Model names as follows:\n\n
-AAT-08 --> AAT Zero Eight\n
-AAT-15 --> AAT Fifteen\n
-AAT-30 --> AAT Thirty\n\n
-I'm trying to be consistent about how I write them in the script, but just in case, use this as your guide. :)
-{: .vo }
-
-- [@]:MS:SHOT 1 described here
+- MS:Shot description here
 
 Audio and Voiceover for Shot 1
 
 And here are some AV Script specific things:
 
-You can force a newline by using \\n inline. For example:\nYou can see how the line break happened...
+You can force a newline by simply pressing ENTER inline. For example:
+
+You can see how the line break happened...
 
 Use ++This is new stuff++ for new items added, or ~~this is old stuff~~ for things removed.
 
 ***Triple Stars for bold italics in red***
 
-- [@]:CU:SHOT 2 described here
+- CU:Shot description here
 
---- Section "Header"
+{:.section}--- divTitle Header
     And this is a section header.
     With some additional information.
-    ### You can use tags here
+    {:.bigandbold}You can use class prefixes on these lines
     
-You can also add classes to any markdown tag.
+- WS:Sunset over the ocean
 
-- Try this in a shot
+{:.question}Inline question
 
-Inline question
-{: .question }
+{:.vo}Inline vo notes
 
-Inline vo notes
-{: .vo }
+The {: .classname} tag allows you to apply a specific class to the following text.
+{:.note}This is a note
+{:.red.note}This is a red note
 
-Do some inline formatting, like code formatting using back ticks, as I'm `doing inline right here` see? Actually, you can't really see, because I'm already using a ***fixed width*** system font for the VO script...
+The --- or @@@ prefix inserts a DIV. An optional title class and title can be specified too.
 
-The {: .classname} tag allows you to apply a specific class to the preceeding text.
-{: .noteTitle }
+Most of the block level elements like DIVs, Headings, etc., will cause the floats to be reset. You can also force this by using the @break keyword at the start of a line.
 
-The --- or @@@ prefix inserts a DIV with an ID set to parameter 1, an optional TITLE and an optional CLASS name to format that title.
-
-By putting a section in with no title, it will clear the floats and allow the page breaks to work...
-{: .ignore}
-
-@@@ section ""
-
-@@@ section "Shotlist, images and screen captures for Video" pbb
+{:.ignore}This line will not render in the output, but will be part of the HTML document.
 
 ///Shotlist///
 

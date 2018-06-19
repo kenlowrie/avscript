@@ -6,6 +6,7 @@ from unittest import TestCase, TestLoader, TextTestRunner
 
 import avscript_md
 
+
 def decode(html_string):
     try:
         from HTMLParser import HTMLParser
@@ -14,7 +15,6 @@ def decode(html_string):
 
     h = HTMLParser()
     return h.unescape(html_string)
-
 
 
 class TestAVScriptClass(TestCase):
@@ -63,44 +63,44 @@ class TestAVScriptClass(TestCase):
     def test_revision(self):
         """
         Validate Revision keyword output with date/time stamps
-        
+
         We can't use the standard way of comparing the output to a known
         data set, since the date/time stamp changes on each execution.
         So, we gotta look at each one and make sure it's in the right format,
         and length, etc., etc.
         """
-        self.process('revision',False)
+        self.process('revision', False)
         g1 = r'<p class\=\"revTitle\">Revision:([^\(]*)([^<]*)</p>'
         g2 = r'\(([0-9]{8})\s@\s([0-9]{2}:[0-9]{2}:[0-9]{2})\)'
         from re import findall, match
 
         # Find all the <p class="revTitle">Revision: n (date @ time)</p> lines
-        m = findall(g1,self.capturedOutput.getvalue())
-        self.assertEqual(len(m),2)
+        m = findall(g1, self.capturedOutput.getvalue())
+        self.assertEqual(len(m), 2)
         for rev_set in m:
             # extract the revision and timestamp from a match
-            r,ts = rev_set
+            r, ts = rev_set
             # extract the date and time
-            m2 = match(g2,ts)
-            self.assertEqual(len(m2.groups()),2)    # should be a date and a time
-            self.assertEqual(m2.group(0)[0:1],'(')  # should start with (
-            self.assertEqual(m2.group(0)[-1],')')   # should end with )
-            self.assertEqual(len(m2.group(1)),8)    # date length is 8
-            self.assertEqual(len(m2.group(2)),8)    # time length is 8
-    
+            m2 = match(g2, ts)
+            self.assertEqual(len(m2.groups()), 2)    # should be a date and a time
+            self.assertEqual(m2.group(0)[0:1], '(')  # should start with (
+            self.assertEqual(m2.group(0)[-1], ')')   # should end with )
+            self.assertEqual(len(m2.group(1)), 8)    # date length is 8
+            self.assertEqual(len(m2.group(2)), 8)    # time length is 8
+
     def test_mailto(self):
         """
         Validate a mailto: link
-        
+
         We can't use the standard way of comparing the output to a known
         data set, since mailto: links are encoded as HTML entities to help
         foil spambots. As such, each time we render the HTML file, the output
         is different. So, we need to parse the output and find the encoded
         entities, decode them, and compare them to what they were originally.
         """
-        self.process('mailto',False)
+        self.process('mailto', False)
         g1 = r'<a href=\"(.*)\">([\w]*)</a>'
-        from re import findall, match
+        from re import findall
 
         d = {
             "me": "mailto:myemail@mydomain.com",
@@ -108,14 +108,14 @@ class TestAVScriptClass(TestCase):
         }
 
         # Find all the <a href="encoded_mailto_link">varname</a> lines
-        m = findall(g1,self.capturedOutput.getvalue())
-        self.assertEqual(len(m),2)
+        m = findall(g1, self.capturedOutput.getvalue())
+        self.assertEqual(len(m), 2)
         for mailto_set in m:
             # extract the mailto link and the variable name from a match
             mailto, var_name = mailto_set
 
-            self.assertEqual(decode(mailto),d.get(var_name))
-    
+            self.assertEqual(decode(mailto), d.get(var_name))
+
 
 if __name__ == '__main__':
     suite3 = TestLoader().loadTestsFromTestCase(TestAVScriptClass)

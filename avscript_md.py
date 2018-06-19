@@ -591,7 +591,6 @@ class AVScriptParser(StdioWrapper):
 
                 fmt = lambda x: "{0}".format(self._markdown(d.get(x))) if d.get(x) else ""
 
-                #revision = self._markdown(m.group(1))
                 ts_key = "timestamp"
 
                 if d.get(ts_key) and d.get(ts_key).lower() in ['false', 'no', 'off', '0']:

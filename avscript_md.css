@@ -82,7 +82,7 @@ del{
 
 .nowrap{
     white-space: nowrap;
-}    
+}
 
 .wrapper {
     clear:both;
@@ -159,6 +159,7 @@ div.toc p, div.syntax p{
 
 div.syntax{
 	background-color: #ffcfcf;
+    margin-left: 3em;
 }
 
 div.unused p{

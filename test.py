@@ -6,6 +6,16 @@ from unittest import TestCase, TestLoader, TextTestRunner
 
 import avscript_md
 
+def decode(html_string):
+    try:
+        from HTMLParser import HTMLParser
+    except ImportError:
+        from html.parser import HTMLParser
+
+    h = HTMLParser()
+    return h.unescape(html_string)
+
+
 
 class TestAVScriptClass(TestCase):
     def setUp(self):
@@ -77,6 +87,34 @@ class TestAVScriptClass(TestCase):
             self.assertEqual(m2.group(0)[-1],')')   # should end with )
             self.assertEqual(len(m2.group(1)),8)    # date length is 8
             self.assertEqual(len(m2.group(2)),8)    # time length is 8
+    
+    def test_mailto(self):
+        """
+        Validate a mailto: link
+        
+        We can't use the standard way of comparing the output to a known
+        data set, since mailto: links are encoded as HTML entities to help
+        foil spambots. As such, each time we render the HTML file, the output
+        is different. So, we need to parse the output and find the encoded
+        entities, decode them, and compare them to what they were originally.
+        """
+        self.process('mailto',False)
+        g1 = r'<a href=\"(.*)\">([\w]*)</a>'
+        from re import findall, match
+
+        d = {
+            "me": "mailto:myemail@mydomain.com",
+            "feedback": "mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
+        }
+
+        # Find all the <a href="encoded_mailto_link">varname</a> lines
+        m = findall(g1,self.capturedOutput.getvalue())
+        self.assertEqual(len(m),2)
+        for mailto_set in m:
+            # extract the mailto link and the variable name from a match
+            mailto, var_name = mailto_set
+
+            self.assertEqual(decode(mailto),d.get(var_name))
     
 
 if __name__ == '__main__':

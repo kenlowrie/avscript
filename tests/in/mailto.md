@@ -1,4 +1,4 @@
-[me]:mailto:myemail@cloudylogic.com
+[me]:mailto:myemail@mydomain.com
 [feedback]:mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
 
 I'm using the variable [me].

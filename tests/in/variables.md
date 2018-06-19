@@ -41,7 +41,6 @@ Now, whenever I write whoami inside square brackets **[ ]**, it will replace it 
 {:.plain}@@@ plainTitle Links
 We can also define hyperlinks using a similar syntax: [linkID]:linkurl. Let's go ahead and define a few links now...
 [cls]:https://cloudylogic.com
-//[me]:mailto:myemail@cloudylogic.com
 I've defined two new links, one called *cls* which is a standard HTTPS link for my website, and another called *me*, which is a mailto: link that will compose a new email to myself. I use these just like variables, just write the ID inside square brackets.
 
 Visit my domain [cls] or send [me] an email. If you click on either *cls* or *me*, they should behave accordingly.
@@ -70,7 +69,6 @@ You can also just write a valid URL inside angle brackets, i.e. &lt; &gt;, for a
 
 Here are a couple more examples:
 
-//[feedback]:mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
 [Link to Article]:https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/
 [Link to Article2]:https://domain.com/another_article_link
 [domain]=cls

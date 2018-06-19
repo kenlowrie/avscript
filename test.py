@@ -73,10 +73,13 @@ class TestAVScriptClass(TestCase):
         g1 = r'<p class\=\"revTitle\">Revision:([^\(]*)([^<]*)</p>'
         g2 = r'\(([0-9]{8})\s@\s([0-9]{2}:[0-9]{2}:[0-9]{2})\)'
         from re import findall, match
+        from time import strftime
+        ts_date = "{}".format(strftime("%Y%m%d"))
+        ts_time = "{}".format(strftime("%H:%M:%S"))
 
         # Find all the <p class="revTitle">Revision: n (date @ time)</p> lines
         m = findall(g1, self.capturedOutput.getvalue())
-        self.assertEqual(len(m), 2)
+        self.assertEqual(len(m), 3)
         for rev_set in m:
             # extract the revision and timestamp from a match
             r, ts = rev_set
@@ -86,7 +89,9 @@ class TestAVScriptClass(TestCase):
             self.assertEqual(m2.group(0)[0:1], '(')  # should start with (
             self.assertEqual(m2.group(0)[-1], ')')   # should end with )
             self.assertEqual(len(m2.group(1)), 8)    # date length is 8
+            self.assertEqual(m2.group(1),ts_date)
             self.assertEqual(len(m2.group(2)), 8)    # time length is 8
+            self.assertEqual(m2.group(2)[0:3],ts_time[0:3])
 
     def test_mailto(self):
         """
@@ -104,12 +109,13 @@ class TestAVScriptClass(TestCase):
 
         d = {
             "me": "mailto:myemail@mydomain.com",
+            "you": "mailto:your.email_address@your-domain.com",
             "feedback": "mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
         }
 
         # Find all the <a href="encoded_mailto_link">varname</a> lines
         m = findall(g1, self.capturedOutput.getvalue())
-        self.assertEqual(len(m), 2)
+        self.assertEqual(len(m), 3)
         for mailto_set in m:
             # extract the mailto link and the variable name from a match
             mailto, var_name = mailto_set

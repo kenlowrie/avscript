@@ -1,7 +1,7 @@
 {:.center.blue}# Video Series Name Here
-$$cover$$:<<TITLE OF VIDEO HERE>>:<<Author>>:<<LogLine>>
-$$revision$$:<<1a>>
-$$contact$$:<<Contact Name>>:<<Phone>>:<<email>>:<<Copyright Line1>>:<<Copyright Line2>>:<<Copyright Line3>>
+@cover title="TITLE OF VIDEO HERE" author="Author" logline="LogLine"
+@revision v="1a"
+@contact cn="Contact Name" ph="Phone" em="email" c1="Copyright Line1" c2="Copyright Line2" c3="Copyright Line3"
 {:.review}--- revTitle Notes to Reviewers
     Please send me any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text directly, be sure to change your font color so that I can easily find the changes.
     Notes that begin with "VOICEOVER NOTE", can be ignored; they are for the voiceover guy.

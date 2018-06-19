@@ -51,11 +51,6 @@ you'll quickly get up and running with the A/V Script Markdown Processor.
 Future - aka Wish List
 0. Image (both inline and reference-style) would be nice too.
 
-
-TODO (Punch list):
-5. Automate testing with Travis CI
-6. Consider setup_tools based install? Maybe
-
 """
 
 from re import IGNORECASE, findall, match

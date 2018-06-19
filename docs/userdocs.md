@@ -231,16 +231,16 @@ For an example of bookmarks, just take a look at how this user guide defined and
 
 There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:
 
-{:.syntax}--- divTitle Specialized Sections
+{:.syntax.width60}--- divTitle Specialized Sections
     [SP]
     {:.indent.bigandbold}@cover - To add a cover section
     {:.indent.bigandbold}@revision - To add a revision section
     {:.indent.bigandbold}@contact - To add a contact section
 
-### The details for each specialized section follows.
+The details for each specialized section follows.
 
 {:.plain}@@@ plainTitle
-## Cover Title
+### Cover Title
 
 {:.syntax}@@@ divTitle Syntax:
     [SP]
@@ -249,7 +249,7 @@ There are three (3) specialized sections that can be defined within your documen
 Each element is optional, and they can appear in any order. Also note that the value of any parameter can be whatever you want. Just because it says "author", doesn't mean you have to put the author name there. You could instead write *"Roses are Red"*, and that would be just fine...
 
 {:.plain}@@@ plainTitle
-## Revision
+### Revision
 
 {:.syntax}@@@ divTitle Syntax:
     [SP]
@@ -259,15 +259,15 @@ Specify the revision number of your document within the angle brackets. If times
 If you specify timestamp="No" | "Off" | "False" | "0", then the timestamp will not be added to the revision string.
 
 {:.plain}@@@ plainTitle
-## Contact
+### Contact
 
 {:.syntax}@@@ divTitle Syntax:
     [SP]
-    {:.indent.bigandbold}@contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"
+    {:.indent.bigandbold}@contact cn="name" ph="phone" em="email" c1="copyright 1" c2="copyright 2" c3="copyright 3"
 
 The contact section allows you to specify several key elements about the script project. They include the following elements:
 
-{:.syntax}@@@ divTitle Contact Elements
+{:.syntax.width60}@@@ divTitle Contact Elements
     [SP]
     {:.indent.bigandbold}cn="Contact Name"
     {:.indent.bigandbold}ph="Contact Phone"

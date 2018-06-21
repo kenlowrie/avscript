@@ -26,7 +26,7 @@ from sys import argv, exit
 import pylib
 
 
-def context(varfile=None):
+def context():
     """returns the context object for this script."""
 
     try:
@@ -34,10 +34,10 @@ def context(varfile=None):
     except NameError:
         myself = argv[0]
 
-    return pylib.context(myself, varfile)
+    return pylib.context(myself)
 
 
-me = context('mkavscript_md')
+me = context()
 
 
 class FileName:

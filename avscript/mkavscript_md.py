@@ -156,7 +156,7 @@ def _mkhtml(mdfile, cssfile, outpath, open_output_file):
 
     htmlfile = open(fileobj.HTML_filename, "w")
 
-    from avscript_md import AVScriptParser
+    from avscript.avscript_md import AVScriptParser
 
     message("Creating: " + fileobj.rootname)
     add_header(htmlfile, fileobj, cssfile)

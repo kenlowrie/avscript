@@ -57,14 +57,14 @@ from re import IGNORECASE, findall, match
 from sys import exit
 from os.path import isfile
 
-from avs.line import Line
-from avs.link import LinkDict
-from avs.regex import Regex, RegexMD, RegexMain
-from avs.stdio import StdioWrapper
-from avs.variable import VariableDict
-from avs.bookmark import BookmarkList
-from avs.htmlformat import HTMLFormatter
-from avs.exception import RegexError, LogicError, FileError
+from .avs.line import Line
+from .avs.link import LinkDict
+from .avs.regex import Regex, RegexMD, RegexMain
+from .avs.stdio import StdioWrapper
+from .avs.variable import VariableDict
+from .avs.bookmark import BookmarkList
+from .avs.htmlformat import HTMLFormatter
+from .avs.exception import RegexError, LogicError, FileError
 
 
 class AVScriptParser(StdioWrapper):

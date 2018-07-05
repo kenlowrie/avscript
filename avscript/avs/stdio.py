@@ -22,7 +22,7 @@ class StdioWrapper(object):
         for the class to operate
         """
         from sys import stdout, stderr
-        from avs.stream import StreamHandler
+        from .stream import StreamHandler
         self._stdinput = StreamHandler()
         self._stdoutput = stdout
         self._stderror = stderr

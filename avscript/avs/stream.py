@@ -11,7 +11,7 @@ flexibility.
 from sys import stdin
 from os.path import join, split, abspath, isfile
 
-from avs.exception import FileError
+from .exception import FileError
 
 
 class _OpenFile(object):

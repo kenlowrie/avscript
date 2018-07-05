@@ -279,7 +279,7 @@ class AVScriptParser(StdioWrapper):
             line = self.ireadline()
             if not line:
                 break
-            if not line.strip().rstrip():
+            if not line.strip():
                 continue
             if line[0:2] != '//':
                 break

@@ -26,11 +26,17 @@ your AV script come to life.
 
 To quickly see how it works, copy "avscript_md.py" and "avscript_md.css":
 
-cp avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters
-cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
+.. code-block:: rest
 
-    NOTE: Alternatively, create a symbolic link to these files in your
-          forked repository:
+    cp avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters
+    cp avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS
+
+.. note::
+
+    Alternatively, create a symbolic link to these files in your
+    forked repository:
+
+.. code-block:: rest
 
     ln -s /yourpathrepopath/avscript_md.py ~/Library/Application\sSupport\BBEdit\Preview\sFilters/avscript_md.py
     ln -s /yourpathrepopath/avscript_md.css ~/Library/Application\sSupport\BBEdit\Preview\sCSS/avscript_md.css

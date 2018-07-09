@@ -23,7 +23,7 @@ from os.path import split, splitext, join, isdir, isfile
 
 from sys import argv, exit
 
-import pylib
+import kenl380.pylib as pylib
 
 
 def context():

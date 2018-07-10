@@ -1,1 +1,1 @@
-out/* linguist-vendored
+tests/out/*.html linguist-vendored

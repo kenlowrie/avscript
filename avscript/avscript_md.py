@@ -108,6 +108,7 @@ class AVScriptParser(StdioWrapper):
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
+            'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
@@ -233,7 +234,11 @@ class AVScriptParser(StdioWrapper):
                     s = s.replace(m[0], self._links.getLinkMarkup(varValue, m[1]))
                 else:
                     # Substitute the variable name with the value
-                    s = s.replace(m[0], self._variables.getText(m[1]))
+                    c, v = self._stripClass(self._variables.getText(m[1]))
+                    if(not c):
+                        s = s.replace(m[0], v)
+                    else:
+                        s = s.replace(m[0], '<{0}{1}>{2}</{0}>'.format('span', c, v))
             else:
                 # No need to do anything here, just leave the unknown link/variable alone
                 pass
@@ -507,6 +512,13 @@ class AVScriptParser(StdioWrapper):
             """Handle a break parse line"""
             pass    # don't do anything with @break or @exit
 
+        def handle_raw(m, lineObj):
+            """Handle a raw line"""
+            if(m is not None):
+                self.oprint(self._html.formatLine(self._markdown(m.group(1))))
+            else:
+                self.oprint(lineObj.current_line)
+
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""
             self.oprint(self._html.formatLine("<div class=\"shotlist\">", 1))
@@ -639,6 +651,7 @@ class AVScriptParser(StdioWrapper):
             ('header', handle_header),
             ('import', handle_import),
             ('break', handle_break),
+            ('raw', handle_raw),
             ('shotlist', handle_shotlist),
             ('variables', handle_variables),
             ('dumplinks', handle_dumplinks),

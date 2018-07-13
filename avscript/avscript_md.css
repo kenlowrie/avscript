@@ -68,6 +68,10 @@ del{
     color:green;
 }
 
+.gray{
+    color:gray
+}
+
 .center{
     text-align:center;
 }
@@ -187,6 +191,22 @@ div.plain .plainTitle{
     border-bottom: 2px solid black;
 }
 
+div.generic {
+    clear:both;
+    margin: .5em;
+    padding: 10px;
+	font-family: "Courier Prime", Courier, "Courier New", mono;
+}
+
+div.generic p{
+    border:none;
+    float: none;
+    padding: 20px;
+    width: inherit;
+	font-family:inherit;
+    font-size: 1.3em;
+}
+
 .extras {
     clear:both;
     margin: .5em;
@@ -242,7 +262,7 @@ p {
 	border-top: 1px solid #ccc;
 }
 
-div.av p, div.av ul{
+div.av p, div.av ul, .fs13{
 	font-size: 1.3em;
 }
 

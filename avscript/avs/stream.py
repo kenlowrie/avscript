@@ -74,7 +74,9 @@ class StreamHandler(object):
             if(filename[0] == '$'):
                 # Make sure this isn't the first file we are opening
                 if(self.idx >= 0 and self.filestack[self.idx].name is not None):
-                    filename = join(split(abspath(self.filestack[self.idx].name))[0], filename[1:])
+                    from os import sep
+                    path, whocares = split(abspath(self.filestack[self.idx].name))
+                    filename = join(path, filename[1:] if filename[1] != sep else filename[2:])
             # Make sure the specified file exists, and then open it
             if isfile(filename):
                 name = abspath(filename)

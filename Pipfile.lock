@@ -1,0 +1,41 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "527c482428cbb4b0ebc3ea28eff35677154b867c6243e2036f328d9844d1f051"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "avscript": {
+            "editable": true,
+            "path": "."
+        },
+        "kenl380": {
+            "hashes": [
+                "sha256:1df92b0436ea8abce2ae4ac36d0f860c0931ccaf9b116aeded6da299a92d11b2",
+                "sha256:226b6925f956484a0e9d9b6804f60c0093f17ff374fe0c365b80329ba7957451"
+            ],
+            "markers": "python_version >= '2.7'",
+            "version": "==1.0.0"
+        },
+        "kenl380.pylib": {
+            "hashes": [
+                "sha256:375aaf46093bfec068069ce0d249c733394811b0bf3a87ca5bda071f697aa8fb",
+                "sha256:38489959ae064ac738cfdc85ee36ff02c0c8c85301d6de95780a569d1196e6f8"
+            ],
+            "index": "pypi",
+            "version": "==1.0.0"
+        }
+    },
+    "develop": {}
+}

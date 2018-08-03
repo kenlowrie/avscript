@@ -67,7 +67,7 @@ from .avs.line import Line
 from .avs.link import LinkDict
 from .avs.regex import Regex, RegexMD, RegexMain
 from .avs.stdio import StdioWrapper
-from .avs.variable import VariableDict
+from .avs.variable import VariableDict, ImageDict
 from .avs.bookmark import BookmarkList
 from .avs.htmlformat import HTMLFormatter
 from .avs.exception import RegexError, LogicError, FileError
@@ -94,6 +94,7 @@ class AVScriptParser(StdioWrapper):
 
         self._links = LinkDict()            # dict of links
         self._variables = VariableDict()    # dict of document variables
+        self._images = ImageDict()          # dict of image dictionaries
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
         self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)\"')
@@ -107,6 +108,7 @@ class AVScriptParser(StdioWrapper):
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
+            'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\"){0,10})', None),    # TODO: Why 10?
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
@@ -157,6 +159,17 @@ class AVScriptParser(StdioWrapper):
             raise LogicError("ERROR: _unreadLine called with line in cache.")
 
         self._lineInCache = True
+
+    def _md_value(self, value):
+        i = 25  # shouldn't have more than 25 levels of nesting, right?
+        last_value = value
+        for i in range(25):
+            value = self._markdown(value)
+            if value == last_value:
+                return value
+            last_value = value
+
+        return 'Expansion nested too deeply {}'.format(value)
 
     def _markdown(self, s):
         """
@@ -235,10 +248,13 @@ class AVScriptParser(StdioWrapper):
                 else:
                     # Substitute the variable name with the value
                     c, v = self._stripClass(self._variables.getText(m[1]))
+                    v = self._md_value(v)
                     if(not c):
                         s = s.replace(m[0], v)
                     else:
                         s = s.replace(m[0], '<{0}{1}>{2}</{0}>'.format('span', c, v))
+            elif self._images.exists(m[1]):
+                s = s.replace(m[0],self._images.getImage(m[1], self._md_value))
             else:
                 # No need to do anything here, just leave the unknown link/variable alone
                 pass
@@ -543,6 +559,11 @@ class AVScriptParser(StdioWrapper):
             self.oprint(self._html.formatLine("<code>", 1))
             self._variables.dumpVars(self._html.getIndent(), self.oprint)
             self.oprint(self._html.formatLine("</code>", -1, False))
+            self.oprint(self._html.formatLine("<hr />"))
+            self.oprint(self._html.formatLine("<p>Images</p>"))
+            self.oprint(self._html.formatLine("<code>", 1))
+            self._images.dumpVars(self._html.getIndent(), self.oprint)
+            self.oprint(self._html.formatLine("</code>", -1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
 
         def handle_dumplinks(m, lineObj):
@@ -640,6 +661,17 @@ class AVScriptParser(StdioWrapper):
             else:
                 self.oprint(lineObj.original_line)
 
+        def handle_image(m, lineObj):
+            """Handle the contact parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                self._images.addImage(d)
+
+            else:
+                self.oprint(lineObj.original_line)
+
         # --------------------------------------------------------------------
         # This is the ENTRY point to the parse() method!
         rc = 0
@@ -650,6 +682,7 @@ class AVScriptParser(StdioWrapper):
             ('div', handle_div),
             ('header', handle_header),
             ('import', handle_import),
+            ('image', handle_image),
             ('break', handle_break),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),

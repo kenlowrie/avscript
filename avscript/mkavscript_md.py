@@ -40,7 +40,7 @@ def context():
 me = context()
 
 
-class FileName:
+class FileName(object):
     def __init__(self, mdfile, htmldir):
         path, name = split(mdfile)
         file, ext = splitext(name)

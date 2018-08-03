@@ -69,7 +69,11 @@ del{
 }
 
 .gray{
-    color:gray
+    color:gray;
+}
+
+.pink{
+    color:#ffcfcf;
 }
 
 .center{
@@ -124,7 +128,7 @@ div.contact {
     padding: 10px;
 }
 
-div.toc, div.section, div.unused, div.syntax, div.review {
+div.toc, div.section, div.unused, div.syntax, div.review, div.lyrics {
     clear:both;
     border: 2px solid #000;
     margin: .5em;
@@ -132,7 +136,7 @@ div.toc, div.section, div.unused, div.syntax, div.review {
 	background-color: #c0c0c0;
 }
 
-div.toc p, div.section p, div.unused p, div.syntax p, div.review p{
+div.toc p, div.section p, div.unused p, div.syntax p, div.review p, div.lyrics p{
     border:none;
     float: none;
     width: inherit;
@@ -155,7 +159,7 @@ div.toc{
 	background-color: #dfcfcf;
 }
 
-div.toc p, div.syntax p{
+div.toc p, div.syntax p, div.lyrics p{
     margin:0;
     padding:0;
     font-size: 1.1em;
@@ -164,6 +168,15 @@ div.toc p, div.syntax p{
 div.syntax{
 	background-color: #ffcfcf;
     margin-left: 3em;
+}
+
+div.lyrics{
+	background-color: #ffcfcf;
+    margin-left: 3em;
+}
+
+div.lyrics p{
+    text-decoration: italic;
 }
 
 div.unused p{
@@ -231,6 +244,10 @@ div.extras p{
 .bigandbold{
     font-weight: bold;
     font-size: 1.2em;
+}
+
+.italic{
+    font-style: italic;
 }
 
 .ignore {

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 
 from sys import path
@@ -19,13 +19,15 @@ import avscript.avscript_md
 
 
 def decode(html_string):
-    try:
+    from sys import version_info
+    if version_info.major < 3:
         from HTMLParser import HTMLParser
-    except ImportError:
-        from html.parser import HTMLParser
+        unescape = HTMLParser().unescape
+    else:
+        from html import unescape
 
-    h = HTMLParser()
-    return h.unescape(html_string)
+    #h = HTMLParser()
+    return unescape(html_string)
 
 
 class TestAVScriptClass(TestCase):

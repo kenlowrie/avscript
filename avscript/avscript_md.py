@@ -160,6 +160,30 @@ class AVScriptParser(StdioWrapper):
 
         self._lineInCache = True
 
+    def _reprocessLine(self):
+        """Reparse the current line if it had markdown
+        
+        If the processed line and the raw line are different, then some
+        type of markdown was applied. Cache the processed line as the
+        new 'raw' line, and try again.
+        """
+        if self._line.original_line.strip() != self._line.current_line.strip():
+            #print('reprocess line 0<br />\n{}<br />\n{}<br />'.format(self._line.original_line,self._line.current_line))
+            # Save the current css_prefix, cause we'll lose it in _setLineAttrs()
+            saved_css_prefix = self._line.css_prefix
+            self._setLineAttrs(self._line.current_line)
+            # If we had a css prefix on the original line, then put it back.
+            # The original css prefix should have precedence, since it was explicit on the
+            # outermost line. I hope this is right!
+            if saved_css_prefix:
+                self._line.css_prefix = saved_css_prefix
+            self._unreadLine()
+            #print('reprocess line 1<br />\n{}<br />\n{}<br />'.format(self._line.original_line,self._line.current_line))
+            return True
+
+        #print('reprocess line failing...<br />')
+        return False
+            
     def _md_value(self, value):
         i = 25  # shouldn't have more than 25 levels of nesting, right?
         last_value = value
@@ -291,6 +315,26 @@ class AVScriptParser(StdioWrapper):
 
         return s    # return the processed string
 
+    def _setLineAttrs(self, line):
+        """Initialize the data members of the Line() object
+        
+        In order to properly implement the reprocessLine() method, we need
+        to set all the attributes of the Line() as if the marked down line
+        was just read from the file. This logic has been placed in a class
+        method so it can be used in both places.
+        """
+        # remember if this line was indented...
+        self._line.was_indented = True if match('[ \t]', line) else False
+
+        # save a copy of the original line...
+        self._line.original_line = line
+
+        # strip the class, if any, and initialize css_prefix
+        self._line.css_prefix, stripped_line = self._stripClass(line.strip())
+
+        # process any markdown
+        self._line.current_line = self._markdown(stripped_line)
+
     def _readNextLine(self):
         """
         Read next line from the current file (or whatever is cached)
@@ -313,17 +357,8 @@ class AVScriptParser(StdioWrapper):
             if line[0:3] == '///':
                 break
 
-        # remember if this line was indented...
-        self._line.was_indented = True if match('[ \t]', line) else False
-
-        # save a copy of the original line...
-        self._line.original_line = line
-
-        # strip the class, if any, and initialize css_prefix
-        self._line.css_prefix, stripped_line = self._stripClass(line.strip())
-
-        # process any markdown
-        self._line.current_line = self._markdown(stripped_line)
+        self._setLineAttrs(line)
+        #self._line.reprocessed = False
 
         # return the marked down version
         return self._line.original_line
@@ -714,7 +749,7 @@ class AVScriptParser(StdioWrapper):
 
                 # if no parse type was matched, then handle this as a
                 # line that should be printed in an extras DIV...
-                if not matched and self._line.current_line.rstrip():
+                if not matched and self._line.current_line.rstrip() and not self._reprocessLine():
                     divstr = self._line.current_line
                     # divstr += self._peekPlainText("span")
                     self._printInExtrasDiv("<p{1}>{0}</p>".format(divstr, self._line.css_prefix))
@@ -746,6 +781,8 @@ class AVScriptParser(StdioWrapper):
         except IOError:
             return 2
 
+        # Set the flags saying whether we started with stdin or a file
+        self.isetio(True if avscript is None else False)
         return self.parse()
 
 

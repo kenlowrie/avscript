@@ -60,6 +60,10 @@ class StdioWrapper(object):
 
         self._stdinput.push(new_input_file)
 
+    def isetio(self, use_stdin=True):
+        self._stdinput._started_with_stdin = use_stdin
+        self._stdinput._started_with_file = not use_stdin
+
     def iopen(self, filename):
         self.stdinput.open(filename)
 

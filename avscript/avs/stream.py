@@ -36,7 +36,8 @@ class StreamHandler(object):
         self.filestack = []
         self.idx = -1
         self.line = ''
-        self._reading_from_stdin = False
+        self._started_with_stdin = None
+        self._started_with_file = None
 
     def push(self, fh, name=None):
         """
@@ -101,15 +102,14 @@ class StreamHandler(object):
         current file, we read from the new file until EOF, and then close it,
         and fall back to the previous file.
         """
+        self.line = ''
         if self.idx < 0:
             # Once we've read from sys.stdin, we need to remember that,
             # so that if we've imported a file, we will fall back to
             # reading from sys.stdin after we hit EOF on the imported file.
-            if not self._reading_from_stdin:
-                self._reading_from_stdin = True
-
-            # If no file is opened, fall back to reading from sys.stdin
-            self.line = stdin.readline()
+            if self._started_with_stdin:
+                # If we started with stdin, fall back to reading from sys.stdin
+                self.line = stdin.readline()
         else:
             # we are reading from a file, read the next line
             self.line = self.filestack[self.idx].file.readline()
@@ -123,7 +123,7 @@ class StreamHandler(object):
                 # set the index back 1, so future reads will use prior file
                 self.idx -= 1
 
-                if (self.idx >= 0 or self._reading_from_stdin):
+                if (self.idx >= 0 or self._started_with_stdin):
                     return self.readline()
 
         return self.line

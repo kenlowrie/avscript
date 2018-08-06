@@ -60,11 +60,11 @@ del{
     color:red;
 }
 
-.blue{
+.blue, .cast{
     color:blue;
 }
 
-.green{
+.green, .extra{
     color:green;
 }
 
@@ -72,8 +72,21 @@ del{
     color:gray;
 }
 
-.pink{
+.pink, .makeup{
     color:#ffcfcf;
+}
+
+.orange, .wardrobe{
+    color:orange;
+}
+
+.brown, .props{
+    color:brown;
+}
+
+.wardrobe, .makeup, .props, .cast, .extra{
+    font-size: 1.2em;
+    font-weight:bold;
 }
 
 .center{
@@ -128,7 +141,7 @@ div.contact {
     padding: 10px;
 }
 
-div.toc, div.section, div.unused, div.syntax, div.review, div.lyrics {
+div.toc, div.section, div.unused, div.syntax, div.review, div.lyrics, div.scene {
     clear:both;
     border: 2px solid #000;
     margin: .5em;
@@ -136,11 +149,23 @@ div.toc, div.section, div.unused, div.syntax, div.review, div.lyrics {
 	background-color: #c0c0c0;
 }
 
-div.toc p, div.section p, div.unused p, div.syntax p, div.review p, div.lyrics p{
+div.toc p, div.section p, div.unused p, div.syntax p, div.review p, div.lyrics p, div.scene p{
     border:none;
     float: none;
     width: inherit;
 	font-family:inherit;
+}
+
+div.scene {
+    padding: .5em;
+    border: 1.5px solid #ff0000;
+	background-color: #f7f7f7;
+}
+
+div.scene p{
+    margin-bottom: 0;
+    padding: .5em;
+    font-size: 1.2em;
 }
 
 div.review {
@@ -239,6 +264,30 @@ div.extras p{
     font-size: 1.4em;
     margin:0;
     padding:0;
+}
+
+.big, p.big, div.extras p.big{
+    font-size: 1.2em;
+}
+
+.bigger, p.bigger, div.extras p.bigger{
+    font-size: 1.3em;
+}
+
+.huge, p.huge, div.extras p.huge{
+    font-size: 1.5em;
+}
+
+.omg, p.omg, div.extras p.omg{
+    font-size: 2em;
+}
+
+.bold, p.bold, div.extras p.bold{
+    font-weight: bold;
+}
+
+.light, p.light, div.extras p.bold{
+    font-weight: light;
 }
 
 .bigandbold{
@@ -395,23 +444,23 @@ div.links p, div.variables p {
     font-size: 1.3em;
 }
 
-p.indent, div.toc p.indent, div.syntax p.indent{
+.indent, p.indent, div.toc p.indent, div.syntax p.indent{
     margin-left:3em;
 }
 
-p.indent1, div.toc p.indent1, div.syntax p.indent1{
+.indent1, p.indent1, div.toc p.indent1, div.syntax p.indent1{
     margin-left:1em;
 }
 
-p.indent2, div.toc p.indent2, div.syntax p.indent2{
+.indent2, p.indent2, div.toc p.indent2, div.syntax p.indent2{
     margin-left:2em;
 }
 
-p.indent3, div.toc p.indent3, div.syntax p.indent3{
+.indent3, p.indent3, div.toc p.indent3, div.syntax p.indent3{
     margin-left:3em;
 }
 
-p.indent4, div.toc p.indent4, div.syntax p.indent4{
+.indent4, p.indent4, div.toc p.indent4, div.syntax p.indent4{
     margin-left:4em;
 }
 

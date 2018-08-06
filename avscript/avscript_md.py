@@ -334,6 +334,16 @@ class AVScriptParser(StdioWrapper):
 
         # process any markdown
         self._line.current_line = self._markdown(stripped_line)
+        
+        # here's a hack! - Causes tests to fail, but didn't look if it's an issue
+        # or a side affect of how the test script was using the tags...
+        # this seems like a more generic way to handle adding classes via
+        # markdown variable substitution, but for now it's being handled inside
+        # peekPlainText()
+        #new_css_prefix, stripped_line = self._stripClass(line.strip())
+        #if new_css_prefix:
+        #    self._line.current_line = stripped_line
+        #    self._line.css_prefix = new_css_prefix
 
     def _readNextLine(self):
         """
@@ -474,6 +484,17 @@ class AVScriptParser(StdioWrapper):
         if not isNewSection(self._line):
             # add this line to the current DIV, and keep reading until we hit some
             # type of break element...
+            if not self._line.css_prefix:
+                # if there isn't a css_prefix inline, check to see if one was added
+                # via markdown processing...
+                new_prefix, new_line = self._stripClass(self._line.current_line)
+                if new_prefix:
+                    # if the markdown added a css prefix, then adjust the _line object
+                    # so the css_prefix and current_line are updated before we format
+                    # the element.
+                    self._line.css_prefix = new_prefix
+                    self._line.current_line = new_line
+
             return self._html.formatLine("<{0}{2}>{1}</{0}>\n".format(element, self._line.current_line, self._line.css_prefix) + self._peekPlainText(element))
 
         # read one too many lines, so cache the current line for the next time around...

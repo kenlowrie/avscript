@@ -59,10 +59,32 @@ class ImageDict(VariableDict):
         del dict["_id"]
         self.addVar(imageID, dict)
 
+    def _parseVar(self, id):
+        compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
+        if len(compoundVar) == 2:
+            id0, el0 = compoundVar
+            if id0 in self.vars and el0 in self.vars[id0].text:
+                return compoundVar
+
+        return id, None
+
+    def exists(self, id):
+        id0, el0 = self._parseVar(id)
+        if el0 is not None:
+            return id0 in self.vars and el0 in self.vars[id0].text
+
+        return id in self.vars
+
     def getImage(self, id, _markdown):
+        id0, el0 = self._parseVar(id)
+        if el0 is not None:
+            return _markdown(self.vars[id0].text[el0])
+
         if self.exists(id):
             imageTag = '<img'
             for item in sorted(self.vars[id].text):
+                if item[0] == '_':
+                    continue    # don't add any attributes that start with _
                 attrText = _markdown(self.vars[id].text[item])
                 imageTag += ' {}="{}"'.format(item, attrText)
             imageTag += '/>'

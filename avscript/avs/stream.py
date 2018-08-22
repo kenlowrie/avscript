@@ -103,16 +103,25 @@ class StreamHandler(object):
         and fall back to the previous file.
         """
         self.line = ''
-        if self.idx < 0:
-            # Once we've read from sys.stdin, we need to remember that,
-            # so that if we've imported a file, we will fall back to
-            # reading from sys.stdin after we hit EOF on the imported file.
-            if self._started_with_stdin:
-                # If we started with stdin, fall back to reading from sys.stdin
-                self.line = stdin.readline()
-        else:
-            # we are reading from a file, read the next line
-            self.line = self.filestack[self.idx].file.readline()
+        while 1:
+            if self.idx < 0:
+                # Once we've read from sys.stdin, we need to remember that,
+                # so that if we've imported a file, we will fall back to
+                # reading from sys.stdin after we hit EOF on the imported file.
+                if self._started_with_stdin:
+                    # If we started with stdin, fall back to reading from sys.stdin
+                    self.line += stdin.readline()
+                else:
+                    break       # can't continue if we didn't start with stdin...
+            else:
+                # we are reading from a file, read the next line
+                self.line += self.filestack[self.idx].file.readline()
+
+            if not self.line or not self.line.rstrip():
+                break
+            elif not self.line.rstrip().endswith('\\'):
+                break
+            self.line = self.line.rstrip()[:-1]
 
         if(self.line == ''):
             # We hit EOF. Do we have any other files opened?

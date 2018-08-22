@@ -67,7 +67,7 @@ from .avs.line import Line
 from .avs.link import LinkDict
 from .avs.regex import Regex, RegexMD, RegexMain
 from .avs.stdio import StdioWrapper
-from .avs.variable import VariableDict, ImageDict
+from .avs.variable import VariableDict, VariableV2Dict, ImageDict
 from .avs.bookmark import BookmarkList
 from .avs.htmlformat import HTMLFormatter
 from .avs.exception import RegexError, LogicError, FileError
@@ -95,6 +95,7 @@ class AVScriptParser(StdioWrapper):
         self._links = LinkDict()            # dict of links
         self._variables = VariableDict()    # dict of document variables
         self._images = ImageDict()          # dict of image dictionaries
+        self._varV2 = VariableV2Dict()      # dict of varv2 dictionaries
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
         self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)\"')
@@ -109,6 +110,7 @@ class AVScriptParser(StdioWrapper):
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
             'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\"){0,10})', None),    # TODO: Why 10?
+            'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)\"){0,20})', None),    # TODO: Why 20?
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
@@ -279,6 +281,8 @@ class AVScriptParser(StdioWrapper):
                         s = s.replace(m[0], '<{0}{1}>{2}</{0}>'.format('span', c, v))
             elif self._images.exists(m[1]):
                 s = s.replace(m[0],self._images.getImage(m[1], self._md_value))
+            elif self._varV2.exists(m[1]):
+                s = s.replace(m[0],self._varV2.getVarV2(m[1], self._md_value))
             else:
                 # No need to do anything here, just leave the unknown link/variable alone
                 pass
@@ -620,6 +624,11 @@ class AVScriptParser(StdioWrapper):
             self.oprint(self._html.formatLine("<code>", 1))
             self._images.dumpVars(self._html.getIndent(), self.oprint)
             self.oprint(self._html.formatLine("</code>", -1, False))
+            self.oprint(self._html.formatLine("<hr />"))
+            self.oprint(self._html.formatLine("<p>varv2</p>"))
+            self.oprint(self._html.formatLine("<code>", 1))
+            self._varV2.dumpVars(self._html.getIndent(), self.oprint)
+            self.oprint(self._html.formatLine("</code>", -1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
 
         def handle_dumplinks(m, lineObj):
@@ -717,6 +726,17 @@ class AVScriptParser(StdioWrapper):
             else:
                 self.oprint(lineObj.original_line)
 
+        def handle_varv2(m, lineObj):
+            """Handle the contact parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                self._varV2.addVarV2(d)
+
+            else:
+                self.oprint(lineObj.original_line)
+
         def handle_image(m, lineObj):
             """Handle the contact parse line type."""
             if(m is not None):
@@ -739,6 +759,7 @@ class AVScriptParser(StdioWrapper):
             ('header', handle_header),
             ('import', handle_import),
             ('image', handle_image),
+            ('var', handle_varv2),
             ('break', handle_break),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),

@@ -464,6 +464,28 @@ div.links p, div.variables p {
     margin-left:4em;
 }
 
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+table.shotinfo{
+    width:100%;
+}
+
+tr.shotinfo{
+}
+
+th.item, td.item{
+    width:30%;
+}
+
+th.desc, td.desc{
+    width:70%;
+}
+
 @media print
 {
 	ul, li, p {

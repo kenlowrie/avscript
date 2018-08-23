@@ -111,6 +111,7 @@ class AVScriptParser(StdioWrapper):
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
             'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\"){0,10})', None),    # TODO: Why 10?
             'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)\"){0,20})', None),    # TODO: Why 20?
+            'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)\"){0,20})', None),    # TODO: Why 20?
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
@@ -126,7 +127,7 @@ class AVScriptParser(StdioWrapper):
         self._regex_markdown = {
             'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
             'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
-            'links_and_vars': RegexMD(r'(\[([^\]]+)\](?!(:(.+))|(\=(.+))))', None),
+            'links_and_vars': RegexMD(r'(\[([^[\]]+)\](?!(:(.+))|(\=(.+))))', None),
             'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', IGNORECASE),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
@@ -737,6 +738,17 @@ class AVScriptParser(StdioWrapper):
             else:
                 self.oprint(lineObj.original_line)
 
+        def handle_setv2(m, lineObj):
+            """Handle the contact parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                self._varV2.updateVarV2(d)
+
+            else:
+                self.oprint(lineObj.original_line)
+
         def handle_image(m, lineObj):
             """Handle the contact parse line type."""
             if(m is not None):
@@ -760,6 +772,7 @@ class AVScriptParser(StdioWrapper):
             ('import', handle_import),
             ('image', handle_image),
             ('var', handle_varv2),
+            ('set', handle_setv2),
             ('break', handle_break),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),

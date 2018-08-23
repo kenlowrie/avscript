@@ -52,16 +52,34 @@ class VariableDict(object):
 class VariableV2Dict(VariableDict):
     """Class to abstract a dictionary of images"""
     _var_prefix = 'varv2.'
+    _idstr = "_id"
 
     def __init__(self):
         super(VariableV2Dict, self).__init__()  # Initialize the base class(es)
 
     def addVarV2(self, dict):
-        varID = dict["_id"]
-        del dict["_id"]
+        if VariableV2Dict._idstr not in dict:
+            print("Dictionary is missing {}".format(VariableV2Dict._idstr))
+            return
+
+        varID = dict[VariableV2Dict._idstr]
+        del dict[VariableV2Dict._idstr]
         if 'name' not in dict:
             dict['name'] = varID
         self.addVar(varID, dict)
+
+    def updateVarV2(self, dict):
+        if VariableV2Dict._idstr not in dict:
+            print("Dictionary is missing {}".format(VariableV2Dict._idstr))
+            return
+
+        varID = dict[VariableV2Dict._idstr]
+        del dict[VariableV2Dict._idstr]
+        if varID not in self.vars:
+            self.addVarV2(dict)
+        else:
+            for item in dict:
+                self.vars[varID].text[item] = dict[item]
 
     def _parseVar(self, id):
         if id.startswith(VariableV2Dict._var_prefix):
@@ -96,8 +114,6 @@ class VariableV2Dict(VariableDict):
             if fmt in self.vars[id0].text:
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = _markdown(self.vars[id0].text[fmt]).replace('{{','[').replace('}}',']')
-                #fmt_str = self.vars[id0].text[fmt].replace('{{','[').replace('}}',']')
-                #print(fmt_str.replace('self.','{}.'.format(id)))
                 # And now, markdown again, to expand the self. namespace variables
                 return _markdown(fmt_str.replace('self.','{}.'.format(id)))
 
@@ -121,13 +137,18 @@ class VariableV2Dict(VariableDict):
 class ImageDict(VariableDict):
     """Class to abstract a dictionary of images"""
     _var_prefix = 'image.'
+    _idstr = "_id"
 
     def __init__(self):
         super(ImageDict, self).__init__()  # Initialize the base class(es)
 
     def addImage(self, dict):
-        imageID = dict["_id"]
-        del dict["_id"]
+        if ImageDict._idstr not in dict:
+            print("Dictionary is missing {}".format(ImageDict._idstr))
+            return
+
+        imageID = dict[ImageDict._idstr]
+        del dict[ImageDict._idstr]
         self.addVar(imageID, dict)
 
     def _parseVar(self, id):

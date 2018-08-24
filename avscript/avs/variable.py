@@ -52,34 +52,46 @@ class VariableDict(object):
 class VariableV2Dict(VariableDict):
     """Class to abstract a dictionary of images"""
     _var_prefix = 'varv2.'
-    _idstr = "_id"
+    _idstr = ["_id", "__", "_"]
 
     def __init__(self):
         super(VariableV2Dict, self).__init__()  # Initialize the base class(es)
 
-    def addVarV2(self, dict):
-        if VariableV2Dict._idstr not in dict:
-            print("Dictionary is missing {}".format(VariableV2Dict._idstr))
+    def _missingID(self, dict, oprint, which="ADD"):
+        #from sys import stderr
+        oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, VariableV2Dict._idstr, dict))
+
+    def getIDstr(self, dict):
+        for id in VariableV2Dict._idstr:
+            if id in dict:
+                return id
+        return None
+
+    def addVarV2(self, dict, oprint):
+        myID = self.getIDstr(dict)
+        if myID is None:
+            self._missingID(dict, oprint)
             return
 
-        varID = dict[VariableV2Dict._idstr]
-        del dict[VariableV2Dict._idstr]
+        varID = dict[myID]
+        del dict[myID]
         if 'name' not in dict:
             dict['name'] = varID
         self.addVar(varID, dict)
 
-    def updateVarV2(self, dict):
-        if VariableV2Dict._idstr not in dict:
-            print("Dictionary is missing {}".format(VariableV2Dict._idstr))
+    def updateVarV2(self, dict, oprint):
+        myID = self.getIDstr(dict)
+        if myID is None:
+            self._missingID(dict, oprint, "UPDATE")
             return
 
-        varID = dict[VariableV2Dict._idstr]
-        del dict[VariableV2Dict._idstr]
+        varID = dict[myID]
         if varID not in self.vars:
-            self.addVarV2(dict)
-        else:
-            for item in dict:
-                self.vars[varID].text[item] = dict[item]
+            return self.addVarV2(dict, oprint)
+
+        del dict[myID]
+        for item in dict:
+            self.vars[varID].text[item] = dict[item]
 
     def _parseVar(self, id):
         if id.startswith(VariableV2Dict._var_prefix):
@@ -88,7 +100,7 @@ class VariableV2Dict(VariableDict):
         compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
         if len(compoundVar) == 2:
             id0, el0 = compoundVar
-            if id0 in self.vars and el0 in self.vars[id0].text:
+            if id0 in self.vars and (el0 in self.vars[id0].text or el0 in VariableV2Dict._idstr):
                 return compoundVar
 
         return id, None
@@ -96,7 +108,8 @@ class VariableV2Dict(VariableDict):
     def exists(self, id):
         id0, el0 = self._parseVar(id)
         if el0 is not None:
-            return id0 in self.vars and el0 in self.vars[id0].text
+            # _parseVar() only returns both elements if the attribute exists
+            return True
 
         return id0 in self.vars
 
@@ -106,6 +119,11 @@ class VariableV2Dict(VariableDict):
     def getVarV2(self, id, _markdown):
         id0, el0 = self._parseVar(id)
         if el0 is not None:
+            # If they are asking for the special name (_, __, _id)
+            if el0 in VariableV2Dict._idstr:
+                # return the variable name itself, no markdown.
+                return id0
+
             return _markdown(self.vars[id0].text[el0])
 
         if self.exists(id0):
@@ -123,6 +141,9 @@ class VariableV2Dict(VariableDict):
                 compoundVar += ' {}="{}"<br />\n'.format(item, attrText)
             return compoundVar
 
+        # logically, you won't ever get here, because everyone always
+        # calls exists() first, and if false, it just echos out what you
+        # passed in. But just in case...
         return '(undefined variable) {}"'.format(id)
 
     def dumpVars(self, indent='', output=print):
@@ -142,9 +163,12 @@ class ImageDict(VariableDict):
     def __init__(self):
         super(ImageDict, self).__init__()  # Initialize the base class(es)
 
-    def addImage(self, dict):
+    def _missingID(self, dict, oprint, which="ADDIMAGE"):
+        oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, VariableV2Dict._idstr, dict))
+
+    def addImage(self, dict, oprint):
         if ImageDict._idstr not in dict:
-            print("Dictionary is missing {}".format(ImageDict._idstr))
+            self._missingID(dict, oprint)
             return
 
         imageID = dict[ImageDict._idstr]

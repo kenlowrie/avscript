@@ -728,34 +728,34 @@ class AVScriptParser(StdioWrapper):
                 self.oprint(lineObj.original_line)
 
         def handle_varv2(m, lineObj):
-            """Handle the contact parse line type."""
+            """Handle the @var parse line type."""
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._varV2.addVarV2(d)
+                self._varV2.addVarV2(d, self.oprint)
 
             else:
                 self.oprint(lineObj.original_line)
 
         def handle_setv2(m, lineObj):
-            """Handle the contact parse line type."""
+            """Handle the @set parse line type."""
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._varV2.updateVarV2(d)
+                self._varV2.updateVarV2(d, self.oprint)
 
             else:
                 self.oprint(lineObj.original_line)
 
         def handle_image(m, lineObj):
-            """Handle the contact parse line type."""
+            """Handle the @image parse line type."""
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._images.addImage(d)
+                self._images.addImage(d, self.oprint)
 
             else:
                 self.oprint(lineObj.original_line)

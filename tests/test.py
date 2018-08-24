@@ -64,6 +64,12 @@ class TestAVScriptClass(TestCase):
     def test_varv2(self):
         self.process('varv2')
 
+    def test_misc(self):
+        self.process('misc')
+
+    def test_image(self):
+        self.process('image')
+
     def test_divs(self):
         self.process('divs')
 

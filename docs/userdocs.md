@@ -150,6 +150,17 @@ Now, anywhere I write &#91;my name], it will be replaced with "Ken Lowrie". Let'
 If I instead write: &#91;my name]=[&#42;Ken Lowrie*], then everywhere I write &#91;my name], it will be replaced with &lt;em>Ken Lowrie&lt;/em>. Okay, let's go ahead and do that now. 
 [my name]=*Ken Lowrie*
 And now, [my name] &lt;-- should be Ken Lowrie wrapped with &lt;em> tags.
+
+You can also specify a class prefix when defining a variable, using the following syntax:
+
+{:.syntax}--- divTitle Variable Decorators
+    [SP]
+    {:.bigandbold.indent}&#91;variable]={:.class}value
+
+So, if you declared this: &#91;mynewvar]={:.bigandbold.red}My new big bold value, and then put &#91;mynewvar], you'd get this:
+[mynewvar]={:.bigandbold.red}My new big bold value
+[mynewvar]
+
 ## Link aliases
 
 Building on that, we can create aliases for inline links. Say I define a reference link like this: 

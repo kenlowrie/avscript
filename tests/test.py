@@ -58,6 +58,12 @@ class TestAVScriptClass(TestCase):
     def test_variables(self):
         self.process('variables')
 
+    def test_film(self):
+        self.process('film')
+
+    def test_varv2(self):
+        self.process('varv2')
+
     def test_divs(self):
         self.process('divs')
 

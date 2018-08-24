@@ -8,5 +8,7 @@
 [c]=[a][b]
 And here's my test: [a][b] and finally [c]
 
+@import 'in/import/test_import2.md'
+
 ///Variables///
 ///Links///

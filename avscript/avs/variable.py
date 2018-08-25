@@ -40,13 +40,16 @@ class VariableDict(object):
         TODO: Should this just return an empty string if undefined?"""
         return "(undefined)" if not self.exists(id) else self.vars[id].text
 
+    def escape_html(self, s):
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
     def dumpVars(self, indent='', output=print):
         """Dumps the variable list, names and values."""
         def escape_html(s):
             return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
         for var in sorted(self.vars):
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, escape_html(self.vars[var].text), indent))
+            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, self.escape_html(self.vars[var].text), indent))
 
 
 class VariableV2Dict(VariableDict):
@@ -67,6 +70,15 @@ class VariableV2Dict(VariableDict):
                 return id
         return None
 
+    def unescapeString(self,s):
+        return s.replace('\\"', '"')
+
+    def unescapeStringQuotes(self,d):
+        for item in d:
+            d[item] = self.unescapeString(d[item])
+
+        return d     
+
     def addVarV2(self, dict, oprint):
         myID = self.getIDstr(dict)
         if myID is None:
@@ -77,7 +89,8 @@ class VariableV2Dict(VariableDict):
         del dict[myID]
         if 'name' not in dict:
             dict['name'] = varID
-        self.addVar(varID, dict)
+
+        self.addVar(varID, self.unescapeStringQuotes(dict))
 
     def updateVarV2(self, dict, oprint):
         myID = self.getIDstr(dict)
@@ -91,7 +104,7 @@ class VariableV2Dict(VariableDict):
 
         del dict[myID]
         for item in dict:
-            self.vars[varID].text[item] = dict[item]
+            self.vars[varID].text[item] = self.unescapeString(dict[item])
 
     def _parseVar(self, id):
         if id.startswith(VariableV2Dict._var_prefix):
@@ -151,7 +164,7 @@ class VariableV2Dict(VariableDict):
         for var in sorted(self.vars):
             dict_str = '<br />'
             for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.vars[var].text[d_item])
+                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 
@@ -216,7 +229,7 @@ class ImageDict(VariableDict):
         for var in sorted(self.vars):
             dict_str = '<br />'
             for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.vars[var].text[d_item])
+                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 

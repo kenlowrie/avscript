@@ -98,7 +98,7 @@ class AVScriptParser(StdioWrapper):
         self._varV2 = VariableV2Dict()      # dict of varv2 dictionaries
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
-        self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)\"')
+        self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
 
         # Dictionary of each line type that we can process
         self._regex_main = {
@@ -109,9 +109,9 @@ class AVScriptParser(StdioWrapper):
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
-            'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\"){0,10})', None),    # TODO: Why 10?
-            'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)\"){0,20})', None),    # TODO: Why 20?
-            'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)\"){0,20})', None),    # TODO: Why 20?
+            'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
+            'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
+            'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),

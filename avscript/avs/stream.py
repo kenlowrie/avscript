@@ -9,10 +9,9 @@ flexibility.
 """
 
 from sys import stdin
-from os.path import join, split, abspath, isfile
+from os.path import join, split, abspath, isfile, realpath, dirname
 
 from .exception import FileError
-
 
 class _OpenFile(object):
     """A simple class to keep track of files that are opened."""
@@ -38,6 +37,10 @@ class StreamHandler(object):
         self.line = ''
         self._started_with_stdin = None
         self._started_with_file = None
+        self._builtIn = 0
+        builtins = join(abspath(dirname(realpath(__file__))), 'builtins.md')
+        with open(builtins) as f:
+            self._builtIns = [line for line in f]
 
     def push(self, fh, name=None):
         """
@@ -102,6 +105,12 @@ class StreamHandler(object):
         current file, we read from the new file until EOF, and then close it,
         and fall back to the previous file.
         """
+        # Process the builtIns first.
+        if self._builtIn < len(self._builtIns):
+            self.line = self._builtIns[self._builtIn]
+            self._builtIn += 1
+            return self.line
+
         self.line = ''
         while 1:
             if self.idx < 0:

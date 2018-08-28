@@ -1,5 +1,4 @@
 // Test script for varv2 support
-[b]=<br />
 @var _noid="noid"
 @var id="alsonoid"
 @var _id="id0" attr1="attribute 1"

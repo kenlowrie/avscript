@@ -113,7 +113,7 @@ class AVScriptParser(StdioWrapper):
             'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
-            'raw': RegexMain(True, False, False, r'^[@]raw[ ]+(.*)', None),
+            'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
@@ -592,7 +592,7 @@ class AVScriptParser(StdioWrapper):
         def handle_raw(m, lineObj):
             """Handle a raw line"""
             if(m is not None):
-                self.oprint(self._html.formatLine(self._markdown(m.group(1))))
+                self.oprint(self._html.formatLine(self._markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
 

@@ -250,19 +250,19 @@ class AdvancedNamespace(Namespace):
 
         del dict[myID]
         for item in dict:
-            self.vars[varID].text[item] = self.unescapeString(dict[item])
+            self.vars[varID].rval[item] = self.unescapeString(dict[item])
 
     def _isSpecial(self, attr):
         return True if attr in AdvancedNamespace._variable_name_str + VariableStore._special_attributes else False
 
-    def _parseVariable(self, id):
+    def _parseVariable(self, id, do_not_test_attr=False):
         if id.startswith(self.namespace):
             id = id[len(self.namespace):]
 
-        compoundVar = id.rsplit('.', 1)     # split at '.' if present, might be looking to get dict element
+        compoundVar = id.split('.', 1)     # split at '.' if present, might be looking to get dict element
         if len(compoundVar) == 2:
             id0, el0 = compoundVar
-            if id0 in self.vars and (el0 in self.vars[id0].rval or self._isSpecial(el0)):
+            if id0 in self.vars and (do_not_test_attr or el0 in self.vars[id0].rval or self._isSpecial(el0)):
                 return compoundVar
 
         return id, None
@@ -274,6 +274,10 @@ class AdvancedNamespace(Namespace):
             return True
 
         return id0 in self.vars
+
+    def getVarID(self, id):
+        id0, el0 = self._parseVariable(id, True)
+        return id0 if el0 is not None else id
 
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
@@ -451,17 +455,33 @@ class Namespaces(object):
 
         return False
 
-    def getValue(self, variable_name):
+    def getValue(self, variable_name, jit_attrs=None):
+
+        def addJITattrs(jit_attrs, ns, var):
+            if jit_attrs is not None:   # and self._namespaces[ns].exists(variable_name):
+                #print('inside addJITattrs({})'.format(var))
+                jit_attrs['_'] = self._namespaces[ns].getVarID(var)
+                self._namespaces[ns].updateVariable(jit_attrs)
+        
         ns, name = self._splitNamespace(variable_name)
+        #if jit_attrs is not None:
+        #    print('{}'.format(jit_attrs))
         #print('ns,name={},{}'.format(ns,name))
         if ns is not None:
             if ns in Namespaces._search_order:
+                # TODO: add jit_attrs right here
+                addJITattrs(jit_attrs, ns, name)
+
+                # TODO: Shouldn't we check to see that it's there?
                 return self._namespaces[ns].getValue(variable_name)
 
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):
+                # TODO: add jit_attrs right here
+                addJITattrs(jit_attrs, ns, name)
                 return self._namespaces[ns].getValue(variable_name)
 
+        # TODO: We may want to just return variable_name instead... like before...
         return "Variable {} is (undefined)".format(variable_name)    # I don't think this will ever happen
 
     def setAttribute(self, variable_name, attr_name, attr_value):

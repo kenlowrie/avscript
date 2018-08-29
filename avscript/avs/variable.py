@@ -259,7 +259,7 @@ class AdvancedNamespace(Namespace):
         if id.startswith(self.namespace):
             id = id[len(self.namespace):]
 
-        compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
+        compoundVar = id.rsplit('.', 1)     # split at '.' if present, might be looking to get dict element
         if len(compoundVar) == 2:
             id0, el0 = compoundVar
             if id0 in self.vars and (el0 in self.vars[id0].rval or self._isSpecial(el0)):
@@ -290,7 +290,7 @@ class AdvancedNamespace(Namespace):
             # First, apply standard markdown in case _format has regular variables in it.
             fmt_str = self._markdown(self.vars[id0].rval[el0]).replace('{{','[').replace('}}',']')
             # And now, markdown again, to expand the self. namespace variables
-            return self._markdown(fmt_str.replace('self.','{}.'.format(id0)))
+            return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
 
         if self.exists(id0):
             # if the special _format element exists, return it with markdown applied
@@ -333,6 +333,10 @@ class ImageNamespace(AdvancedNamespace):
 
 
 class HtmlNamespace(AdvancedNamespace):
+    _start = '<'
+    _end = '>'
+    _element_partials = [_start, _end]
+
     def __init__(self, markdown, namespace_name):
         super(HtmlNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
@@ -342,10 +346,51 @@ class HtmlNamespace(AdvancedNamespace):
         if not super(HtmlNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
             super(HtmlNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}></{{self._tag}}>')
 
+    def _isSpecial(self, attr):
+        if attr in HtmlNamespace._element_partials:
+            return True
+
+        return super(HtmlNamespace, self)._isSpecial(attr)
+
+    def getElementPartial(self, which):
+        if which == HtmlNamespace._start:
+            # TODO: should do error checking here (make sure _tag is defined?)
+            return '<{0}self._tag{1}{0}self.{2}{1}>'.format('{{', '}}', Variable.public)
+        elif which == HtmlNamespace._end:
+            # TODO: should do error checking here (make sure _tag is defined?)
+            return '</{{self._tag}}>'
+
+        raise
+
+    def getValue(self, id):
+        id0, el0 = self._parseVariable(id)
+        #print("HTML.getValue({},{},{})".format(id,id0,el0))
+        if el0 is not None:
+            if el0 in HtmlNamespace._element_partials:
+
+                # First, apply standard markdown in case _format has regular variables in it.
+                fmt_str = self._markdown(self.getElementPartial(el0).replace('{{','[').replace('}}',']'))
+                # And now, markdown again, to expand the self. namespace variables
+                #print("LINK: {}".format(self.namespace))
+                return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace,id0)))
+
+        return super(HtmlNamespace, self).getValue(id)
+
 
 class LinkNamespace(HtmlNamespace):
     def __init__(self, markdown, namespace_name):
         super(LinkNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+
+
+class CodeNamespace(AdvancedNamespace):
+    def __init__(self, markdown, namespace_name):
+        super(CodeNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+
+    def addVariable(self, dict, name=None):
+        var_name = super(CodeNamespace, self).addVariable(dict)
+
+        if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
+            super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
 
 
 class Namespaces(object):
@@ -354,7 +399,8 @@ class Namespaces(object):
     _var = 'var'
     _link = 'link'
     _image = 'image'
-    _search_order = [_default, _var, _image, _link, _html]
+    _code = 'code'
+    _search_order = [_default, _var, _image, _link, _html, _code]
 
     def __init__(self, markdown):
         self._namespaces = {
@@ -363,6 +409,7 @@ class Namespaces(object):
             Namespaces._var: AdvancedNamespace(markdown, Namespaces._var),
             Namespaces._image: ImageNamespace(markdown, Namespaces._image),
             Namespaces._link: LinkNamespace(markdown, Namespaces._link),
+            Namespaces._code: CodeNamespace(markdown, Namespaces._code),
         }
 
     def addVariable(self, value, name=None, ns=None):
@@ -428,7 +475,7 @@ class Namespaces(object):
 
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):
-                print("attribute exists")
+                #print("attribute exists")
                 return self._namespaces[ns].setAttribute(variable_name, attr_name, attr_value)
 
         return "Variable {} is (undefined)".format(variable_name)    # I don't think this will ever happen

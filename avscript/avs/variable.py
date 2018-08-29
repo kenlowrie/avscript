@@ -13,7 +13,7 @@ class Variable(object):
     rvalue = '_rval'
     prefix = '_'
 
-    """Abstracts variable. Keep track of the name and the value."""
+    """Abstracts variable. Keeps track of the name and the value."""
     def __init__(self, name, value):
         self.name = name
         if type(value) is dict:
@@ -48,6 +48,11 @@ class Variable(object):
     def addAttribute(self, attrName, attrValue):
         self.rval[attrName] = attrValue
 
+    def dup(self, name):
+        v = Variable(name,None)
+        v.rval=self.rval.copy()
+        return v
+
     def dump(self, output):
         if len(self.rval) == 1 and Variable.rvalue in self.rval:
             output("{0}={1}".format(self.name, self.rval[Variable.rvalue]))
@@ -56,11 +61,6 @@ class Variable(object):
         output("{}".format(self.name))
         for item in self.rval:            
             output("\t{0}={1}".format(item, self.rval[item]))
-            
-    def dup(self, name):
-        v = Variable(name,None)
-        v.rval=self.rval.copy()
-        return v
 
 
 class VariableStore(object):
@@ -107,6 +107,10 @@ class VariableStore(object):
     def addAttribute(self, name, attrName, attrValue):
         if self.exists(name):
             self.vars[name].addAttribute(attrName, attrValue)
+
+    def getRVal(self, name):
+        if self.exists(name):
+            return self.vars[name].rval
 
     def setRVal(self, name, rval):
         if self.exists(name):
@@ -170,12 +174,15 @@ class VariableStore(object):
             self.vars[var].dump(output)
 
 
+class Namespace(VariableStore):
+    def __init__(self, markdown, namespace_name):
+        super(Namespace, self).__init__(markdown)  # Initialize the base class(es)
+        self.namespace = '{}.'.format(namespace_name)
 
-class BasicNamespace(VariableStore):
-    _namespace_name = 'basic.'
 
-    def __init__(self, markdown):
-        super(BasicNamespace, self).__init__(markdown)  # Initialize the base class(es)
+class BasicNamespace(Namespace):
+    def __init__(self, markdown, namespace_name):
+        super(BasicNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
         from .regex import Regex
         self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
 
@@ -192,12 +199,13 @@ class BasicNamespace(VariableStore):
         super(BasicNamespace, self).addVariable(value, name)
 
 
-class AdvancedNamespace(VariableStore):
-    _namespace_name = 'var.'
+class AdvancedNamespace(Namespace):
     _variable_name_str = ["_id", "_"]
+    _default_format_attr = '_format'
+    _inherit_attr = '_inherit'
 
-    def __init__(self, markdown):
-        super(AdvancedNamespace, self).__init__(markdown)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name):
+        super(AdvancedNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
     def _missingID(self, dict, which="ADD"):
         self.oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, AdvancedNamespace._variable_name_str, dict))
@@ -208,6 +216,9 @@ class AdvancedNamespace(VariableStore):
                 return id
         return None
 
+    def inheritsFrom(self, dict):
+        return True if AdvancedNamespace._inherit_attr in dict else False
+
     def addVariable(self, dict, name=None):
         myID = self.getIDstring(dict)
         if myID is None:
@@ -216,8 +227,16 @@ class AdvancedNamespace(VariableStore):
 
         varID = dict[myID]
         del dict[myID]
+        
+        if self.inheritsFrom(dict):
+            tempDict = self.getRVal(dict[AdvancedNamespace._inherit_attr]).copy()
+            for item in dict:
+                if item != AdvancedNamespace._inherit_attr:
+                    tempDict[item] = dict[item]
+            dict = tempDict
 
         super(AdvancedNamespace, self).addVariable(self.unescapeStringQuotes(dict), varID)
+        return varID
 
     def updateVariable(self, dict, name=None):
         myID = self.getIDstring(dict)
@@ -234,22 +253,16 @@ class AdvancedNamespace(VariableStore):
             self.vars[varID].text[item] = self.unescapeString(dict[item])
 
     def _isSpecial(self, attr):
-        #print("Checking {}{}".format(attr, AdvancedNamespace._variable_name_str + VariableStore._special_attributes))
         return True if attr in AdvancedNamespace._variable_name_str + VariableStore._special_attributes else False
-        #print("Returning: {}".format(x))
-        #return x
 
     def _parseVariable(self, id):
-        #print("PARSING: {}".format(id))
-        if id.startswith(AdvancedNamespace._namespace_name):
-            id = id[len(AdvancedNamespace._namespace_name):]
+        if id.startswith(self.namespace):
+            id = id[len(self.namespace):]
 
         compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
         if len(compoundVar) == 2:
-            #print("IS COMPOUND")
             id0, el0 = compoundVar
             if id0 in self.vars and (el0 in self.vars[id0].rval or self._isSpecial(el0)):
-                #print("YOYO")
                 return compoundVar
 
         return id, None
@@ -269,21 +282,19 @@ class AdvancedNamespace(VariableStore):
             if el0 in AdvancedNamespace._variable_name_str:
                 # return the variable name itself, no markdown.
                 return id0
-            #print("NEXT {}-{}".format(id0,el0))
+
             if el0 in VariableStore._special_attributes:
-                return self.getSpecialAttr(el0, id0)
+                # should this be marked down? Probably.
+                return self._markdown(self.getSpecialAttr(el0, id0))
 
             # First, apply standard markdown in case _format has regular variables in it.
             fmt_str = self._markdown(self.vars[id0].rval[el0]).replace('{{','[').replace('}}',']')
             # And now, markdown again, to expand the self. namespace variables
             return self._markdown(fmt_str.replace('self.','{}.'.format(id0)))
-            # The old way where other vars didn't expand
-            #return self._markdown(self.vars[id0].rval[el0])
 
-        print("FALLING...")
         if self.exists(id0):
             # if the special _format element exists, return it with markdown applied
-            fmt = '_format'
+            fmt = AdvancedNamespace._default_format_attr
             if fmt in self.vars[id0].rval:
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = self._markdown(self.vars[id0].rval[fmt]).replace('{{','[').replace('}}',']')
@@ -311,41 +322,47 @@ class AdvancedNamespace(VariableStore):
 
 
 class ImageNamespace(AdvancedNamespace):
-    _namespace_name = 'image.'
-    _variable_name_str = ["_id", "_"]
+    def __init__(self, markdown, namespace_name):
+        super(ImageNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
-    def __init__(self, markdown):
-        super(ImageNamespace, self).__init__(markdown)  # Initialize the base class(es)
+    def addVariable(self, dict, name=None):
+        var_name = super(ImageNamespace, self).addVariable(dict)
 
+        if not super(ImageNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
+            super(ImageNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
 
 
 class HtmlNamespace(AdvancedNamespace):
-    _namespace = 'html.'
-    _variable_name_str = ["_id", "_"]
+    def __init__(self, markdown, namespace_name):
+        super(HtmlNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
-    def __init__(self, markdown):
-        super(HtmlNamespace, self).__init__(markdown)  # Initialize the base class(es)
+    def addVariable(self, dict, name=None):
+        var_name = super(HtmlNamespace, self).addVariable(dict)
+
+        if not super(HtmlNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
+            super(HtmlNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}></{{self._tag}}>')
 
 
-class LinkNamespace(AdvancedNamespace):
-    _namespace = 'link.'
-    _variable_name_str = ["_id", "_"]
-
-    def __init__(self, markdown):
-        super(LinkNamespace, self).__init__(markdown)  # Initialize the base class(es)
+class LinkNamespace(HtmlNamespace):
+    def __init__(self, markdown, namespace_name):
+        super(LinkNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
 
 class Namespaces(object):
     _default = 'basic'
-    _search_order = ['basic', 'var', 'image', 'link', 'html']
+    _html = 'html'
+    _var = 'var'
+    _link = 'link'
+    _image = 'image'
+    _search_order = [_default, _var, _image, _link, _html]
 
     def __init__(self, markdown):
         self._namespaces = {
-            Namespaces._default: BasicNamespace(markdown),
-            'html': HtmlNamespace(markdown),
-            'var': AdvancedNamespace(markdown),
-            'image': ImageNamespace(markdown),
-            'link': LinkNamespace(markdown),
+            Namespaces._default: BasicNamespace(markdown, Namespaces._default),
+            Namespaces._html: HtmlNamespace(markdown, Namespaces._html),
+            Namespaces._var: AdvancedNamespace(markdown, Namespaces._var),
+            Namespaces._image: ImageNamespace(markdown, Namespaces._image),
+            Namespaces._link: LinkNamespace(markdown, Namespaces._link),
         }
 
     def addVariable(self, value, name=None, ns=None):
@@ -392,7 +409,7 @@ class Namespaces(object):
         #print('ns,name={},{}'.format(ns,name))
         if ns is not None:
             if ns in Namespaces._search_order:
-                return self._namespaces[ns].getValue(name)
+                return self._namespaces[ns].getValue(variable_name)
 
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):

@@ -443,6 +443,22 @@ class Namespaces(object):
 
         return (None, variable_name)
 
+    def removeVariable(self, name):
+        # TODO: Add this
+        # name [[ns].name]
+        pass
+
+    def removeAttribute(self, name):
+        # TODO: Add this
+        # name [[ns].name.attr]
+        pass
+
+    def dupVariable(self, curname, newname):
+        # TODO: Add this
+        # curname [[ns].name]
+        # newname [[ns].name]
+        pass
+
     def exists(self, variable_name):
         ns, name = self._splitNamespace(variable_name)
         if ns is not None:

@@ -9,6 +9,8 @@ path.insert(0, lib_path)
 
 from avs.variable import *
 
+from markdown import Markdown
+
 """
 [foo]=bar
 [foo.a]=1
@@ -65,7 +67,10 @@ def markdown(s):
 
     return s
 
-ns = Namespaces(markdown)
+md = Markdown()
+
+ns = Namespaces(md._markdown)
+md._namespaces = ns
 
 def _getValue(msg, expr=None):
     if msg is not None:
@@ -182,15 +187,25 @@ _getValue(None,'link.cls.style')
 #[alt]=Google image
 ns.addVariable('Google image', 'alt-text')
 _getValue(None, 'alt-text')
-img25 = {"_id": "img25", "src":"google.png", "alt":"[alt-text]"}
+img25 = {"_id": "img25", "src":"google.png", "alt":"[alt-text]", "_tag": "img"}
 ns.addVariable(img25, ns='image')
 _getValue(None, 'img25')
 _getValue(None, 'img25.src')
 _getValue(None, 'img25.alt')
 link25 = {"_id":"link25", 
-          "_text1":"{{self.<}}my link text{{self.>}}", 
+          "_tag": "a", 
+          "_text1":"{{self.<}}my link text{{self.>}}",
           "_text2":"{{image.img25}}", 
           "_text3":"[image.img25]", 
+          "_text4":"{{self.<}}{{image.img25}}{{self.>}}",
+          "_text5":"{{self._text6}}",
+          "_text6":"{{self._text4}}",
+          "_[":"[",
+          "_]":"]",
+          "_var":"self.",
+          "_t5":"_text5",
+          "_t6":"{{self._var}}{{self._t5}}",
+          "_wow":"{{{{self._t6}}}}",
           "_asurl":"&lt;{{self.href}}&gt;", 
           "href":"https://google.com"}
 ns.addVariable(link25, ns="link")
@@ -206,6 +221,11 @@ _getValue(None, 'link.link25')
 _getValue(None, 'link.link25._asurl')
 
 sep()
+
+print(md._markdown('This right here&gt; *[link.link25]*'))
+print(md._markdown('This right here&gt; *[link.link25._text4]*'))
+print(md._markdown('This right here&gt; *[link.link25._text5]*'))
+print(md._markdown('This right here&gt; ***[link.link25._wow]***'))
 
 ns.dump()
 

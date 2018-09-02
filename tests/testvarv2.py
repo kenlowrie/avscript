@@ -10,7 +10,7 @@ from sys import exit
 
 from avs.variable import *
 
-from markdown import Markdown
+from avs.markdown import Markdown
 
 def assertEqual(a, b):
     assert a == b
@@ -392,7 +392,7 @@ ref5 = {
        'type':"exec", 
        'src':'from time import strftime\nprint(strftime("{{self.fmtstr}}"))',
        '_format':'{{self.last}}',
-       'fmtstr':'%Y%m%d - ()'
+       'fmtstr':'%Y%m%d @ %H:%M:%S'
 }
 
 msg('Adding ref5...')

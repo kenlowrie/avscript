@@ -7,6 +7,7 @@ from .stdio import *
 from .stream import *
 from .variable import *
 from .bookmark import *
+from .markdown import *
 from .exception import *
 from .htmlformat import *
 

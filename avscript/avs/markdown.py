@@ -2,50 +2,8 @@
 
 from re import findall, compile, IGNORECASE
 
-
-# TODO: These exceptions and regex classes are temporary until we merge the code into avs/
-class _Error(Exception):
-    """Base exception class for this module."""
-    pass
-
-
-class NestingError(_Error):
-    """Regex exceptions raised by this module."""
-    def __init__(self, errmsg):
-        self.errmsg = errmsg
-
-
-class LogicError(_Error):
-    """Logic exceptions raised by this module."""
-    def __init__(self, errmsg):
-        self.errmsg = errmsg
-
-
-class Regex(object):
-    """Wrapper class for regular expressions."""
-    def __init__(self, regex, flags=0):
-        """Regex class constructor.
-
-        Compiles the regex string with any required flags for efficiency.
-        """
-        self.regex = compile(regex, flags)
-
-
-class RegexMD(Regex):
-    """This class holds the regular expressions used when applying markdown
-    to inline formatting syntax."""
-    def __init__(self, regex, new_repl_str, flags=0):
-        """Constructor for the RegexMD class.
-
-        Arguments:
-        regex -- the regex string used to detect markdown in the line
-        new_repl_str -- the string that will be used to insert the markdown into
-            the line. If this is None, then the handler for the regex markdown type
-            is responsible for constructing the replacement text.
-        flags -- flags to re.compile()
-        """
-        super(RegexMD, self).__init__(regex, flags)
-        self.new_str = new_repl_str
+from .regex import Regex, RegexMD
+from .exception import LogicError, NestingError
 
 
 class DummyNamespaces(object):
@@ -58,11 +16,7 @@ class Markdown(object):
         self._current_nesting_level = 0
         # Dictionary of each markdown type that we process on each line
         self._regex_markdown = {
-            #'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
-            #'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
-            #'links_and_vars': RegexMD(r'(\[([^[\]]+)\](?!(:(.+))|(\=(.+))))', None),
             'vars': RegexMD(r'(\[(\w[^[\]\)]+)([\(](.+)[\)])?\](?!(\=(.+))))', None),
-            #'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', IGNORECASE),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
@@ -142,7 +96,6 @@ class Markdown(object):
             """
             def makeJitAttrs(params):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(params)}
-                #print("{}".format(d))
                 return d
 
             #print("CALLED WITH:****{}----{}----{}****".format(m[0],m[1],s))

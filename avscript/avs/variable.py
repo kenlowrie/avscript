@@ -373,6 +373,9 @@ class ImageNamespace(AdvancedNamespace):
         if not super(ImageNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
             super(ImageNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
 
+        if not super(ImageNamespace, self).exists('{}.{}'.format(var_name, '_tag')):
+            super(ImageNamespace, self).addAttribute(var_name,'_tag','img')
+
 
 class HtmlNamespace(AdvancedNamespace):
     _start = '<'
@@ -388,6 +391,8 @@ class HtmlNamespace(AdvancedNamespace):
 
         if not super(HtmlNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
             super(HtmlNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}></{{self._tag}}>')
+
+        return var_name
 
     def _isSpecial(self, attr):
         if attr in HtmlNamespace._element_partials:
@@ -422,9 +427,14 @@ class HtmlNamespace(AdvancedNamespace):
 
 class LinkNamespace(HtmlNamespace):
     def __init__(self, markdown, namespace_name, oprint):
-        super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-
+        var_name = super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         #print("LINK: My NS is: {}".format(self.namespace))
+
+    def addVariable(self, dict, name=None):
+        var_name = super(LinkNamespace, self).addVariable(dict)
+
+        if not super(LinkNamespace, self).exists('{}.{}'.format(var_name, '_tag')):
+            super(LinkNamespace, self).addAttribute(var_name,'_tag','a')
 
 class CodeNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name, oprint):

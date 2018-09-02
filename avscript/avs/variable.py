@@ -637,10 +637,55 @@ class Namespaces(object):
 # =================================================================================================
 
 
+class _Variable(object):
+    """Class to abstract a variable (alias). Keep track of the ID (name) and
+    the value (text)."""
+    def __init__(self, id, text):
+        self.id = id
+        self.text = text
 
 
+class VariableDict(object):
+    """Class to abstract a dictionary of variables (aliases)"""
+    def __init__(self):
+        self.vars = {}
+        from .regex import Regex
+        self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
 
-class VariableV2Dict(VariableStore):
+    def addVar(self, id, text):
+        """Add a variable called 'id' to the list and set its value to 'text'."""
+        if type(text) is str:
+            from re import findall
+            matches = findall(self.delayedExpansion.regex, text)
+            for m in matches:
+                # for each delayed expansion variable, strip the {{}} from the name
+                text = text.replace(m[0],'[{}]'.format(m[1]))
+
+        self.vars[id] = _Variable(id, text)
+
+    def exists(self, id):
+        """Returns true if the variable 'id' exists."""
+        return id in self.vars
+
+    def getText(self, id):
+        """Gets the value of the variable 'id', unless it doesn't exist, in
+        which case it returns (undefined).
+        TODO: Should this just return an empty string if undefined?"""
+        return "(undefined)" if not self.exists(id) else self.vars[id].text
+
+    def escape_html(self, s):
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    def dumpVars(self, indent='', output=print):
+        """Dumps the variable list, names and values."""
+        def escape_html(s):
+            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+        for var in sorted(self.vars):
+            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, self.escape_html(self.vars[var].text), indent))
+
+
+class VariableV2Dict(VariableDict):
     """Class to abstract a dictionary of images"""
     _var_prefix = 'varv2.'
     _idstr = ["_id", "__", "_"]
@@ -756,7 +801,7 @@ class VariableV2Dict(VariableStore):
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 
-class ImageDict(VariableStore):
+class ImageDict(VariableDict):
     """Class to abstract a dictionary of images"""
     _var_prefix = 'image.'
     _idstr = "_id"

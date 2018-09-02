@@ -10,13 +10,14 @@ class DummyNamespaces(object):
     def exists(self, s):
         return False
 
+
 class Markdown(object):
     _max_nesting_level = 25     # arbitrary
     def __init__(self):
         self._current_nesting_level = 0
         # Dictionary of each markdown type that we process on each line
         self._regex_markdown = {
-            'vars': RegexMD(r'(\[(\w[^[\]\)]+)([\(](.+)[\)])?\](?!(\=(.+))))', None),
+            'vars': RegexMD(r'(\[(\w[^[\]\)]*)([\(](.+)[\)])?\](?!(\=(.+))))', None),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
@@ -24,6 +25,7 @@ class Markdown(object):
         }
         self._special_parameter = Regex(r'([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
         self._namespaces = DummyNamespaces()
+        self._stripClass = self.DummyStripClass
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1
@@ -44,11 +46,14 @@ class Markdown(object):
                 return value
             last_value = value
 
-    def _stripClass(self, s):
-        return None, s
-
     def setNSxface(self,ns):
         self._namespaces = ns
+
+    def DummyStripClass(self, s):
+            return None, s
+
+    def setStripClass(self,stripClass):
+        self._stripClass = stripClass
 
     def markdown(self, s):
         """

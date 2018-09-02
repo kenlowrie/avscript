@@ -177,26 +177,50 @@ class VariableStore(object):
 class Namespace(VariableStore):
     def __init__(self, markdown, namespace_name):
         super(Namespace, self).__init__(markdown)  # Initialize the base class(es)
-        self.namespace = '{}.'.format(namespace_name)
+        self._namespace = '{}.'.format(namespace_name)
+
+    @property
+    def namespace(self):
+        return self._namespace
 
 
 class BasicNamespace(Namespace):
     def __init__(self, markdown, namespace_name):
         super(BasicNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+        #print("BASIC: My NS is: {}".format(self.namespace))
         from .regex import Regex
         self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
 
     def addVariable(self, value, name):
         """Add a variable called 'name' to the list and set its value to 'value'."""
-        if type(value) is str:
-            # If they used the delayed expansion syntax, remove it before storing value
-            from re import findall
-            matches = findall(self.delayedExpansion.regex, value)
-            for m in matches:
-                # for each delayed expansion variable, strip the {{}} from the name
-                value = value.replace(m[0],'[{}]'.format(m[1]))
+        if type(value) is not str:
+            raise TypeError("BasicNamespace only supports string data type")
+
+        # If they used the delayed expansion syntax, remove it before storing value
+        from re import findall
+        matches = findall(self.delayedExpansion.regex, value)
+        for m in matches:
+            # for each delayed expansion variable, strip the {{}} from the name
+            value = value.replace(m[0],'[{}]'.format(m[1]))
 
         super(BasicNamespace, self).addVariable(value, name)
+
+    """
+    """
+    def _stripNamespace(self, id):
+        if id.startswith(self.namespace):
+            return id[len(self.namespace):]
+
+        return id
+
+    def exists(self, name):
+        #print("basic: {}".format(name))
+        #if name == 'class':
+        #    raise NameError("WTF, How did I get here?")
+        return super(BasicNamespace, self).exists(self._stripNamespace(name))
+
+    def getValue(self, name):
+        return super(BasicNamespace, self).getValue(self._stripNamespace(name))
 
 
 class AdvancedNamespace(Namespace):
@@ -256,8 +280,8 @@ class AdvancedNamespace(Namespace):
         return True if attr in AdvancedNamespace._variable_name_str + VariableStore._special_attributes else False
 
     def _parseVariable(self, id, do_not_test_attr=False):
-        if id.startswith(self.namespace):
-            id = id[len(self.namespace):]
+        #if id.startswith(self.namespace):
+        #    id = id[len(self.namespace):]
 
         compoundVar = id.split('.', 1)     # split at '.' if present, might be looking to get dict element
         if len(compoundVar) == 2:
@@ -291,19 +315,25 @@ class AdvancedNamespace(Namespace):
                 # should this be marked down? Probably.
                 return self._markdown(self.getSpecialAttr(el0, id0))
 
+            # TODO: When test code in place, I need to remove this and see what happens.
+            #       Feels a bit like a side affect...
             # First, apply standard markdown in case _format has regular variables in it.
             fmt_str = self._markdown(self.vars[id0].rval[el0]).replace('{{','[').replace('}}',']')
             # And now, markdown again, to expand the self. namespace variables
+            #print("SETTING SELF to: {}{}".format(self.namespace,id0))
+            #if self.namespace == 'image.' and id0 == 'v0':
+                #raise NameError("WTF")
             return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
 
         if self.exists(id0):
             # if the special _format element exists, return it with markdown applied
             fmt = AdvancedNamespace._default_format_attr
             if fmt in self.vars[id0].rval:
+                #print("RETURNING _format()")
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = self._markdown(self.vars[id0].rval[fmt]).replace('{{','[').replace('}}',']')
                 # And now, markdown again, to expand the self. namespace variables
-                return self._markdown(fmt_str.replace('self.','{}.'.format(id)))
+                return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
 
             compoundVar = ''
             for item in sorted(self.vars[id0].rval):
@@ -324,10 +354,18 @@ class AdvancedNamespace(Namespace):
                 dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
+class VarNamespace(AdvancedNamespace):
+    def __init__(self, markdown, namespace_name):
+        super(VarNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+
+        #print("VAR: My NS is: {}".format(self.namespace))
+
+
 
 class ImageNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name):
         super(ImageNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+        #print("IMAGE: My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
         var_name = super(ImageNamespace, self).addVariable(dict)
@@ -343,6 +381,7 @@ class HtmlNamespace(AdvancedNamespace):
 
     def __init__(self, markdown, namespace_name):
         super(HtmlNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+        #print("HTML: My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
         var_name = super(HtmlNamespace, self).addVariable(dict)
@@ -385,6 +424,7 @@ class LinkNamespace(HtmlNamespace):
     def __init__(self, markdown, namespace_name):
         super(LinkNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
+        #print("LINK: My NS is: {}".format(self.namespace))
 
 class CodeNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name):
@@ -396,6 +436,8 @@ class CodeNamespace(AdvancedNamespace):
         if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
             super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
 
+        #print("CODE: My NS is: {}".format(self.namespace))
+
 
 class Namespaces(object):
     _default = 'basic'
@@ -406,15 +448,19 @@ class Namespaces(object):
     _code = 'code'
     _search_order = [_default, _var, _image, _link, _html, _code]
 
-    def __init__(self, markdown):
+    def __init__(self, markdown, setNSxface):
         self._namespaces = {
             Namespaces._default: BasicNamespace(markdown, Namespaces._default),
             Namespaces._html: HtmlNamespace(markdown, Namespaces._html),
-            Namespaces._var: AdvancedNamespace(markdown, Namespaces._var),
+            Namespaces._var: VarNamespace(markdown, Namespaces._var),
             Namespaces._image: ImageNamespace(markdown, Namespaces._image),
             Namespaces._link: LinkNamespace(markdown, Namespaces._link),
             Namespaces._code: CodeNamespace(markdown, Namespaces._code),
         }
+        for ns in self._namespaces:
+            print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
+
+        setNSxface(self)
 
     def addVariable(self, value, name=None, ns=None):
         if ns is None:
@@ -472,6 +518,7 @@ class Namespaces(object):
         return False
 
     def getValue(self, variable_name, jit_attrs=None):
+        #print("INSIDE GV: {}".format(variable_name))
 
         def addJITattrs(jit_attrs, ns, var):
             if jit_attrs is not None:   # and self._namespaces[ns].exists(variable_name):
@@ -485,15 +532,20 @@ class Namespaces(object):
         #print('ns,name={},{}'.format(ns,name))
         if ns is not None:
             if ns in Namespaces._search_order:
-                # TODO: add jit_attrs right here
+                # TODO: add jit_attrs right here (like below)?
                 addJITattrs(jit_attrs, ns, name)
 
+                #print("FALLING THRU")
                 # TODO: Shouldn't we check to see that it's there?
-                return self._namespaces[ns].getValue(variable_name)
+                return self._namespaces[ns].getValue(name)
 
+        #print("NO NAMESPACE OR UNKNOWN NAMESPACE")
+        # Since the NS wasn't valid, we need to fall back to the full name again
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):
                 # TODO: add jit_attrs right here
+                # except right here, we need just the root part of the name
+                # TODO: this is confusing, and will lead to errors. REFACTOR.
                 addJITattrs(jit_attrs, ns, name)
                 return self._namespaces[ns].getValue(variable_name)
 
@@ -520,7 +572,14 @@ class Namespaces(object):
         for ns in Namespaces._search_order:
             print("{1}\nNAMESPACE: {0}\n{1}".format(ns,'-'*40))
             self._namespaces[ns].dumpVarsAsStrings()
-    
+
+
+
+# =================================================================================================
+
+
+
+
 
 class VariableV2Dict(VariableStore):
     """Class to abstract a dictionary of images"""

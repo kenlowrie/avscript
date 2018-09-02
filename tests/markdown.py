@@ -48,6 +48,10 @@ class RegexMD(Regex):
         self.new_str = new_repl_str
 
 
+class DummyNamespaces(object):
+    def exists(self, s):
+        return False
+
 class Markdown(object):
     _max_nesting_level = 25     # arbitrary
     def __init__(self):
@@ -64,6 +68,7 @@ class Markdown(object):
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
             'del': RegexMD(r'(\~{2}(.+?)\~{2})', '<del>{0}</del>')
         }
+        self._namespaces = DummyNamespaces()
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1
@@ -79,7 +84,7 @@ class Markdown(object):
         last_value = value
         # keep processing until no more expansion happens
         while(1):
-            value = self._markdown(value)
+            value = self.markdown(value)
             if value == last_value:
                 return value
             last_value = value
@@ -87,7 +92,10 @@ class Markdown(object):
     def _stripClass(self, s):
         return None, s
 
-    def _markdown(self, s):
+    def setNSxface(self,ns):
+        self._namespaces = ns
+
+    def markdown(self, s):
         """
         Apply markdown to the passed string.
 
@@ -179,6 +187,4 @@ class Markdown(object):
 
 
 if __name__ == '__main__':
-    x = Markdown()
-    #x._namespaces = ns
-    print(x._markdown('++***this is a test***++'))
+    print(Markdown().markdown('++***this is a test***++'))

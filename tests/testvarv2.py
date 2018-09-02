@@ -19,9 +19,7 @@ def assertNotEqual(a, b):
     assert a != b
 
 md = Markdown()
-
 ns = Namespaces(md.markdown, md.setNSxface)
-#exit(0)
 
 def msg(msg):
     print(msg)
@@ -63,11 +61,14 @@ def gvTestMD(varname, value):
     mdExpr(varname)
     mdAE(value, varname)
 
-msg('adding to default name space')
+msg('Adding to default name space')
+sep(28)
 ns.addVariable('value', name='varname')
 
 gvTest('varname', 'value')
 gvTest('basic.varname', 'value')
+
+gvTestMD('[basic.varname(foo="bar")]', 'value')
 
 ns.addVariable('[{{value}}]', name='v1v')
 ns.addVariable('[{{varname}}]', name='v1n')
@@ -126,7 +127,8 @@ gvTest('var.v0', ' name="var dict 1"<br />\n')
 gvTest('html.v0', '<[html.v0._tag] name="html dict 1"></[html.v0._tag]>')
 gvTest('image.v0', '<image name="image dict 1"/>')
 gvTest('link.v0', '<a name="link dict 1"></a>')
-gvTest('code.v0', '<[code.v0._tag] name="code dict 1"/>')
+gvExpr('code.v0')
+gvTest('code.v0', ' name="code dict 1"<br />\n')
 
 ns.setAttribute('html.v0', 'class', 'class42')
 gvTest('html.v0.class', 'class42')
@@ -346,8 +348,58 @@ gvTestMD('*[link.link25._text4]*', '<em><a href="https://google.com"><img src="g
 gvTestMD('*[link.link25._text5]*', '<em><a href="https://google.com"><img src="google.png" alt="Google image"/></a></em>')
 gvTestMD('***[link.link25._wow]***', '<em><strong><a href="https://google.com"><img src="google.png" alt="Google image"/></a></strong></em>')
 
+gvTestMD('[link.link25._text4(_text4="{{self.<}}My Image{{image.img25}}{{self.>}}" b="bar")]', '<a href="https://google.com" b="bar">My Image<img src="google.png" alt="Google image"/></a>')
+
+
+
 ns.dump()
 
+
+ref0 = {
+       '_id':"ref0",
+       'type':"exec", 
+       'src':'from time import strftime',
+       '_format':'{{self.exec||self.eval||self.last}}',
+       'fmtstr':'%Y%m%d - ()'
+}
+
+msg('Adding ref0...')
+ns.addVariable(ref0, ns="code")
+
+msg('Referencing [code.ref0.last]')
+mdExpr('[code.ref0.last]')
+
+from time import strftime
+ref1 = {
+       '_id':"ref1",
+       'type':"eval", 
+       'src':'print("hello, world")',
+       '_format':'{{self.exec||self.eval||self.last}}',
+       'fmtstr':'%Y%m%d - ()'
+}
+sep()
+
+msg('Adding ref1...')
+ns.addVariable(ref1, ns="code")
+
+msg('Referencing [code.ref1.last]')
+mdExpr('[code.ref1.last]')
+
+sep()
+
+ref5 = {
+       '_id':"ref5",
+       'type':"exec", 
+       'src':'from time import strftime\nprint(strftime("{{self.fmtstr}}"))',
+       '_format':'{{self.last}}',
+       'fmtstr':'%Y%m%d - ()'
+}
+
+msg('Adding ref5...')
+ns.addVariable(ref5, ns="code")
+
+msg('Referencing [code.ref5.last]')
+mdExpr('[code.ref5.last]')
 
 
 if __name__ == '__main__':

@@ -430,12 +430,67 @@ class CodeNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name):
         super(CodeNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
 
+    def executePython(self, dict):
+        import sys
+        from io import StringIO
+        import contextlib
+
+        @contextlib.contextmanager
+        def stdoutIO(so=None):
+            old = sys.stdout
+            if so is None:
+                so = StringIO()
+            sys.stdout = so
+            yield so
+            sys.stdout = old
+
+        with stdoutIO() as s:
+            exec(dict['_code']) if dict['type'] == 'exec' else eval(dict['_code'])
+
+        #print('>>>>>>>>>>>{}{}'.format(type(s.getvalue()),s.getvalue()))
+        return s.getvalue()
+
     def addVariable(self, dict, name=None):
         var_name = super(CodeNamespace, self).addVariable(dict)
 
-        if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
-            super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
+        #if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
+        #    super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
+        """
+        Compiles src and stores in _code attribute.
+        ref._code = compile(ref.src,’<string>’, ref.type)
 
+        [code.ref] 
+            if ref.type == ‘exec’
+                # capture stdout, and return that value formatted as _format
+                exec(_code)
+                ref.last = stdout
+                return ref.last
+            elif ref.type == ‘eval’
+                ref.last = eval(_code)
+                return ref.last
+
+        [code.ref.last] - returns the result of the last call
+        [code.ref.exec] - returns exec(_code)
+        [code.ref.eval] - returns eval(_code)
+        """
+        dict = super(CodeNamespace, self).getRVal(var_name)
+        if 'src' not in dict or 'type' not in dict:
+            print('CODE namespace requires src= and type= attributes')
+            return
+
+        if dict['type'] not in ['exec', 'eval']:
+            print('CODE namespace type= must be either "exec" or "eval"')
+            return
+
+        # Need to expand any variables inside src...
+        src = super(CodeNamespace, self).getValue('{}.src'.format(var_name))
+        dict['_code'] = compile(src, '<string>', dict['type'])
+        #dict['last'] = eval(dict['_code']) if dict['type'] == 'eval' else self.executePython(dict)
+        dict['last'] = self.executePython(dict)
+        
+        #print("<<<<<<<<<<<<{}{}".format(type(dict['last']), dict['last']))
+
+        #type = 
         #print("CODE: My NS is: {}".format(self.namespace))
 
 
@@ -521,6 +576,10 @@ class Namespaces(object):
         #print("INSIDE GV: {}".format(variable_name))
 
         def addJITattrs(jit_attrs, ns, var):
+            if ns == Namespaces._default:
+                # TODO: Should I print a message or something?
+                return  # For now, just return. Basic namespace doesn't support attrs...
+
             if jit_attrs is not None:   # and self._namespaces[ns].exists(variable_name):
                 #print('inside addJITattrs({})'.format(var))
                 jit_attrs['_'] = self._namespaces[ns].getVarID(var)

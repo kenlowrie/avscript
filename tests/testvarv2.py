@@ -88,7 +88,7 @@ md5=mydict.copy()
 md1['name']='var dict 1'
 md2['name']='html dict 1'
 md3['name']='image dict 1'
-md3['_tag']='image'
+md3['_tag']='img'
 md4['name']='link dict 1'
 md4['_tag']='a'
 md5['name']='code dict 1'
@@ -125,7 +125,7 @@ for item in all_d_ns:
 gvTest('v0', ' name="var dict 1"<br />\n')
 gvTest('var.v0', ' name="var dict 1"<br />\n')
 gvTest('html.v0', '<[html.v0._tag] name="html dict 1"></[html.v0._tag]>')
-gvTest('image.v0', '<image name="image dict 1"/>')
+gvTest('image.v0', '<img name="image dict 1"/>')
 gvTest('link.v0', '<a name="link dict 1"></a>')
 gvExpr('code.v0')
 gvTest('code.v0', ' name="code dict 1"<br />\n')

@@ -146,6 +146,10 @@ class VariableStore(object):
         raise
 
     def escape_html(self, s):
+        if type(s) != type(''):
+            # If we weren't passed a string, convert it to a string before we escape it.
+            s = str(s)
+
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     def unescapeString(self,s):
@@ -351,7 +355,7 @@ class AdvancedNamespace(Namespace):
         for var in sorted(self.vars):
             dict_str = '<br />'
             for d_item in self.vars[var].rval:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].rval[d_item]))
+                dict_str += '&nbsp;&nbsp;<strong>{}=</strong>{}<br />\n'.format(d_item, self.escape_html(self.vars[var].rval[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(var, dict_str, indent))
 
 class VarNamespace(AdvancedNamespace):
@@ -437,6 +441,8 @@ class LinkNamespace(HtmlNamespace):
             super(LinkNamespace, self).addAttribute(var_name,'_tag','a')
 
 class CodeNamespace(AdvancedNamespace):
+    _run = 'run'
+    _element_partials = [_run]
     def __init__(self, markdown, namespace_name, oprint):
         super(CodeNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
@@ -466,20 +472,6 @@ class CodeNamespace(AdvancedNamespace):
         #if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
         #    super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
         """
-        Compiles src and stores in _code attribute.
-        ref._code = compile(ref.src,’<string>’, ref.type)
-
-        [code.ref] 
-            if ref.type == ‘exec’
-                # capture stdout, and return that value formatted as _format
-                exec(_code)
-                ref.last = stdout
-                return ref.last
-            elif ref.type == ‘eval’
-                ref.last = eval(_code)
-                return ref.last
-
-        [code.ref.last] - returns the result of the last call
         [code.ref.exec] - returns exec(_code)
         [code.ref.eval] - returns eval(_code)
         """
@@ -502,6 +494,40 @@ class CodeNamespace(AdvancedNamespace):
 
         #type = 
         #print("CODE: My NS is: {}".format(self.namespace))
+
+    # When you have special attributes for your class, you have to define your own
+    # _isSpecial, so you can check yours before passing it along to the sub classes.
+    def _isSpecial(self, attr):
+        if attr in CodeNamespace._element_partials:
+            return True
+
+        return super(CodeNamespace, self)._isSpecial(attr)
+
+    def exists(self, id):
+        id0, el0 = self._parseVariable(id)
+        #print(">>>{}-{}-{}<br />".format(id, id0, el0))
+        if el0 is not None:
+            if el0 in CodeNamespace._element_partials:
+                return True
+
+        return super(CodeNamespace, self).exists(id)
+
+    def getValue(self, id):
+        id0, el0 = self._parseVariable(id)
+        #print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
+        if el0 is not None:
+            if el0 in CodeNamespace._element_partials:
+
+                dict = super(CodeNamespace, self).getRVal(id0)
+                #print(">>>>>{}--{}--{}<br />".format(id, id0, el0))
+                # Need to expand any variables inside src...
+                src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
+                dict['_code'] = compile(src, '<string>', dict['type'])
+                dict['last'] = self.executePython(dict)
+
+                return dict['last']
+
+        return super(CodeNamespace, self).getValue(id)
 
 
 class Namespaces(object):

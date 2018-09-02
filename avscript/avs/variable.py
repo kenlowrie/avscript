@@ -67,7 +67,7 @@ class VariableStore(object):
     _special_attributes = [Variable.public, Variable.private, Variable.all]
 
     """Class to abstract a dictionary of variables"""
-    def __init__(self, markdown, oprint=print):
+    def __init__(self, markdown, oprint):
         self.vars = {}
         self._md_ptr = markdown
         self.oprint = oprint
@@ -175,8 +175,8 @@ class VariableStore(object):
 
 
 class Namespace(VariableStore):
-    def __init__(self, markdown, namespace_name):
-        super(Namespace, self).__init__(markdown)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(Namespace, self).__init__(markdown, oprint)  # Initialize the base class(es)
         self._namespace = '{}.'.format(namespace_name)
 
     @property
@@ -185,8 +185,8 @@ class Namespace(VariableStore):
 
 
 class BasicNamespace(Namespace):
-    def __init__(self, markdown, namespace_name):
-        super(BasicNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(BasicNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         #print("BASIC: My NS is: {}".format(self.namespace))
         from .regex import Regex
         self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
@@ -228,8 +228,8 @@ class AdvancedNamespace(Namespace):
     _default_format_attr = '_format'
     _inherit_attr = '_inherit'
 
-    def __init__(self, markdown, namespace_name):
-        super(AdvancedNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(AdvancedNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
     def _missingID(self, dict, which="ADD"):
         self.oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, AdvancedNamespace._variable_name_str, dict))
@@ -350,21 +350,21 @@ class AdvancedNamespace(Namespace):
         """Dumps the image variable list, names and values."""
         for var in sorted(self.vars):
             dict_str = '<br />'
-            for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
+            for d_item in self.vars[var].rval:
+                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].rval[d_item]))
+            output("{2}<strong>{0}=</strong>{1}<br />".format(var, dict_str, indent))
 
 class VarNamespace(AdvancedNamespace):
-    def __init__(self, markdown, namespace_name):
-        super(VarNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(VarNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
         #print("VAR: My NS is: {}".format(self.namespace))
 
 
 
 class ImageNamespace(AdvancedNamespace):
-    def __init__(self, markdown, namespace_name):
-        super(ImageNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(ImageNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         #print("IMAGE: My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
@@ -379,8 +379,8 @@ class HtmlNamespace(AdvancedNamespace):
     _end = '>'
     _element_partials = [_start, _end]
 
-    def __init__(self, markdown, namespace_name):
-        super(HtmlNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(HtmlNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         #print("HTML: My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
@@ -421,14 +421,14 @@ class HtmlNamespace(AdvancedNamespace):
 
 
 class LinkNamespace(HtmlNamespace):
-    def __init__(self, markdown, namespace_name):
-        super(LinkNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
         #print("LINK: My NS is: {}".format(self.namespace))
 
 class CodeNamespace(AdvancedNamespace):
-    def __init__(self, markdown, namespace_name):
-        super(CodeNamespace, self).__init__(markdown, namespace_name)  # Initialize the base class(es)
+    def __init__(self, markdown, namespace_name, oprint):
+        super(CodeNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
     def executePython(self, dict):
         import sys
@@ -503,17 +503,17 @@ class Namespaces(object):
     _code = 'code'
     _search_order = [_default, _var, _image, _link, _html, _code]
 
-    def __init__(self, markdown, setNSxface):
+    def __init__(self, markdown, setNSxface, oprint=print):
         self._namespaces = {
-            Namespaces._default: BasicNamespace(markdown, Namespaces._default),
-            Namespaces._html: HtmlNamespace(markdown, Namespaces._html),
-            Namespaces._var: VarNamespace(markdown, Namespaces._var),
-            Namespaces._image: ImageNamespace(markdown, Namespaces._image),
-            Namespaces._link: LinkNamespace(markdown, Namespaces._link),
-            Namespaces._code: CodeNamespace(markdown, Namespaces._code),
+            Namespaces._default: BasicNamespace(markdown, Namespaces._default, oprint),
+            Namespaces._html: HtmlNamespace(markdown, Namespaces._html, oprint),
+            Namespaces._var: VarNamespace(markdown, Namespaces._var, oprint),
+            Namespaces._image: ImageNamespace(markdown, Namespaces._image, oprint),
+            Namespaces._link: LinkNamespace(markdown, Namespaces._link, oprint),
+            Namespaces._code: CodeNamespace(markdown, Namespaces._code, oprint),
         }
-        for ns in self._namespaces:
-            print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
+        #for ns in self._namespaces:
+        #    print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
 
         setNSxface(self)
 
@@ -631,6 +631,11 @@ class Namespaces(object):
         for ns in Namespaces._search_order:
             print("{1}\nNAMESPACE: {0}\n{1}".format(ns,'-'*40))
             self._namespaces[ns].dumpVarsAsStrings()
+
+    def dumpVars(self):
+        for ns in Namespaces._search_order:
+            print("{1}\nNAMESPACE: {0}\n{1}<br />".format(ns,'-'*40))
+            self._namespaces[ns].dumpVars()
 
 
 

@@ -68,7 +68,9 @@ from .avs.link import LinkDict
 from .avs.regex import Regex, RegexMD, RegexMain
 from .avs.stdio import StdioWrapper
 from .avs.variable import VariableDict, VariableV2Dict, ImageDict
+from .avs.variable import Namespaces
 from .avs.bookmark import BookmarkList
+from .avs.markdown import Markdown
 from .avs.htmlformat import HTMLFormatter
 from .avs.exception import RegexError, LogicError, FileError
 
@@ -96,6 +98,11 @@ class AVScriptParser(StdioWrapper):
         self._variables = VariableDict()    # dict of document variables
         self._images = ImageDict()          # dict of image dictionaries
         self._varV2 = VariableV2Dict()      # dict of varv2 dictionaries
+        
+        self._md = Markdown()               # New markdown support in separate class
+        self._ns = Namespaces(self._md.markdown, self._md.setNSxface, oprint=self.oprint)
+        #TODO: Clean this up. _stripClass needs to be handled better than this...
+        self._md.setStripClass(self._stripClass)
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
         self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
@@ -112,6 +119,9 @@ class AVScriptParser(StdioWrapper):
             'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
             'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
+            'code': RegexMain(True, True, False, r'^(@code(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
+            'link': RegexMain(True, True, False, r'^(@link(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
+            'html': RegexMain(True, True, False, r'^(@html(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
@@ -124,7 +134,7 @@ class AVScriptParser(StdioWrapper):
         }
 
         # Dictionary of each markdown type that we process on each line
-        self._regex_markdown = {
+        self.____regex_markdown = {
             'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
             'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
             'links_and_vars': RegexMD(r'(\[([^[\]]+)\](?!(:(.+))|(\=(.+))))', None),
@@ -338,7 +348,8 @@ class AVScriptParser(StdioWrapper):
         self._line.css_prefix, stripped_line = self._stripClass(line.strip())
 
         # process any markdown
-        self._line.current_line = self._markdown(stripped_line)
+        #self._line.current_line = self._markdown(stripped_line)
+        self._line.current_line = self._md.markdown(stripped_line)
         
         # here's a hack! - Causes tests to fail, but didn't look if it's an issue
         # or a side affect of how the test script was using the tags...
@@ -592,7 +603,7 @@ class AVScriptParser(StdioWrapper):
         def handle_raw(m, lineObj):
             """Handle a raw line"""
             if(m is not None):
-                self.oprint(self._html.formatLine(self._markdown(m.group(2))))
+                self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
 
@@ -631,6 +642,7 @@ class AVScriptParser(StdioWrapper):
             self._varV2.dumpVars(self._html.getIndent(), self.oprint)
             self.oprint(self._html.formatLine("</code>", -1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
+            self._ns.dumpVars()
 
         def handle_dumplinks(m, lineObj):
             """Handle the dumplinks parse line"""
@@ -647,7 +659,7 @@ class AVScriptParser(StdioWrapper):
             optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
 
             if(m is not None and len(m.groups()) == 4):
-                self._links.addLink(m.group(1), self._markdown(m.group(2)), optTitle)
+                self._links.addLink(m.group(1), self._md.markdown(m.group(2)), optTitle)
                 # self.oprint("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
             else:
                 self.oprint(lineObj.original_line)
@@ -655,7 +667,9 @@ class AVScriptParser(StdioWrapper):
         def handle_alias(m, lineObj):
             """Handle the alias parse line type"""
             if(m is not None and len(m.groups()) == 3):
-                self._variables.addVar(m.group(1), self._markdown(m.group(3)))
+                #self._variables.addVar(m.group(1), self._markdown(m.group(3)))
+                #TODO: Should m.group(3) be self._md.markdown(m.group(3))?
+                self._ns.addVariable(self._md.markdown(m.group(3)), name=m.group(1), ns="basic")
             else:
                 self.oprint(lineObj.original_line)
 
@@ -672,7 +686,7 @@ class AVScriptParser(StdioWrapper):
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
-                fmt = lambda x: "{0}".format(self._markdown(d.get(x))) if d.get(x) else ""
+                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
                 divstr = self._html.formatLine("<div class=\"cover\">\n", 1)
                 divstr += self._html.formatLine("<h3>{}</h3>\n".format(fmt("title")))
@@ -689,7 +703,7 @@ class AVScriptParser(StdioWrapper):
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
-                fmt = lambda x: "{0}".format(self._markdown(d.get(x))) if d.get(x) else ""
+                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
                 ts_key = "timestamp"
 
@@ -712,7 +726,7 @@ class AVScriptParser(StdioWrapper):
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
-                fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                fmt = lambda x: "{0}<br />".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
                 divstr = self._html.formatLine("<div class=\"contact\">\n", 1)
                 divstr += self._html.formatLine("<table>\n", 1)
@@ -733,7 +747,8 @@ class AVScriptParser(StdioWrapper):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._varV2.addVarV2(d, self.oprint)
+                #self._varV2.addVarV2(d.copy(), self.oprint)
+                self._ns.addVariable(d, ns="var")
 
             else:
                 self.oprint(lineObj.original_line)
@@ -744,7 +759,9 @@ class AVScriptParser(StdioWrapper):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._varV2.updateVarV2(d, self.oprint)
+                #self._varV2.updateVarV2(d.copy(), self.oprint)
+                #TODO: This needs to have an option for "finding namespace"
+                self._ns.updateVariable(d, ns="var")
 
             else:
                 self.oprint(lineObj.original_line)
@@ -755,7 +772,42 @@ class AVScriptParser(StdioWrapper):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
-                self._images.addImage(d, self.oprint)
+                #self._images.addImage(d.copy(), self.oprint)
+                self._ns.addVariable(d, ns="image")
+
+            else:
+                self.oprint(lineObj.original_line)
+
+        def handle_link(m, lineObj):
+            """Handle the @link parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                self._ns.addVariable(d, ns="link")
+
+            else:
+                self.oprint(lineObj.original_line)
+
+        def handle_html(m, lineObj):
+            """Handle the @html parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                self._ns.addVariable(d, ns="html")
+
+            else:
+                self.oprint(lineObj.original_line)
+
+        def handle_code(m, lineObj):
+            """Handle the @code parse line type."""
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
+                # TODO: What about self.oprint()? Doesn't that need to be passed to NS?
+                self._ns.addVariable(d, ns="code")
 
             else:
                 self.oprint(lineObj.original_line)
@@ -773,6 +825,9 @@ class AVScriptParser(StdioWrapper):
             ('image', handle_image),
             ('var', handle_varv2),
             ('set', handle_setv2),
+            ('code', handle_code),
+            ('link', handle_link),
+            ('html', handle_html),
             ('break', handle_break),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),
@@ -785,7 +840,7 @@ class AVScriptParser(StdioWrapper):
             ('revision', handle_revision),
             ('contact', handle_contact),
         ]
-
+        
         try:
             # Print the outer DIV header
             self.oprint(self._html.formatLine("<div class=\"wrapper\">", 1))

@@ -61,13 +61,14 @@ class Markdown(object):
             #'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
             #'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
             #'links_and_vars': RegexMD(r'(\[([^[\]]+)\](?!(:(.+))|(\=(.+))))', None),
-            'vars': RegexMD(r'(\[(\w[^[\]]+)\](?!(\=(.+))))', None),
+            'vars': RegexMD(r'(\[(\w[^[\]\)]+)([\(](.+)[\)])?\](?!(\=(.+))))', None),
             #'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', IGNORECASE),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
             'del': RegexMD(r'(\~{2}(.+?)\~{2})', '<del>{0}</del>')
         }
+        self._special_parameter = Regex(r'([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
         self._namespaces = DummyNamespaces()
 
     def _inc_nesting_level(self):
@@ -139,10 +140,16 @@ class Markdown(object):
 
             See docstring in code for argument information.
             """
+            def makeJitAttrs(params):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(params)}
+                #print("{}".format(d))
+                return d
+
             #print("CALLED WITH:****{}----{}----{}****".format(m[0],m[1],s))
+            jit_attrs = None if not m[3] else makeJitAttrs(m[3])
             if self._namespaces.exists(m[1]):
                 # Substitute the variable name with the value
-                c, v = self._stripClass(self._namespaces.getValue(m[1]))
+                c, v = self._stripClass(self._namespaces.getValue(m[1], jit_attrs))
                 v = self._md_value(v)
                 if(not c):
                     s = s.replace(m[0], v)

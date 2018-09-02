@@ -6,166 +6,258 @@ from os.path import dirname, abspath, realpath, split, join
 bin_path, whocares = split(dirname(realpath('__file__')))
 lib_path = join(abspath(bin_path),'avscript')
 path.insert(0, lib_path)
+from sys import exit
 
 from avs.variable import *
 
 from markdown import Markdown
 
-"""
-[foo]=bar
-[foo.a]=1
-[foo.b]=2
-[foo.c.1]=x
-[foo.c.2]=y
-[foo.c] would print what?
+def assertEqual(a, b):
+    assert a == b
 
-[img] prints _format text
-[img.x] prints image.x
-@image addVar(ns='image', dict)
-@html addVar(ns='html', dict)
-addVar(name, value)
-
-"""
-
-mydict = {'_': 'v0', 'class': 'section0'}
-md1=mydict.copy()
-md2=mydict.copy()
-md3=mydict.copy()
-md1['class']='section1'
-md2['class']='section2'
-md3['class']='section3'
-
-if 0:
-
-    vs = VariableStore()
-    vs.addVariable('foo', 'bar')
-    vs.addVariable('dict', mydict)
-    vs.addAttribute('foo', 'attr1', 'value1')
-    vs.dup('foo', 'nu')
-    vs.dumpVarsAsStrings()
-    vs.setRVal('foo', 'new-rval')
-    vs.setAttribute('foo', 'attr1', 'value1a')
-    vs.addAttribute('nu', 'attr2', 'value2')
-
-    print('single:{}'.format(vs.getValue('foo')))
-    print('dict:{}'.format(vs.getValue('dict')))
-
-    vs.dumpVarsAsStrings()
-
-    print(vs.getPublicAttrs('foo'))
-    print(vs.getPublicAttrs('nu'))
-    print(vs.getPrivateAttrs('nu'))
-    print(vs.getAllAttrs('nu'))
-
-def markdown(s):
-    #print('markdown:{}'.format(s))
-    if s[0] == '[' and s[-1] == ']':
-        #print("ns.getValue(s[1:-1])={}".format(s[1:-1]))
-        return ns.getValue(s[1:-1])
-
-    #print('NOT A VAR')
-
-    return s
+def assertNotEqual(a, b):
+    assert a != b
 
 md = Markdown()
 
-ns = Namespaces(md._markdown)
-md._namespaces = ns
+ns = Namespaces(md.markdown, md.setNSxface)
+#exit(0)
 
-def _getValue(msg, expr=None):
-    if msg is not None:
-        msg = 'getting {}'.format(msg) if expr is not None else msg
-    else:
-        msg = 'getting {}'.format(expr)
+def msg(msg):
+    print(msg)
 
-    left = msg if msg is not None else expr if expr is not None else ''
-    right = '={}'.format(ns.getValue(expr)) if expr is not None else ''
-    print('{}{}'.format(left, right))
-
-ns.addVariable('value', name='varname')
-_getValue('simple variable varname', 'varname')
-
-ns.addVariable('[{{value}}]', name='v1')
-_getValue('adding to default name space')
-
-ns.addVariable(mydict, name='v0')
-_getValue('adding to var name space')
-ns.addVariable(md1, ns='var')
-_getValue('adding to html name space')
-ns.addVariable(md2, ns='html')
-_getValue('adding to image name space')
-ns.addVariable(md3, ns='image')
-
-_getValue(None, 'v0.class')
-
-print("html.v0 exists ... {}".format(ns.exists('html.v0')))
-ns.setAttribute('html.v0', 'class', 'section42')
-
-_getValue(None,'html.v0.class')
-
-var0= {'_': 'var0', '_format': '{{self._public_attrs_}}', 'style': '{{self.other}}', 'other': 'yes!'}
-
-ns.addVariable(var0, ns="var")
 def sep(size=60):
     print('{}'.format('-'*size))
 
+def gvExpr(expr):
+    print('GV:{}={}'.format(expr, ns.getValue(expr)))
+
+def gvMsgExpr(msg, expr):
+    print('GV:{}={}'.format(msg, ns.getValue(expr)))
+
+def gvAE(a, b):
+    assertEqual(a, ns.getValue(b))
+    
+def mdExpr(expr):
+    print('MD:{}={}'.format(expr, md.markdown(expr)))
+
+def mdMsgExpr(msg, expr):
+    print('MD:{}={}'.format(msg, md.markdown(expr)))
+    
+def mdAE(a, b):
+    #print(">>>>>>>>>>>>>>>{}---{}".format(a,b))
+    assertEqual(a, md.markdown(b))
+    
+def gvTest(varname, value, mdValue=None):
+    gvExpr(varname)
+    gvAE(value, varname)
+    mdVarName = '[{}]'.format(varname)
+    mdExpr(mdVarName)
+    mdAE(value if mdValue is None else mdValue, mdVarName)
+
+def gvTestGV(varname, value, mdValue=None):
+    gvExpr(varname)
+    gvAE(value, varname)
+
+def gvTestMD(varname, value):
+    mdExpr(varname)
+    mdAE(value, varname)
+
+msg('adding to default name space')
+ns.addVariable('value', name='varname')
+
+gvTest('varname', 'value')
+gvTest('basic.varname', 'value')
+
+ns.addVariable('[{{value}}]', name='v1v')
+ns.addVariable('[{{varname}}]', name='v1n')
+gvTest('v1v', '[value]')
+
+gvTest('v1n', '[varname]', 'value')
+
 sep()
-_getValue(None,'var0')
-_getValue(None,'var.var0._public_attrs_')
-_getValue(None,'var0._private_attrs_')
-_getValue(None,'var0._all_attrs_')
-_getValue(None,'var0.style')
+msg("Adding variable by same name to each namespace")
 
+mydict = {'_': 'v0', 'name': 'INVALID dict 0 - should not be in basic. namespace'}
+md1=mydict.copy()
+md2=mydict.copy()
+md3=mydict.copy()
+md4=mydict.copy()
+md5=mydict.copy()
+md1['name']='var dict 1'
+md2['name']='html dict 1'
+md3['name']='image dict 1'
+md3['_tag']='image'
+md4['name']='link dict 1'
+md4['_tag']='a'
+md5['name']='code dict 1'
 
-var0= {'_': 'var0', '_format': '{{self._public_attrs_}}', 'style': '{{self.other}}', 'other': 'yes!'}
+try:
+    ns.addVariable(mydict, name='v0')
+except TypeError as te:
+    msg("ERROR: {}".format(te))
 
+msg('adding "v0.class" to basic name space')
+ns.addVariable("basic attr", name="v0.class")
 
-anc0 = {'_id': 'anc0', '_tag':'a', '_link':'<a href="#{{self.id}}">{{self._linktext}}</a>', '_linktext':'The bookmark text used for link', 'id':'the_bookmark_id'}
+msg('adding "v0" to var name space')
+ns.addVariable(md1, ns='var')
+msg('adding "v0" to html name space')
+ns.addVariable(md2, ns='html')
+msg('adding "v0" to image name space')
+ns.addVariable(md3, ns='image')
+msg('adding "v0" to link name space')
+ns.addVariable(md4, ns='link')
+msg('adding "v0" to code name space')
+ns.addVariable(md5, ns='code')
+
+gvTest('v0.class', 'basic attr')
+gvTest('basic.v0.class', 'basic attr')
+
+gvTest('v0.name', 'var dict 1')
+gvTest('html.v0.name', 'html dict 1')
+all_d_ns = ['var', 'html', 'image', 'link', 'code']
+for item in all_d_ns:
+    msg('Checking namespace {}'.format(item))
+    gvTest('{}.v0.name'.format(item), '{} dict 1'.format(item))
+
+gvTest('v0', ' name="var dict 1"<br />\n')
+gvTest('var.v0', ' name="var dict 1"<br />\n')
+gvTest('html.v0', '<[html.v0._tag] name="html dict 1"></[html.v0._tag]>')
+gvTest('image.v0', '<image name="image dict 1"/>')
+gvTest('link.v0', '<a name="link dict 1"></a>')
+gvTest('code.v0', '<[code.v0._tag] name="code dict 1"/>')
+
+ns.setAttribute('html.v0', 'class', 'class42')
+gvTest('html.v0.class', 'class42')
+
+sep()
+
+var0= {'_': 'var0', 
+       '_format': '{{self._public_attrs_}}', 
+       'style': '{{self.other}}', 
+       'other': 'yes!'}
+
+ns.addVariable(var0, ns="var")
+
+gvTest('var0', ' style="{{self.other}}" other="yes!"')
+gvTest('var0._public_attrs_', ' style="{{self.other}}" other="yes!"')
+gvTest('var0._private_attrs_', ' _format="{{self._public_attrs_}}"')
+gvTest('var0._all_attrs_', ' _format="{{self._public_attrs_}}" style="{{self.other}}" other="yes!"')
+gvTest('var0.style', 'yes!')
+gvTest('var0.other', 'yes!')
+
+gvTest('var.var0', ' style="{{self.other}}" other="yes!"')
+gvTest('var.var0._public_attrs_', ' style="{{self.other}}" other="yes!"')
+gvTest('var.var0._private_attrs_', ' _format="{{self._public_attrs_}}"')
+gvTest('var.var0._all_attrs_', ' _format="{{self._public_attrs_}}" style="{{self.other}}" other="yes!"')
+gvTest('var.var0.style', 'yes!')
+gvTest('var.var0.other', 'yes!')
+
+anc0 = {'_id': 'anc0', 
+        '_tag':'a', 
+        '_link':'<a href="#{{self.id}}">{{self._linktext}}</a>', 
+        '_linktext':'The bookmark text used for link', 
+        'id':'the_bookmark_id'}
 
 ns.addVariable(anc0, ns="html")
-_getValue(None,'html.anc0')
-_getValue(None,'html.anc0._link')
 
-anc1 = {'_id': 'anc1', '_format': '<a id="{{self.id}}"></a>', 'link':'<a href="#{{self.id}}">{{self.linktext}}</a>', 'linktext':'The bookmark text used for link', 'id':'the_bookmark_id'}
+gvTest('anc0', '<a id="the_bookmark_id"></a>')
+gvTest('anc0._tag', 'a')
+gvTest('anc0._link', '<a href="#the_bookmark_id">The bookmark text used for link</a>')
+gvTest('anc0._linktext', 'The bookmark text used for link')
+gvTest('anc0.id', 'the_bookmark_id')
+gvTest('html.anc0', '<a id="the_bookmark_id"></a>')
+gvTest('html.anc0._tag', 'a')
+gvTest('html.anc0._link', '<a href="#the_bookmark_id">The bookmark text used for link</a>')
+gvTest('html.anc0._linktext', 'The bookmark text used for link')
+gvTest('html.anc0.id', 'the_bookmark_id')
+
+anc1 = {'_id': 'anc1', 
+        '_format': '<a id="{{self.id}}"></a>', 
+        'link':'<a href="#{{self.id}}">{{self.linktext}}</a>', 
+        'linktext':'The bookmark text used for link', 
+        'id':'the_bookmark_id'}
 
 ns.addVariable(anc1, ns="html")
-_getValue(None,'html.anc1')
-_getValue(None,'html.anc1.link')
 
-_getValue(None,'anc1.linktext')
+gvTest('anc1', '<a id="the_bookmark_id"></a>')
+gvTest('anc1.link', '<a href="#the_bookmark_id">The bookmark text used for link</a>')
+gvTest('anc1.linktext', 'The bookmark text used for link')
+gvTest('anc1.id', 'the_bookmark_id')
+gvTest('html.anc1', '<a id="the_bookmark_id"></a>')
+gvTest('html.anc1.link', '<a href="#the_bookmark_id">The bookmark text used for link</a>')
+gvTest('html.anc1.linktext', 'The bookmark text used for link')
+gvTest('html.anc1.id', 'the_bookmark_id')
+
 ns.updateVariable({'_id': 'anc1', 'linktext': 'Change the link text'}, ns="html")
-_getValue(None,'anc1.linktext')
+gvTest('anc1', '<a id="the_bookmark_id"></a>')
+gvTest('anc1.link', '<a href="#the_bookmark_id">Change the link text</a>')
+gvTest('anc1.linktext', 'Change the link text')
+gvTest('anc1.id', 'the_bookmark_id')
+gvTest('html.anc1', '<a id="the_bookmark_id"></a>')
+gvTest('html.anc1.link', '<a href="#the_bookmark_id">Change the link text</a>')
+gvTest('html.anc1.linktext', 'Change the link text')
+gvTest('html.anc1.id', 'the_bookmark_id')
 
 sep(25)
-anc2 = {'_id': 'anc2', '_tag': 'a', 'id':'text id'}
+msg('Testing adding a new variable via the updateVariable method')
+anc2 = {'_id': 'anc2', 
+        '_tag': 'a', 
+        'id':'text id'}
 ns.updateVariable(anc2, ns="html")
-_getValue(None,'anc2')
 
-_getValue(None,'html.anc2._link')
+gvTest('anc2', '<a id="text id"></a>')
+gvTest('anc2.id', 'text id')
+gvTest('html.anc2', '<a id="text id"></a>')
+gvTest('html.anc2.id', 'text id')
 
 del anc2['_tag']
 del anc2['id']
 anc2['_id'] = 'anc2'
 anc2['_link'] = '<a href=\"#{{self.id}}\">the text to hyperlink</a>'
 ns.updateVariable(anc2, ns="html")
-_getValue(None,'html.anc2._link')
-
-#_format will be automatically generated when the variable is defined to the default value.
-
-#[anchor] - results in <a id=“the_bookmark_id”></a>
-#[anchor._link] - results in <a id=“#the_bookmark_id”>The bookmark text used for link</a>
+gvTest('anc2._link','<a href="#[html.anc2.id]">the text to hyperlink</a>')
+gvTest('html.anc2._link','<a href="#[html.anc2.id]">the text to hyperlink</a>')
 
 """
 """
+sep()
+msg('Implementing images using the HTML tag and TEMPLATES')
 
-img0 = {'_id': 'imgTMPL', '_tag': 'img', '_format': '<{{self._tag}}{{self._public_attrs_}}/>', 'src': '[path]/XXX', 'class': 'myclass'}
+img0 = {'_id': 'imgTMPL', 
+        '_tag': 'img', 
+        '_format': '<{{self._tag}}{{self._public_attrs_}}/>', 
+        'src': '[path]/XXX', 
+        'class': 'myclass'}
 
 ns.addVariable(img0, ns="html")
-_getValue(None,'html.imgTMPL')
+gvTest('imgTMPL', '<img src="[path]/XXX" class="myclass"/>')
+gvTest('imgTMPL._tag', 'img')
+gvTest('imgTMPL._format', '<img src="[path]/XXX" class="myclass"/>')
+gvTest('imgTMPL.src', '[path]/XXX')
+gvTest('imgTMPL.class', 'myclass')
+gvTest('html.imgTMPL', '<img src="[path]/XXX" class="myclass"/>')
+gvTest('html.imgTMPL._tag', 'img')
+gvTest('html.imgTMPL._format', '<img src="[path]/XXX" class="myclass"/>')
+gvTest('html.imgTMPL.src', '[path]/XXX')
+gvTest('html.imgTMPL.class', 'myclass')
 
-img1 = {'_id': 'img0', '_inherit': 'imgTMPL', 'src': '[path]/YYY'}
+img1 = {'_id': 'img0', 
+        '_inherit': 'imgTMPL', 
+        'src': '[path]/YYY'}
 ns.addVariable(img1, ns="html")
-_getValue(None,'html.img0')
+
+gvTest('img0', '<img src="[path]/YYY" class="myclass"/>')
+gvTest('img0.src', '[path]/YYY')
+gvTest('img0._tag', 'img')
+gvTest('img0.class', 'myclass')
+gvTest('img0._format', '<img src="[path]/YYY" class="myclass"/>')
+gvTest('html.img0', '<img src="[path]/YYY" class="myclass"/>')
+gvTest('html.img0.src', '[path]/YYY')
+gvTest('html.img0._tag', 'img')
+gvTest('html.img0.class', 'myclass')
+gvTest('html.img0._format', '<img src="[path]/YYY" class="myclass"/>')
 
 lnk0 = {'_id': 'cls', 
         '_tag': 'a', 
@@ -173,25 +265,51 @@ lnk0 = {'_id': 'cls',
         'class': 'myclass'}
 
 ns.addVariable(lnk0, ns="link")
-_getValue(None,'link.cls')
-_getValue(None,'link.cls.<')
-_getValue(None,'link.cls.>')
 
-my_jit_attrs = {'class': 'myclass2', 'style': 'my cool style', '_newfmt': '{{self.style}}'}
+gvTest('cls',' _tag="a" _format="{{self._all_attrs_}}" class="myclass"')
+gvTest('cls.<','<a class="myclass">')
+gvTest('cls.>','</a>')
+gvTest('cls.class','myclass')
+gvTest('cls._tag', 'a')
 
-print('getting link.cls._newfmt={}'.format(ns.getValue('link.cls._newfmt', jit_attrs=my_jit_attrs)))
+gvTest('link.cls',' _tag="a" _format="{{self._all_attrs_}}" class="myclass"')
+gvTest('link.cls.<','<a class="myclass">')
+gvTest('link.cls.>','</a>')
+gvTest('link.cls.class','myclass')
+gvTest('link.cls._tag', 'a')
 
-_getValue(None,'link.cls.style')
+my_jit_attrs = {'class': 'myclass2', 
+                'style': 'my cool style', 
+                '_newfmt': '{{self.style}}'}
 
+msg("Adding new attributes to link.cls variable...")
+ns.getValue('link.cls._newfmt', jit_attrs=my_jit_attrs)
+
+gvTest('cls.class', 'myclass2')
+gvTest('cls.style', 'my cool style')
+gvTest('cls._newfmt', 'my cool style')
+gvTest('link.cls.class', 'myclass2')
+gvTest('link.cls.style', 'my cool style')
+gvTest('link.cls._newfmt', 'my cool style')
 
 #[alt]=Google image
 ns.addVariable('Google image', 'alt-text')
-_getValue(None, 'alt-text')
-img25 = {"_id": "img25", "src":"google.png", "alt":"[alt-text]", "_tag": "img"}
+gvTest('alt-text', 'Google image')
+img25 = {"_id": "img25", 
+         "src":"google.png", 
+         "alt":"[alt-text]", 
+         "_tag": "img"}
 ns.addVariable(img25, ns='image')
-_getValue(None, 'img25')
-_getValue(None, 'img25.src')
-_getValue(None, 'img25.alt')
+
+gvTest('img25', '<img src="google.png" alt="Google image"/>')
+gvTest('img25.src', 'google.png')
+gvTest('img25.alt', 'Google image')
+gvTest('img25._tag', 'img')
+gvTest('image.img25', '<img src="google.png" alt="Google image"/>')
+gvTest('image.img25.src', 'google.png')
+gvTest('image.img25.alt', 'Google image')
+gvTest('image.img25._tag', 'img')
+
 link25 = {"_id":"link25", 
           "_tag": "a", 
           "_text1":"{{self.<}}my link text{{self.>}}",
@@ -209,23 +327,24 @@ link25 = {"_id":"link25",
           "_asurl":"&lt;{{self.href}}&gt;", 
           "href":"https://google.com"}
 ns.addVariable(link25, ns="link")
-_getValue(None, 'link.link25._public_attrs_')
-_getValue(None, 'link.link25._private_attrs_')
-_getValue(None, 'link.link25._all_attrs_')
-_getValue(None, 'link.link25._text1')
-_getValue(None, 'link.link25._text2')
-_getValue(None, 'link.link25._text3')
-# - would use _format
-_getValue(None, 'link.link25')
-# returns the href= string formatted as text...
-_getValue(None, 'link.link25._asurl')
+
+gvTest('link25', '<a href="https://google.com"></a>')
+gvTest('link.link25', '<a href="https://google.com"></a>')
+
+gvTest('link.link25._public_attrs_', ' href="https://google.com"')
+gvTest('link.link25._private_attrs_', ' _tag="a" _text1="{{self.<}}my link text{{self.>}}" _text2="{{image.img25}}" _text3="<img src="google.png" alt="Google image"/>" _text4="{{self.<}}{{image.img25}}{{self.>}}" _text5="{{self._text6}}" _text6="{{self._text4}}" _[="[" _]="]" _var="self." _t5="_text5" _t6="{{self._var}}{{self._t5}}" _wow="{{{{self._t6}}}}" _asurl="&lt;{{self.href}}&gt;" _format="<{{self._tag}}{{self._public_attrs_}}></{{self._tag}}>"')
+gvTest('link.link25._all_attrs_', ' _tag="a" _text1="{{self.<}}my link text{{self.>}}" _text2="{{image.img25}}" _text3="<img src="google.png" alt="Google image"/>" _text4="{{self.<}}{{image.img25}}{{self.>}}" _text5="{{self._text6}}" _text6="{{self._text4}}" _[="[" _]="]" _var="self." _t5="_text5" _t6="{{self._var}}{{self._t5}}" _wow="{{{{self._t6}}}}" _asurl="&lt;{{self.href}}&gt;" href="https://google.com" _format="<{{self._tag}}{{self._public_attrs_}}></{{self._tag}}>"')
+gvTest('link.link25._text1', '<a href="https://google.com">my link text</a>')
+gvTest('link.link25._text2', '<img src="google.png" alt="Google image"/>')
+gvTest('link.link25._text3', '<img src="google.png" alt="Google image"/>')
+gvTest('link.link25._asurl', '&lt;https://google.com&gt;')
 
 sep()
 
-print(md._markdown('This right here&gt; *[link.link25]*'))
-print(md._markdown('This right here&gt; *[link.link25._text4]*'))
-print(md._markdown('This right here&gt; *[link.link25._text5]*'))
-print(md._markdown('This right here&gt; ***[link.link25._wow]***'))
+gvTestMD('*[link.link25]*', '<em><a href="https://google.com"></a></em>')
+gvTestMD('*[link.link25._text4]*', '<em><a href="https://google.com"><img src="google.png" alt="Google image"/></a></em>')
+gvTestMD('*[link.link25._text5]*', '<em><a href="https://google.com"><img src="google.png" alt="Google image"/></a></em>')
+gvTestMD('***[link.link25._wow]***', '<em><strong><a href="https://google.com"><img src="google.png" alt="Google image"/></a></strong></em>')
 
 ns.dump()
 

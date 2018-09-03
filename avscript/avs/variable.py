@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 """
-I want to be able to attach attributes to 
+
 """
 
 class Variable(object):
@@ -257,7 +257,8 @@ class AdvancedNamespace(Namespace):
         del dict[myID]
         
         if self.inheritsFrom(dict):
-            tempDict = self.getRVal(dict[AdvancedNamespace._inherit_attr]).copy()
+            rval = self.getRVal(dict[AdvancedNamespace._inherit_attr])
+            tempDict = rval.copy() if rval is not None else {"_format": "***{}*** does not exist".format(dict[AdvancedNamespace._inherit_attr])}
             for item in dict:
                 if item != AdvancedNamespace._inherit_attr:
                     tempDict[item] = dict[item]
@@ -464,7 +465,7 @@ class CodeNamespace(AdvancedNamespace):
             exec(dict['_code']) if dict['type'] == 'exec' else eval(dict['_code'])
 
         #print('>>>>>>>>>>>{}{}'.format(type(s.getvalue()),s.getvalue()))
-        return s.getvalue()
+        return s.getvalue().rstrip()
 
     def addVariable(self, dict, name=None):
         var_name = super(CodeNamespace, self).addVariable(dict)

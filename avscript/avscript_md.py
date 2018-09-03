@@ -89,6 +89,7 @@ class AVScriptParser(StdioWrapper):
         Initialize the required instance variables for this class.
         """
         super(AVScriptParser, self).__init__()  # Initialize the base class(es)
+        self._debug = False
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
         self._lineInCache = False       # if we have a line in the cache
@@ -113,7 +114,6 @@ class AVScriptParser(StdioWrapper):
             'shot': RegexMain(True, False, True, r'^[-|\*|\+][ ]*(?![-]{2})', r'^[-|\*|\+][ ]*(?![-]{2})(.*)'),
             'div': RegexMain(True, False, True, r'^[-@]{3}[ ]*([\w\.]+)?[ ]*', r'^[-@]{3}[ ]*([\w\.]+)?[ ]*(.*)'),
             'header': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
-            'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
             'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
@@ -124,10 +124,13 @@ class AVScriptParser(StdioWrapper):
             'html': RegexMain(True, True, False, r'^(@html(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
-            'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
+            'debug': RegexMain(True, False, False, r'^@debug$', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
             'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
+ 
+            'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
+            'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\"){0,3})', None),
             'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\"){0,2})', None),
             'contact': RegexMain(True, True, False, r'^(@contact(\s*([\w]+)\s*=\s*\"(.*?)\"){0,6})', None),
@@ -602,10 +605,20 @@ class AVScriptParser(StdioWrapper):
 
         def handle_raw(m, lineObj):
             """Handle a raw line"""
+            #TODO: Make this available everywhere...
+            def esc_html(x):
+                return x.replace('<','&lt;').replace('>','&gt;').replace('&','&amp;')
             if(m is not None):
+                if self._debug:
+                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(esc_html(lineObj.current_line),esc_html(m.group(2))))
                 self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
+
+        def handle_debug(m, lineObj):
+            """Handle a debug line"""
+            self.oprint("Entering Debug Mode<br />")
+            self._debug = True
 
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""
@@ -833,8 +846,10 @@ class AVScriptParser(StdioWrapper):
             ('shotlist', handle_shotlist),
             ('variables', handle_variables),
             ('dumplinks', handle_dumplinks),
-            ('links', handle_links),
             ('alias', handle_alias),
+            ('debug', handle_debug),
+
+            ('links', handle_links),
             ('anchor', handle_anchor),
             ('cover', handle_cover),
             ('revision', handle_revision),

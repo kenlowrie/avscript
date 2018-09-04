@@ -9,13 +9,13 @@
         <p><a href="#links">Links</a> - <strong>Inline and Reference Link Styles</strong></p>
     </div>
     <div class="extras">
-        <p><a href="#inline+links">Inline Links</a> - <strong>Creating links inline</strong></p>
+        <p><a href="#inline_links">Inline Links</a> - <strong>Creating links inline</strong></p>
     </div>
     <div class="extras">
-        <p><a href="#ref+links">Reference Links</a> - <strong>Creating reference links</strong></p>
+        <p><a href="#ref_links">Reference Links</a> - <strong>Creating reference links</strong></p>
     </div>
     <div class="extras">
-        <p><a href="#auto+links">Automatic Links</a> - <strong>Creating automatic links</strong></p>
+        <p><a href="#auto_links">Automatic Links</a> - <strong>Creating automatic links</strong></p>
     </div>
     <a id="inlinemd"></a>
     <div class="extras">
@@ -118,7 +118,7 @@
     <div class="extras">
         <p>This is a section about links</p>
     </div>
-    <a id="inline+links"></a>
+    <a id="inline_links"></a>
     <div class="extras">
         <h3>Inline Style:</h3>
     </div>
@@ -131,7 +131,7 @@
     <div class="extras">
         <p>Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: <a href="http://example.com" title="Inline Link Sample">an example</a>.</p>
     </div>
-    <a id="ref+links"></a>
+    <a id="ref_links"></a>
     <div class="extras">
         <h3>Reference Style:</h3>
     </div>
@@ -150,7 +150,7 @@
     <div class="extras">
         <p>Now, I can go ahead and write <strong>&#91;inline 2]</strong>, like this: [inline 2], and it's a valid link!</p>
     </div>
-    <a id="auto+links"></a>
+    <a id="auto_links"></a>
     <div class="extras">
         <h3>Automatic links</h3>
     </div>
@@ -211,19 +211,19 @@ NAMESPACE: link<br />
 &nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
-<strong>auto_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>auto+links<br />
+<strong>auto_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>Automatic Links<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
-<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>INTERNAL_NAME<br />
+<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
-<strong>inline_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>inline+links<br />
+<strong>inline_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>Inline Links<br />
@@ -241,7 +241,7 @@ NAMESPACE: link<br />
 &nbsp;&nbsp;<strong>text=</strong>Links<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
-<strong>ref_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>ref+links<br />
+<strong>ref_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>Reference Links<br />

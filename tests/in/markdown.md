@@ -5,11 +5,11 @@
 @link _id="ref_links" _inherit="bookmark_template"
 @link _id="auto_links" _inherit="bookmark_template"
 
-[link.inlinemd.link(id="{{self._}}" text="Inline Markdown")] - **Formatting content inline**
-[link.links.link(id="{{self._}}" text="Links")] - **Inline and Reference Link Styles**
-[link.inline_links.link( id="inline+links" text="Inline Links")] - **Creating links inline**
-[link.ref_links.link(id="ref+links" text="Reference Links")] - **Creating reference links**
-[link.auto_links.link(id="auto+links" text="Automatic Links")] - **Creating automatic links**
+[link.inlinemd.link(text="Inline Markdown")] - **Formatting content inline**
+[link.links.link(text="Links")] - **Inline and Reference Link Styles**
+[link.inline_links.link(text="Inline Links")] - **Creating links inline**
+[link.ref_links.link(text="Reference Links")] - **Creating reference links**
+[link.auto_links.link(text="Automatic Links")] - **Creating automatic links**
 
 // markdown tests
 @@ [link.inlinemd]

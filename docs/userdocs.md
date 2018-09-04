@@ -1,37 +1,62 @@
 {:.blue.center}#AVScript User Manual
 [workingtitle]=AVScript Markdown Utility
-[storysummary]=This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***
+[storysummary]=This manual describes the *AVScript Markdown Utility*, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. ***Enjoy!***[bb]**NOTE:**[bb]This manual was originally written in the first version of avscript, and as such, there are likely things that may not be as efficient as they could/should be. Be sure to take a look at the test code (../tests/in/*.md) to see examples of the latest syntax.
+
 //You will probably need to update this path to make this work
 [path]=/Users/ken/Dropbox/shared/src/script/avscript/docs/import
 @import '[path]/userguideheading.md'
-[SP]=&nbsp;
-[b]=<br />
+
+@link _id="inlinemd" _inherit="bookmark_template"
+@link _id="links" _inherit="bookmark_template"
+@link _id="inline_links" _inherit="bookmark_template"
+@link _id="ref_links" _inherit="bookmark_template"
+@link _id="auto_links" _inherit="bookmark_template"
+@link _id="mailto_links" _inherit="bookmark_template"
+@link _id="aliases" _inherit="bookmark_template"
+@link _id="div" _inherit="bookmark_template"
+@link _id="headers" _inherit="bookmark_template"
+@link _id="anchors" _inherit="bookmark_template"
+@link _id="special_sections" _inherit="bookmark_template"
+@link _id="imports" _inherit="bookmark_template"
+@link _id="advanced" _inherit="bookmark_template"
+@link _id="predefined_classes" _inherit="bookmark_template"
+@link _id="shotlist" _inherit="bookmark_template"
+@link _id="debug" _inherit="bookmark_template"
+@link _id="summary" _inherit="bookmark_template"
+
 {:.toc}@@@ divTitle Table of Contents
-    [SP]
-    @:[inlinemd]<<Inline Markdown>> - **Formatting content inline**
-    @:[links]<<Links>> - **Inline and Reference Link Styles**
-    {:.indent}@:[inline+links]<<Inline Links>> - **Creating links inline**
-    {:.indent}@:[ref+links]<<Reference Links>> - **Creating reference links**
-    {:.indent}@:[mailto+links]<<mailto Links>> - **Creating mailto links**
-    {:.indent}@:[auto+links]<<Automatic Links>> - **Creating automatic links**
-    @:[aliases]<<Aliases>>  - **Text substitution aka Variables**
-    @:[div]<<DIV>> - **Creating new DIV sections**
-    @:[headers]<<Headers>> - **Adding Headers**
-    @:[anchors]<<Anchors>> - **Using Bookmarks**
-    @:[special+sections]<<Special Sections>> - **Covers, Revisions &amp; Contact sections**
-    @:[imports]<<Imports>> - **Importing files**
-    @:[advanced]<<Advanced Topics>> - **Introducing @raw, @image & @var**
-    @:[predefined classes]<<Predefined Classes>> - **Using predefined CSS classes**
-    @:[shotlist]<<Shotlist>> - **Displaying the shotlist**
-    @:[debug]<<Debug>> - **Dumping variables and links**
-    @:[summary]<<Summary>> - **Summary of the User Guide**
+    [link.inlinemd.link(text="Inline Markdown")] - **Formatting content inline**
+    [link.links.link(text="Links")] - **Inline and Reference Link Styles**
+    {:.indent}[link.inline_links.link(text="Inline Links")] - **Creating links inline**
+    {:.indent}[link.ref_links.link(text="Reference Links")] - **Creating reference links**
+    {:.indent}[link.mailto_links.link(text="mailto Links")] - **Creating mailto links**
+    {:.indent}[link.auto_links.link(text="Automatic Links")] - **Creating automatic links**
+    [link.aliases.link(text="Aliases")] - **Text substitution aka Variables**
+    [link.div.link(text="DIV")] - **Creating new DIV sections**
+    [link.headers.link(text="Headers")] - **Adding Headers**
+    [link.anchors.link(text="Anchors")] - **Using Bookmarks**
+    [link.special_sections.link(text="Special Sections")] - **Covers, Revisions &amp; Contact sections**
+    [link.imports.link(text="Importing files")] - **Importing files**
+    [link.advanced.link(text="Advanced Topics")] - **Introducing @raw, @image & @var**
+    [link.predefined_classes.link(text="Predefined Classes")] - **Using predefined CSS classes**
+    [link.shotlist.link(text="Shotlist")] - **Displaying the shotlist**
+    [link.debug.link(text="Debug")] - **Dumping variables and links**
+    [link.summary.link(text="Summary")] - **Summary of the User Guide**
 
 ## What is AVScript?
-AVScript is a Python utility that takes plain text files loosely based on Markdown as input and generates Audio/Video (A/V) Style scripts in HTML format. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
+AVScript is a Python utility that takes plain text files loosely (oh, so loosely) based on Markdown as input, and generates Audio/Video (A/V) Style scripts in HTML format. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
+
+At least that's how it started out. It's grown quite a bit since the early days, and this document will attempt to provide an in-depth overview of most of the capabilities of the package.
 
 In its simplest terms:
 
-{:.note}**Markdown** list item tags ***(&#42;, -, +)*** are used to identify ***visuals*** (shots), and regular paragraphs are the ***audio/narration*** that go along with the visuals.
+[ast]=&#42;
+[obr]=&#91;
+[lt]=&lt;
+[gt]=&gt;
+[at]=&#64;
+
+{:.note}**Markdown** list item tags ***([ast], -, +)*** are used to identify ***visuals*** (shots), and regular paragraphs are the ***audio/narration*** that go along with the visuals.
 
 Let's see a quick example now. The next line will begin with an ***&#42;*** and then contain the text that describes the visual, and the line after that will contain the narration that goes with it.
 *WS:Sunrise
@@ -39,39 +64,39 @@ There's just something about a sunrise that gets the blood flowing...
 And here's some additional narration.
 @break
 {:.note.red.indent}When you want to force the document out of shot mode, use ***@break*** or ***@exit*** on an empty line. That will reset the floats which are controlling the AV formatting, and start a new section. See how the document leaves the narration mode of the prior shot, and starts this new block paragraph?
-**&#64;break** &lt;--Use @break or @exit to close a shot DIV.
+**[at]break** [lt]--Use @break or @exit to close a shot DIV.
 You can have as much narration as required, just keep writing, even starting new regular paragraphs. When you're done, start a new visual, or add any other block element, such as links, aliases, headers, divs, etc. To add another shot, just repeat the steps above, like this:
 *CU:Coffee pot heating on wire rack of fire pit
 There's nothing like waking up to the smell of coffee percolating in the outdoors.
 @exit
 If you have text you want included in the HTML document, but do not want it rendered by the browser, use the **{:.ignore}** class prefix. For example, on the next line, we'll write {:.ignore}You won't see this.
 {:.ignore}You won't see this.
-When you examine the HTML, you'll see the prior text wrapped in **&lt;p&gt;** tags, inside **&lt;div class="extras"&gt;** markup. However, it will not be rendered by the browser, unless you modify the CSS rule for the ignore class.
+When you examine the HTML, you'll see the prior text wrapped in **[lt]p[gt]** tags, inside **[lt]div class="extras"[gt]** markup. However, it will not be rendered by the browser, unless you modify the CSS rule for the ignore class.
 Lines that begin with a double forward slash [***//***] are treated as comments, and are discarded by AVScript. They will not appear in the HTML at all. As another example, we'll write *//This will not appear in the HTML* on the next line.
 //This will not appear in the HTML
 If you examine the HTML output, you will not see the previous line in the output.
 
-@+[inlinemd]
+@@ [link.inlinemd]
 ###Inline Markdown
 
 A few of the standard markdown span elements are supported, as are a couple of specialized span elements. These include:
 
-{:.indent}###&#42; - wrap text in a single asterisk for *emphasis*
-{:.indent}###&#42;&#42; - wrap text in double asterisks for bold
+{:.indent}###[ast]; - wrap text in a single asterisk for *emphasis*
+{:.indent}###[ast][ast] - wrap text in double asterisks for bold
 {:.indent}###&#43;&#43; - wrap text in double plus signs for ++&lt;ins>++
 {:.indent}###&#126;&#126; - wrap text in double tilde for ~~&lt;del>~~
 
 Here are a few examples:
 
-When I write **&#42;text&#42;**, it becomes *text*, and when I write **&#42;&#42;text&#42;&#42;**, it becomes **text**
+When I write **[ast]text[ast]**, it becomes *text*, and when I write **[ast][ast]text[ast][ast]**, it becomes **text**
 
-You can stack them too, so that **&#42;&#42;&#42;text&#42;&#42;&#42;** becomes ***text***
+You can stack them too, so that **[ast][ast][ast]text[ast][ast][ast]** becomes ***text***
 
-When you want to wrap text with &lt;ins>, use the double plus signs like this: ++Stuff that's been added++. Similarly, when you want to wrap text with &lt;del> tags, do it like this: ~~Stuff that's been removed~~.
+When you want to wrap text with [lt]ins[gt], use the double plus signs like this: ++Stuff that's been added++. Similarly, when you want to wrap text with [lt]del[gt] tags, do it like this: ~~Stuff that's been removed~~.
 
 That's a brief look at using AVScript's built-in span element support. Now, let's take a look at support for links, the remaining span element.
 
-@+[links]
+@@ [link.links]
 ###Links
 
 Both inline and reference style links are supported. The syntax for each style is:

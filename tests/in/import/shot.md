@@ -17,7 +17,7 @@
         <th class="item">Item</th><th class="desc">Description</th>\
     </tr>\
     <tr>\
-        <td class="item">Shot</td><td class="desc">{{self.name}}</td>\
+        <td class="item">Shot</td><td class="desc">{{self._}}</td>\
     </tr>\
     <tr>\
         <td class="item">Desc</td><td>*{{self.desc}}*</td>\
@@ -47,6 +47,6 @@
 
 // Here, you just @set _id="shotinfo" shotid="yourshot", and then
 // [varv2.shotinfo] on a line by itself will generate the entire shot
-@var _id="shotinfo" _format="- [varv2.{{self.shotid}}.desc]<br />[image.{{self.shotid}}]<br />[varv2.{{self.shotid}}]" shotid="NOTSET"
+@var _id="shotinfo" _format="- [var.{{self.shotid}}.desc]<br />[image.{{self.shotid}}]<br />[var.{{self.shotid}}]" shotid="NOTSET"
 
-@var _id="needshot" _format="- [varv2.{{self.shotid}}.desc][image.needshot]<br />[varv2.{{self.shotid}}]" shotid="NOTSET"
+@var _id="needshot" _format="- [var.{{self.shotid}}.desc][image.needshot]<br />[var.{{self.shotid}}]" shotid="NOTSET"

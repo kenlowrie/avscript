@@ -95,11 +95,7 @@
         </ul>
         <p>Description</p>
     </div>
-    <div class="cover">
-        <h3>A</h3>
-        <p>B</p>
-        <p class="coverSummary">C</p>
-    </div>
+    <div class="cover"><h3>A</h3><p>B</p><p class="coverSummary">C</p></div>
     <div class="av">
         <a id="fnref:14"></a>
         <ul>
@@ -107,14 +103,7 @@
         </ul>
         <p>Description</p>
     </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">D<br />E<br />F<br /></td>
-                <td class="right nowrap">A<br />B<br />C<br /></td>
-            </tr>
-        </table>
-    </div>
+    <div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">D<br />E<br />F<br /></td><td class="right nowrap" style="border:none">A<br />B<br />C<br /></td></tr></table></div>
     <div class="av">
         <a id="fnref:15"></a>
         <ul>
@@ -123,25 +112,20 @@
         <p>Description</p>
     </div>
     <div class="variables">
-        <hr />
-        <p>Variables</p>
         <code>
-            <strong>b=</strong>&lt;br /&gt;<br />
-            <strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
-            <strong>variable=</strong>VALUE<br />
-        </code>
-        <hr />
-        <p>Images</p>
-        <code>
-        </code>
-        <hr />
-        <p>varv2</p>
-        <code>
-            <strong>cover=</strong><br />&nbsp;&nbsp;title:[title]<br />
-&nbsp;&nbsp;author:[author]<br />
-&nbsp;&nbsp;logline:[logline]<br />
-&nbsp;&nbsp;_format:&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
-&nbsp;&nbsp;name:cover<br />
+----------------------------------------<br />
+NAMESPACE: basic<br />
+----------------------------------------<br />
+<strong>b=</strong>&lt;br /&gt;<br />
+<strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
+<strong>variable=</strong>VALUE<br />
+----------------------------------------<br />
+NAMESPACE: var<br />
+----------------------------------------<br />
+<strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>A<br />
+&nbsp;&nbsp;<strong>author=</strong>B<br />
+&nbsp;&nbsp;<strong>logline=</strong>C<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
 <br />
         </code>
     </div>
@@ -152,14 +136,45 @@
         </ul>
         <p>Description</p>
     </div>
-    <div class="links">
-        <hr />
-        <p>External Links</p>
+    <div class="variables">
         <code>
-            <strong>Amazon:</strong>https://www.amazon.com<em>:Amazon website</em><br />
-            <strong>Google:</strong>https://www.google.com<em>:</em><br />
-            <strong>amazon:</strong>https://www.amazon.com<em>:amazon website</em><br />
-            <strong>cls:</strong>https://www.cloudylogic.com<em>:</em><br />
+----------------------------------------<br />
+NAMESPACE: link<br />
+----------------------------------------<br />
+<strong>Amazon=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://www.amazon.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>title=</strong>Amazon website<br />
+<br />
+<strong>Google=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://www.google.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>amazon=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://www.amazon.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>title=</strong>amazon website<br />
+<br />
+<strong>cls=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://www.cloudylogic.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
         </code>
     </div>
     <div class="av">

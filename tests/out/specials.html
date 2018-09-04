@@ -1,5 +1,7 @@
 <div class="wrapper">
-    <a id="special+sections"></a>
+    <div class="extras">
+        <p><a id="special+sections"></a></p>
+    </div>
     <div class="extras">
         <h2>Cover, Revision & Contact Sections</h2>
     </div>
@@ -7,13 +9,13 @@
         <p>There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:</p>
     </div>
     <div class="extras">
-        <h3 class="indent">@cover - To add a cover section</h3>
+        <h3 class="indent">var.cover - To add a cover section</h3>
     </div>
     <div class="extras">
-        <h3 class="indent">@revision - To add a revision section</h3>
+        <h3 class="indent">@var.revision - To add a revision section</h3>
     </div>
     <div class="extras">
-        <h3 class="indent">@contact - To add a contact section</h3>
+        <h3 class="indent">@var.contact - To add a contact section</h3>
     </div>
     <div class="extras">
         <p>The details for each type of section are as follows:</p>
@@ -24,686 +26,350 @@
     <div class="syntax">
         <p class="divTitle">Cover Title Syntax</p>
         <p>&nbsp;</p>
-        <p class="indent">@cover title="title of script" author="written by" logline="logline or short description"</p>
+        <p class="indent">var.cover title="title of script" author="written by" logline="logline or short description"</p>
     </div>
     <div class="extras">
         <p>Each element is optional, and they can appear in any order. Also note that the value of any parameter can be whatever you want. Just because it says "author", doesn't mean you have to put the author name there. You could instead write "Roses are Red", and that would be just fine...</p>
     </div>
     <div class="extras">
-        <h3>@revision v="revision" timestamp="yes"</h3>
+        <h3>var.revision v="revision"</h3>
     </div>
     <div class="extras">
-        <p>Specify the revision number of your document within the angle brackets. If timestamp is either not specified or has any value other than "No", "Off", "False" or "0", the current date and time of the document at the time of processing will also be inserted immediately following the revision number. This provides additional clarification of the version, in case you forget to bump the version number.</p>
+        <p>Specify the revision number of your document within quotes. The default rendering of the var.revision variable is to include a timestamp at the end of the string. You can request a plain revision string using the vp attribute e.g. Revision: <em><strong>[defaults.revision]</strong></em></p>
     </div>
     <div class="extras">
-        <p>If you specify timestamp="No" | "Off" | "False" | "0", then the timestamp will not be added to the revision string.</p>
+        <h3>var.contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"</h3>
     </div>
     <div class="extras">
-        <h3>@contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"</h3>
+        <p>Each element is optional, and the elements can appear in any order. By default, the system looks in the var.defaults variable for the definitions of cn, ph, em, c1, c2 & c3. As such, you can conveniently set them using a single call:</p>
     </div>
     <div class="extras">
-        <p>Each element is optional, and the elements can appear in any order.</p>
+        <p>.<strong>@set _id="defaults"     cn="Ken Lowrie"     ph="<em>512-710-7257</em>"     em="[ken@cloudylogic.com]"     c1="Copyright © 2018 Cloudy Logic Studios, LLC."     c2="All Rights Reserved."     c3="[www.cloudylogic.com]"</strong></p>
     </div>
     <div class="extras">
         <p>To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.</p>
     </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p>Script Author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p>Script Author</p>
-        <p class="coverSummary">Logline</p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p>Script Author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p></p>
-        <p class="coverSummary">Logline</p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p>Script Author</p>
-        <p class="coverSummary">Logline</p>
-    </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p></p>
-        <p class="coverSummary">Logline</p>
-    </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p></p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p>Script Author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p>Script Author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3>Title of Script</h3>
-        <p>Script Author</p>
-        <p class="coverSummary">Logline</p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p>Script Author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p></p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3></h3>
-        <p>author</p>
-        <p class="coverSummary"></p>
-    </div>
-    <div class="cover">
-        <h3>title</h3>
-        <p>author</p>
-        <p class="coverSummary">logline</p>
+    <div class="extras">
+        <p><a href="#special+sections">Cover, Revision & Contract Sections</a></p>
     </div>
     <div class="extras">
-        <p>Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... Need to handle that a different way for testing...</p>
-    </div>
-    <div class="revision">
-        <p class="revTitle">Revision: </p>
-    </div>
-    <div class="revision">
-        <p class="revTitle">Revision: 1.0</p>
-    </div>
-    <div class="revision">
-        <p class="revTitle">Revision: 1.1</p>
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">[logline]</p></div></p>
     </div>
     <div class="extras">
-        <p>@revision</p>
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
     </div>
     <div class="extras">
-        <p>@ revision</p>
-    </div>
-    <div class="revision">
-        <p class="revTitle">Revision: </p>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">Contact Name<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap"></td>
-                <td class="right nowrap">email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap">email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 3<br /></td>
-                <td class="right nowrap"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br /></td>
-                <td class="right nowrap">Contact Name<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright  Line 1<br />Copyright Line 2<br /></td>
-                <td class="right nowrap">210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />210-555-1212<br /></td>
-            </tr>
-        </table>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright Line 2<br />Copyright Line 3<br /></td>
-                <td class="right nowrap">Contact Name<br />email@mydomain.com<br /></td>
-            </tr>
-        </table>
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3></h3><p>Script Author</p><p class="coverSummary"></p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary"></p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="cover"><h3>Title of Script</h3><p>author</p><p class="coverSummary">Logline</p></div></p>
+    </div>
+    <div class="cover"><h3>title</h3><p>author</p><p class="coverSummary">logline</p></div>
+    <div class="extras">
+        <p>Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... The code is unit tested separately...</p>
+    </div>
+    <div class="extras">
+        <p><div class="revision"><p class="revTitle">1.0 </p></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="revision"><p class="revTitle">1.1 </p></div></p>
+    </div>
+    <div class="revision"><p class="revTitle">1.1 </p></div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright © 2018 Cloudy Logic Studios, LLC.<br />All Rights Reserved.<br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none">Ken Lowrie<br /><em>512-710-7257</em><br />[ken@cloudylogic.com]<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright © 2018 Cloudy Logic Studios, LLC.<br />All Rights Reserved.<br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none"><br /><em>512-710-7257</em><br />[ken@cloudylogic.com]<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright © 2018 Cloudy Logic Studios, LLC.<br />All Rights Reserved.<br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none"><br /><br />[ken@cloudylogic.com]<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright © 2018 Cloudy Logic Studios, LLC.<br />All Rights Reserved.<br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none"><br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br />All Rights Reserved.<br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none"><br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br />[www.cloudylogic.com]<br /></td><td class="right nowrap" style="border:none"><br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none"><br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br />c2<br /><br /></td><td class="right nowrap" style="border:none">cn<br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none"><br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br /><br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name2<br />210-555-1212<br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name2<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-5309<br /><br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none"><br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br /><br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br /><br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />EMAIL@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1a<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2b<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3c<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1a<br />Copyright Line 2<br />Copyright Line 3c<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2b<br />Copyright Line 3c<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3c<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3c<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div>c3="Copyright Line 3"</p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-444-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1b<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2c<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="extras">
+        <p><div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright  Line 1<br />Copyright Line 2<br />Copyright Line 3<br /></td><td class="right nowrap" style="border:none">Contact Name<br />210-555-1212<br />email@mydomain.com<br /></td></tr></table></div></p>
+    </div>
+    <div class="variables">
+        <code>
+----------------------------------------<br />
+NAMESPACE: var<br />
+----------------------------------------<br />
+<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>rightside=</strong>{{self.cn}}&lt;br /&gt;{{self.ph}}&lt;br /&gt;{{self.em}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>leftside=</strong>{{self.c1}}&lt;br /&gt;{{self.c2}}&lt;br /&gt;{{self.c3}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>cn=</strong>Contact Name<br />
+&nbsp;&nbsp;<strong>ph=</strong>210-555-1212<br />
+&nbsp;&nbsp;<strong>em=</strong>email@mydomain.com<br />
+&nbsp;&nbsp;<strong>c1=</strong>Copyright  Line 1<br />
+&nbsp;&nbsp;<strong>c2=</strong>Copyright Line 2<br />
+&nbsp;&nbsp;<strong>c3=</strong>Copyright Line 3<br />
+<br />
+<strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>title<br />
+&nbsp;&nbsp;<strong>author=</strong>author<br />
+&nbsp;&nbsp;<strong>logline=</strong>logline<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+<br />
+<strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
+&nbsp;&nbsp;<strong>author=</strong>[author]<br />
+&nbsp;&nbsp;<strong>logline=</strong>[logline]<br />
+&nbsp;&nbsp;<strong>_nop=</strong><br />
+&nbsp;&nbsp;<strong>cn=</strong>Ken Lowrie<br />
+&nbsp;&nbsp;<strong>ph=</strong>*512-710-7257*<br />
+&nbsp;&nbsp;<strong>em=</strong>[ken@cloudylogic.com]<br />
+&nbsp;&nbsp;<strong>c1=</strong>Copyright © 2018 Cloudy Logic Studios, LLC.<br />
+&nbsp;&nbsp;<strong>c2=</strong>All Rights Reserved.<br />
+&nbsp;&nbsp;<strong>c3=</strong>[www.cloudylogic.com]<br />
+<br />
+<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>plain=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>v=</strong>1.1<br />
+&nbsp;&nbsp;<strong>vp=</strong>Revision: ***[self.revision]***<br />
+&nbsp;&nbsp;<strong>revision=</strong>{{defaults.revision}}<br />
+<br />
+----------------------------------------<br />
+NAMESPACE: link<br />
+----------------------------------------<br />
+<strong>bm-section1=</strong><br />&nbsp;&nbsp;<strong>id=</strong>special+sections<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Cover, Revision &amp; Contract Sections<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>INTERNAL_NAME<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+        </code>
     </div>
 </div>

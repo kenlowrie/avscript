@@ -1,10 +1,11 @@
 //This is the test file for @image (and maybe @raw)
 //
 
-[imports]=in/import
-//[imports]=/Users/Ken/Dropbox/shared/src/script/avscript/tests/in/import
+@var _id="_path_" path="/Users/ken/Dropbox/shared/src/script/avscript/tests/in/import" _format="{{self.path}}"
+[imports]=[var._path_(path="in/import")]
 
 @import '[imports]/image.md'
+
 [_i_width]=[IMG_SIZE_LARGE]
 [ss]=[{{img-st-inline-border}}]
 [trythis]={:.red.bold}Try to get this shot
@@ -23,14 +24,14 @@
 //Can be used inside a shot like this
 - WS:a shot
     [image.shot1]
-[varv2.shot1]
+[var.shot1]
 //Or can be used outside a shot like this
 @break
 [image.shot1]
-[varv2.shot1]
+[var.shot1]
 //Use it @raw, except it smashes against the sides...
 @raw [image.shot1]
-@raw [varv2.shot1]
+@raw [var.shot1]
 
 @image _id="shot0" src="[imports]/shot0.jpg" style="[ss]"
 @var _id="shot0" \
@@ -40,12 +41,12 @@
      _format="[_shotinfo_]"
 
 @set _="shotinfo" shotid="shot0"
-[varv2.shotinfo]
+[var.shotinfo]
 And here is some info about shot0
 
 @set _="needshot" shotid="shot0"
 @set _="needshot"
-[varv2.needshot]
+[var.needshot]
 
 @image _id="shot2a" src="[imports]/shot1.jpg" style="[img-st-inline]"
 @image _id="shot2b" src="[imports]/shot1.jpg" style="[img-st-inline-border]"
@@ -79,33 +80,29 @@ And here is some info about shot0
 
 ## Splitting smart shots
 @set _="shotinfo" shotid="shot2a"
-[varv2.shotinfo]
+[var.shotinfo]
 @set _="shotinfo" shotid="shot2b"
-[varv2.shotinfo]
+[var.shotinfo]
 @set _="shotinfo" shotid="shot3a"
-[varv2.shotinfo]
+[var.shotinfo]
 @set _="shotinfo" shotid="shot3b"
-[varv2.shotinfo]
+[var.shotinfo]
 
 ## Testing namespaces
 
 [shotinfo]
-shotinfo.name=[shotinfo.name]
 shotinfo._=[shotinfo._]
-shotinfo.__=[shotinfo.__]
 shotinfo._id=[shotinfo._id]
 shotinfo.shotid=[shotinfo.shotid]
 ### Namespace with prefix
-[varv2.shotinfo]
-varv2.shotinfo.name=[varv2.shotinfo.name]
-varv2.shotinfo._=[varv2.shotinfo._]
-varv2.shotinfo.__=[varv2.shotinfo.__]
-varv2.shotinfo._id=[varv2.shotinfo._id]
-varv2.shotinfo.shotid=[varv2.shotinfo.shotid]
+[var.shotinfo]
+var.shotinfo._=[var.shotinfo._]
+var.shotinfo._id=[var.shotinfo._id]
+var.shotinfo.shotid=[var.shotinfo.shotid]
 
 ## Now just 'shot2a' in the brackets with attributes
 @break
-[shot2a]
+[image.shot2a]
 shot2a=[shot2a.desc]
 shot2a.lens=[shot2a.lens]
 shot2a._format=[shot2a._format]
@@ -114,9 +111,9 @@ shot2a._format=[shot2a._format]
 [image.shot2a.src]
 [image.shot2a.style]
 ### with varv2. prefix on shot2a
-[varv2.shot2a]
-[varv2.shot2a.desc]
-[varv2.shot2a.lens]
-[varv2.shot2a._format]
+[var.shot2a]
+[var.shot2a.desc]
+[var.shot2a.lens]
+[var.shot2a._format]
 
 //Variables///

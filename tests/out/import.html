@@ -2,22 +2,9 @@
     <div class="extras">
         <h1 class="blue">AVScript User Manual</h1>
     </div>
-    <div class="cover">
-        <h3>AVScript&#32;Markdown&#32;Utility</h3>
-        <p><strong>This guide is NOT Confidential</strong></p>
-        <p class="coverSummary">This manual describes the <em>AVScript Markdown Utility</em>, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. <em><strong>Enjoy!</strong></em>.</p>
-    </div>
-    <div class="revision">
-        <p class="revTitle">Revision: <em><strong>0.38a</strong></em></p>
-    </div>
-    <div class="contact">
-        <table>
-            <tr>
-                <td class="left nowrap">Copyright (c) 2018 by <a href="https://yourcompanydomain.com">Your Company Name</a>, LLC.<br />All Rights Reserved.<br />[yourcompanyname.com]<br /></td>
-                <td class="right nowrap">John Smith<br /><em>210-555-1212</em><br />johnsmith@yourcompanydomain.com<br /></td>
-            </tr>
-        </table>
-    </div>
+    <div class="cover"><h3>AVScript&#32;Markdown&#32;Utility</h3><p><strong>This guide is NOT Confidential</strong></p><p class="coverSummary">This manual describes the <em>AVScript Markdown Utility</em>, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. <em><strong>Enjoy!</strong></em>.</p></div>
+    <div class="revision"><p class="revTitle">Revision: <em><strong><em><strong>0.38a</strong></em></strong></em></p></div>
+    <div class="contact"><table style="border:none"><tr style="border:none"><td class="left nowrap" style="border:none">Copyright (c) 2018 by <a href="https://yourcompanydomain.com">Your Company Name</a>, LLC.<br />All Rights Reserved.<br /><a href="https://yourcompanydomain.com">yourcompanydomain.com</a><br /></td><td class="right nowrap" style="border:none">John Smith<br /><em>210-555-1212</em><br />johnsmith@yourcompanydomain.com<br /></td></tr></table></div>
     <div class="pba review">
         <p class="divTitle">Notes to Reviewer</p>
         <p>Please send John Smith any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. Within different versions of this proposal, <ins>additions are marked like this</ins> and <del>deletions are marked like this</del></p>
@@ -35,41 +22,72 @@
         <p>And that's it.</p>
     </div>
     <div class="variables">
-        <hr />
-        <p>Variables</p>
         <code>
-            <strong>SP=</strong>&amp;nbsp;<br />
-            <strong>a=</strong>testing<br />
-            <strong>b=</strong>123<br />
-            <strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
-            <strong>c=</strong>testing123<br />
-            <strong>email=</strong>johnsmith@yourcompanydomain.com<br />
-            <strong>me=</strong>John Smith<br />
-            <strong>phone=</strong>210-555-1212<br />
-            <strong>storysummary=</strong>This manual describes the &lt;em&gt;AVScript Markdown Utility&lt;/em&gt;, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. &lt;em&gt;&lt;strong&gt;Enjoy!&lt;/strong&gt;&lt;/em&gt;<br />
-            <strong>workingtitle=</strong>AVScript&amp;#32;Markdown&amp;#32;Utility<br />
-        </code>
-        <hr />
-        <p>Images</p>
-        <code>
-        </code>
-        <hr />
-        <p>varv2</p>
-        <code>
-            <strong>cover=</strong><br />&nbsp;&nbsp;title:[title]<br />
-&nbsp;&nbsp;author:[author]<br />
-&nbsp;&nbsp;logline:[logline]<br />
-&nbsp;&nbsp;_format:&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
-&nbsp;&nbsp;name:cover<br />
+----------------------------------------<br />
+NAMESPACE: basic<br />
+----------------------------------------<br />
+<strong>SP=</strong>&amp;nbsp;<br />
+<strong>a=</strong>testing<br />
+<strong>b=</strong>123<br />
+<strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
+<strong>c=</strong>[a][b]<br />
+<strong>email=</strong>johnsmith@yourcompanydomain.com<br />
+<strong>me=</strong>John Smith<br />
+<strong>phone=</strong>210-555-1212<br />
+<strong>storysummary=</strong>This manual describes the &lt;em&gt;AVScript Markdown Utility&lt;/em&gt;, its features, purpose and more. I've packed it with examples too, so hopefully after you read it, you'll know all you need to know about how to use it to create A/V Style scripts quickly, easily and most important, efficiently. &lt;em&gt;&lt;strong&gt;Enjoy!&lt;/strong&gt;&lt;/em&gt;<br />
+<strong>workingtitle=</strong>AVScript&amp;#32;Markdown&amp;#32;Utility<br />
+----------------------------------------<br />
+NAMESPACE: var<br />
+----------------------------------------<br />
+<strong>_path_=</strong><br />&nbsp;&nbsp;<strong>path=</strong>in/import/<br />
+&nbsp;&nbsp;<strong>_format=</strong>{{self.path}}<br />
 <br />
-        </code>
-    </div>
-    <div class="links">
-        <hr />
-        <p>External Links</p>
-        <code>
-            <strong>Your Company Name:</strong>https://yourcompanydomain.com<em>:</em><br />
-            <strong>yourcompanydomain.com:</strong>https://yourcompanydomain.com<em>:</em><br />
+<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>rightside=</strong>{{self.cn}}&lt;br /&gt;{{self.ph}}&lt;br /&gt;{{self.em}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>leftside=</strong>{{self.c1}}&lt;br /&gt;{{self.c2}}&lt;br /&gt;{{self.c3}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>cn=</strong>[me]<br />
+&nbsp;&nbsp;<strong>ph=</strong>*[phone]*<br />
+&nbsp;&nbsp;<strong>em=</strong>[email]<br />
+&nbsp;&nbsp;<strong>c1=</strong>Copyright (c) 2018 by [link.company], LLC.<br />
+&nbsp;&nbsp;<strong>c2=</strong>All Rights Reserved.<br />
+&nbsp;&nbsp;<strong>c3=</strong>[link.domain]<br />
+<br />
+<strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[workingtitle]<br />
+&nbsp;&nbsp;<strong>author=</strong>**This guide is NOT Confidential**<br />
+&nbsp;&nbsp;<strong>logline=</strong>[storysummary].<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+<br />
+<strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
+&nbsp;&nbsp;<strong>author=</strong>[author]<br />
+&nbsp;&nbsp;<strong>logline=</strong>[logline]<br />
+&nbsp;&nbsp;<strong>_nop=</strong><br />
+&nbsp;&nbsp;<strong>revision=</strong>***0.38a***<br />
+<br />
+<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>plain=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>v=</strong>{{self.vp}} ({{code.datetime_stamp.run}})<br />
+&nbsp;&nbsp;<strong>vp=</strong>Revision: ***[self.revision]***<br />
+&nbsp;&nbsp;<strong>revision=</strong>{{defaults.revision}}<br />
+<br />
+----------------------------------------<br />
+NAMESPACE: link<br />
+----------------------------------------<br />
+<strong>company=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Your Company Name<br />
+&nbsp;&nbsp;<strong>href=</strong>https://yourcompanydomain.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>domain=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>yourcompanydomain.com<br />
+&nbsp;&nbsp;<strong>href=</strong>https://yourcompanydomain.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
         </code>
     </div>
 </div>

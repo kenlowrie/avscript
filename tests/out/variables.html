@@ -34,7 +34,7 @@
         <p>Now, when I write <strong>&#91;cls]</strong>, it is replaced with a link to https://cloudylogic.com. For example: <a href="https://cloudylogic.com">cls</a>.</p>
     </div>
     <div class="extras">
-        <p>And that's all good. It's concise, I only have to write <em>cls</em> in [ ] and it is wrapped with an HTML link. Saves a lot of typing and potential mistakes. But what if I want to have other, more descriptive names for that URL? Good news, we can do that using a special form of aliases: [Descriptive Text]=[id], where <em>id</em> is the name of a previously described reference link. Let me go ahead and create an alias for the <em>cls</em> link so the descriptive name is Cloudy Logic.</p>
+        <p>And that's all good. It's concise, I only have to write <em>cls</em> in [ ] and it is wrapped with an HTML link. Saves a lot of typing and potential mistakes. But what if I want to have other, more descriptive names for that URL? Good news, we can do that using a special form of aliases: [Descriptive Text]=[id], where <em>id</em> is the name of a previously described reference link. Let me go ahead and create an alias for the <em>cls</em> link so the descriptive name is Cloudy Logic. ThIS TEXT IS ALL WRONG. DOESN'T WORK THIS WAY ANYMORE...</p>
     </div>
     <div class="extras">
         <h3 class="indent">&#91;Cloudy Logic]=cls</h3>
@@ -51,11 +51,7 @@
     <div class="extras">
         <h3 class="red center">avscript tester doc</h3>
     </div>
-    <div class="cover">
-        <h3>User Manual</h3>
-        <p>Ken Lowrie</p>
-        <p class="coverSummary">This is a user manual for the AVScript utility.</p>
-    </div>
+    <div class="cover"><h3>User Manual</h3><p>Ken Lowrie</p><p class="coverSummary">This is a user manual for the AVScript utility.</p></div>
     <div class="blue plain">
         <p class="plainTitle">Variables</p>
     </div>
@@ -90,7 +86,7 @@
         <p>By defining a variable's value such that the value is a valid linkID, when you use the variable's name in the document, it will be wrapped in the linkIDs hyperlink. So now when I write me, it is more friendly than [me], even though they evaluate to the same link.</p>
     </div>
     <div class="extras">
-        <p>You can create more than one "alias" to the same underlying link. Here's an example of that:</p>
+        <p>You can create more than one "alias" to the same underlying link. The new variable design requires that you add a new format string and specific private variable to support that. Here's an example of it:</p>
     </div>
     <div class="extras">
         <p>In the previous 2 lines, I created two new variables and set both of their values to the linkID called <em>cls</em>. So now when I write <a href="https://cloudylogic.com">My Production Website</a> and <a href="https://cloudylogic.com">Cloudy Logic Studios, LLC</a>, both of them are links to my website.</p>
@@ -99,25 +95,13 @@
         <p>Most of the time, you'll just add normal links with the regular link syntax, but sometimes it's cool to have these other options.</p>
     </div>
     <div class="extras">
-        <h4>Inline links</h4>
-    </div>
-    <div class="extras">
-        <p>So far, both the reference link syntax and the variable definition syntaxes require that those elements be on lines by themselves. Not a big deal when you're using things over and over, but what if you just want to write a link inline in the document? You can do that using the inline syntax, which is similar to the reference link syntax, except that you need to wrap the URL with ()'s. For example, you would write: &#91;linkID]:(URL). Here's one for <a href="https://cloudylogic.com" title="title2abvg">Cloudy Logic</a>, and one for <a href="https://google.com">Google without a title</a>.</p>
-    </div>
-    <div class="extras">
-        <h4 class="red">Shorthand link encoding - Will this be deprecated?</h4>
-    </div>
-    <div class="extras">
-        <p>You can also just write a valid URL inside angle brackets, i.e. &lt; &gt;, for an even quicker way to write URLs inline. For example, <a href="https://www.google.com">https://www.google.com</a> or <a href="https://cloudylogic.com">https://cloudylogic.com</a>. For now, these short hand methods require that the protocol be present on the URL. Not sure if I'm going to keep this support in though, because it's a bit complex to parse...</p>
-    </div>
-    <div class="extras">
         <p>Here are a couple more examples:</p>
     </div>
     <div class="extras">
         <p><a href="https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/">Link to Article</a> <-- That should have been turned into a link</p>
     </div>
     <div class="extras">
-        <p>You can send [feedback]. Or you can just email [me]. Or go to my <a href="https://cloudylogic.com">domain</a>. But don't do that if <a href="cls">Cloudy Logic</a> is not defined. Finally, <a href="https://www.cloudylogic.com" title="This is a link title...">One with Title</a></p>
+        <p>You can send [feedback]. Or you can just email [me]. Or go to my cls. But don't do that if [Cloudy Logic]:(cls) is not defined. Finally, <a href="https://www.cloudylogic.com" title="This is a link title...">One with Title</a></p>
     </div>
     <div class="extras">
         <p>Remember, variable definitions and reference link definitions must be declared on a line by themself. If you put more stuff, it will just process the first one. If it isn't at the beginning of the line, it'll be ignored. For example:</p>
@@ -126,50 +110,123 @@
         <p>But [varName]=varValue is not...</p>
     </div>
     <div class="variables">
-        <hr />
-        <p>Variables</p>
         <code>
-            <strong>Cloudy Logic=</strong>cls<br />
-            <strong>Cloudy Logic Studios, LLC=</strong>cls<br />
-            <strong>My Email Address=</strong>me<br />
-            <strong>My Production Website=</strong>cls<br />
-            <strong>abc=</strong>123<br />
-            <strong>b=</strong>&lt;br /&gt;<br />
-            <strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
-            <strong>def=</strong>456<br />
-            <strong>domain=</strong>cls<br />
-            <strong>my name=</strong>&lt;em&gt;Ken Lowrie&lt;/em&gt;<br />
-            <strong>varName=</strong>varValue is okay.<br />
-            <strong>whoami=</strong>Ken Lowrie<br />
-            <strong>xyz=</strong>?b=123%20456<br />
-        </code>
-        <hr />
-        <p>Images</p>
-        <code>
-        </code>
-        <hr />
-        <p>varv2</p>
-        <code>
-            <strong>cover=</strong><br />&nbsp;&nbsp;title:[title]<br />
-&nbsp;&nbsp;author:[author]<br />
-&nbsp;&nbsp;logline:[logline]<br />
-&nbsp;&nbsp;_format:&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
-&nbsp;&nbsp;name:cover<br />
+----------------------------------------<br />
+NAMESPACE: basic<br />
+----------------------------------------<br />
+<strong>My Email Address=</strong>me<br />
+<strong>abc=</strong>123<br />
+<strong>b=</strong>&lt;br /&gt;<br />
+<strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
+<strong>def=</strong>456<br />
+<strong>domain=</strong>cls<br />
+<strong>my name=</strong>&lt;em&gt;Ken Lowrie&lt;/em&gt;<br />
+<strong>varName=</strong>varValue is okay.<br />
+<strong>whoami=</strong>Ken Lowrie<br />
+<strong>xyz=</strong>?b=123%20456<br />
+----------------------------------------<br />
+NAMESPACE: var<br />
+----------------------------------------<br />
+<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>rightside=</strong>{{self.cn}}&lt;br /&gt;{{self.ph}}&lt;br /&gt;{{self.em}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>leftside=</strong>{{self.c1}}&lt;br /&gt;{{self.c2}}&lt;br /&gt;{{self.c3}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>cn=</strong>{{defaults.cn}}<br />
+&nbsp;&nbsp;<strong>ph=</strong>{{defaults.ph}}<br />
+&nbsp;&nbsp;<strong>em=</strong>{{defaults.em}}<br />
+&nbsp;&nbsp;<strong>c1=</strong>{{defaults.c1}}<br />
+&nbsp;&nbsp;<strong>c2=</strong>{{defaults.c2}}<br />
+&nbsp;&nbsp;<strong>c3=</strong>{{defaults.c3}}<br />
 <br />
-        </code>
-    </div>
-    <div class="links">
-        <hr />
-        <p>External Links</p>
-        <code>
-            <strong>Cloudy Logic:</strong>cls<em>:</em><br />
-            <strong>Google without a title:</strong>https://google.com<em>:</em><br />
-            <strong>Link to Article:</strong>https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/<em>:</em><br />
-            <strong>Link to Article2:</strong>https://domain.com/another_article_link<em>:</em><br />
-            <strong>One with Title:</strong>https://www.cloudylogic.com<em>:This is a link title...</em><br />
-            <strong>cls:</strong>https://cloudylogic.com<em>:</em><br />
-            <strong>jitlinkvar:</strong>https://mydomain.com?a=123%20456<em>:</em><br />
-            <strong>jitlinkvar2:</strong>https://mydomain.com?b=123%20456<em>:</em><br />
+<strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>User Manual<br />
+&nbsp;&nbsp;<strong>author=</strong>Ken Lowrie<br />
+&nbsp;&nbsp;<strong>logline=</strong>This is a user manual for the AVScript utility.<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+<br />
+<strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
+&nbsp;&nbsp;<strong>author=</strong>[author]<br />
+&nbsp;&nbsp;<strong>logline=</strong>[logline]<br />
+&nbsp;&nbsp;<strong>_nop=</strong><br />
+<br />
+<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>plain=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>v=</strong>{{self.vp}} ({{code.datetime_stamp.run}})<br />
+&nbsp;&nbsp;<strong>vp=</strong>Revision: ***[self.revision]***<br />
+&nbsp;&nbsp;<strong>revision=</strong>{{defaults.revision}}<br />
+<br />
+----------------------------------------<br />
+NAMESPACE: link<br />
+----------------------------------------<br />
+<strong>_template_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Usage: link.{{self._}}(_text="Text to Link")<br />
+&nbsp;&nbsp;<strong>href=</strong>www.YOUR-URL-GOES-HERE.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>article1=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Link to Article<br />
+&nbsp;&nbsp;<strong>href=</strong>https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>article2=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Link to Article2<br />
+&nbsp;&nbsp;<strong>href=</strong>https://domain.com/another_article_link<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>INTERNAL_NAME<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>cls=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://cloudylogic.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>Cloudy Logic Studios, LLC<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>cls2=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Cloudy Logic<br />
+&nbsp;&nbsp;<strong>href=</strong>https://cloudylogic.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>jitlinkvar=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://mydomain.com?a=[abc]%20[def]<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>jitlinkvar2=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://mydomain.com[xyz]<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>withtitle=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>One with Title<br />
+&nbsp;&nbsp;<strong>href=</strong>https://www.cloudylogic.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>title=</strong>This is a link title...<br />
+<br />
         </code>
     </div>
 </div>

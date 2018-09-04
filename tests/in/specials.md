@@ -1,11 +1,12 @@
-@+[special+sections]
+@link _id="bm-section1" _inherit="bookmark_template"
+[link.bm-section1(id="special+sections" text="Cover, Revision & Contract Sections")]
 ##Cover, Revision & Contact Sections
 
 There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:
 
-{:.indent}###@cover - To add a cover section
-{:.indent}###@revision - To add a revision section
-{:.indent}###@contact - To add a contact section
+{:.indent}###var.cover - To add a cover section
+{:.indent}###@var.revision - To add a revision section
+{:.indent}###@var.contact - To add a contact section
 
 The details for each type of section are as follows:
 
@@ -13,134 +14,147 @@ The details for each type of section are as follows:
 
 {:.syntax}@@@ divTitle Cover Title Syntax
     &nbsp;
-    {:.indent}@cover title="title of script" author="written by" logline="logline or short description"
+    {:.indent}var.cover title="title of script" author="written by" logline="logline or short description"
 
 Each element is optional, and they can appear in any order. Also note that the value of any parameter can be whatever you want. Just because it says "author", doesn't mean you have to put the author name there. You could instead write "Roses are Red", and that would be just fine...
 
-###@revision v="revision" timestamp="yes"
-Specify the revision number of your document within the angle brackets. If timestamp is either not specified or has any value other than "No", "Off", "False" or "0", the current date and time of the document at the time of processing will also be inserted immediately following the revision number. This provides additional clarification of the version, in case you forget to bump the version number.
+###var.revision v="revision"
+Specify the revision number of your document within quotes. The default rendering of the var.revision variable is to include a timestamp at the end of the string. You can request a plain revision string using the vp attribute e.g. [var.revision.vp]
 
-If you specify timestamp="No" | "Off" | "False" | "0", then the timestamp will not be added to the revision string.
+###var.contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"
 
-###@contact cn="name" ph="phone" em="email" c1="copyright line 1" c2="copyright line 2" c3="copyright line 3"
+Each element is optional, and the elements can appear in any order. By default, the system looks in the var.defaults variable for the definitions of cn, ph, em, c1, c2 & c3. As such, you can conveniently set them using a single call:
 
-Each element is optional, and the elements can appear in any order.
+.**@set _id="defaults"\
+     cn="Ken Lowrie"\
+     ph="*512-710-7257*"\
+     em="[ken@cloudylogic.com]"\
+     c1="Copyright © 2018 Cloudy Logic Studios, LLC."\
+     c2="All Rights Reserved."\
+     c3="[www.cloudylogic.com]"**
+
+@set _id="defaults"\
+     cn="Ken Lowrie"\
+     ph="*512-710-7257*"\
+     em="[ken@cloudylogic.com]"\
+     c1="Copyright © 2018 Cloudy Logic Studios, LLC."\
+     c2="All Rights Reserved."\
+     c3="[www.cloudylogic.com]"
 
 To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.
 
+[link.bm-section1.link]
 // And now let's try various versions
 
-@cover title="Title of Script" author="Script Author"
-@cover title="Title of Script" author="Script Author" logline="Logline"
-@cover author="Script Author"
-@cover logline="Logline"
-@cover author="Script Author" logline="Logline"
-@cover title="Title of Script" logline="Logline"
-@cover title="Title of Script"
-@cover title="" author="Script Author" logline=""
+[var.cover(title="Title of Script" author="Script Author")]
+[var.cover(title="Title of Script" author="Script Author" logline="Logline")]
+[var.cover(author="Script Author")]
+[var.cover(logline="Logline")]
+[var.cover(author="Script Author" logline="Logline")]
+[var.cover(title="Title of Script" logline="Logline")]
+[var.cover(title="Title of Script")]
+[var.cover(title="" author="Script Author" logline="")]
+[var.cover(title =     "Title of Script" author   =   "Script Author")]
+[var.cover(title="Title of Script" author  ="Script Author" logline=  "Logline")]
+[var.cover(     author    =    "Script Author"    )]
+[var.cover]
+[var.cover( author="author")]
+@@ [var.cover(author="author" title="title" logline="logline")]
 
-@cover title =     "Title of Script" author   =   "Script Author"
-@cover   title="Title of Script" author  ="Script Author" logline=  "Logline"
-@cover      author    =    "Script Author"    
-@cover
-@cover author="author"
-@cover author="author" title="title" logline="logline"
+Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... The code is unit tested separately...
 
-Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... Need to handle that a different way for testing...
+[var.revision(v="1.0")]
+[var.revision(v="1.1")]
+@raw [var.revision]
+ 
+[var.contact]  
+[var.contact(cn="")]
+[var.contact(ph="")]
+[var.contact(em="")]
+[var.contact(c1="")]
+[var.contact(c2="")]
+[var.contact(c3="" )]
+[var.contact(cn="cn"  c2="c2")]
+[var.contact(c2=""  cn="")]
 
-@revision timestamp="no"
-@revision v="1.0" timestamp="False"
-@revision v="1.1" timestamp="0"
- @revision
- @ revision
-@revision v="" timestamp="OFF"
+[var.contact(cn ="Contact Name"   )]   
+[var.contact(ph="210-555-1212"   )]  
+[var.contact(cn="Contact Name2" ph="210-555-1212"   )]  
+[var.contact(em="email@mydomain.com"    )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3")]
 
+[var.contact( ph="210-555-5309" em="" c1="" c2="" c3=""    )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com"    )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 
-@contact  
-@contact cn=""
-@contact ph=""
-@contact em=""
-@contact c1=""
-@contact c2=""
-@contact c3="" 
-@contact cn=""  c2=""
-@contact c2=""  cn=""
+[var.contact(  em="EMAIL@mydomain.com"    )]
+[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1a"     )]
+[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2b"   )]
+[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3c" )]
 
-@contact cn ="Contact Name"      
-@contact cn="Contact Name" ph="210-555-1212"     
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"    
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3"
+[var.contact(   c1="Copyright  Line 1a"  )]
+[var.contact(   c1="Copyright  Line 1"  c2="Copyright Line 2b" )]
+[var.contact(   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3c" )]
 
-@contact  ph="210-555-1212"     
-@contact  ph="210-555-1212" em="email@mydomain.com"    
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+[var.contact(    c2="Copyright Line 2")]
+[var.contact(    c2="Copyright Line 2" c3="Copyright Line 3" )]
 
-@contact   em="email@mydomain.com"    
-@contact   em="email@mydomain.com" c1="Copyright  Line 1"     
-@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   
-@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+[var.contact(     c3="Copyright Line 3" )]
 
-@contact    c1="Copyright  Line 1"  
-@contact    c1="Copyright  Line 1"  c2="Copyright Line 2" 
-@contact    c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
-@contact     c2="Copyright Line 2"
-@contact     c2="Copyright Line 2" c3="Copyright Line 3" 
-
-@contact      c3="Copyright Line 3" 
-
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
-
-@contact   em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
+[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" )]c3="Copyright Line 3" 
+[var.contact(cn="Contact Name"   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2"
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"   c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2"
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"   c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2")]
 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" 
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name"   c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name"   c1="Copyright  Line 1"  
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"   c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"   c1="Copyright  Line 1"  )]
 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2"
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" 
-@contact  ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"
-@contact cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" 
-@contact cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" 
+[var.contact( ph="210-444-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1b"  c3="Copyright Line 3" )]
+[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2c" c3="Copyright Line 3" )]
+[var.contact(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+
+@dump var=".*" link="b"

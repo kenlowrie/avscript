@@ -15,12 +15,6 @@ Then, the embedded file would be marked down as normal, giving more flexibility.
 @raw @embed 'foo.html'
 
 
-@link _id="bookmark_template"\
-      id="INTERNAL_NAME"\
-      _format="<a id=\"{{self.id}}\"></a>"\
-      link="<a href=\"#{{self.id}}\">{{self.text}}</a>"\
-      text="TEXT-TO-DISPLAY-FOR-LINK"
-
 //@link _id="bookmark_template" _tag="a" id="{{self._param}}"
 
 @link _id="bm-section1" _inherit="bookmark_template"
@@ -99,8 +93,8 @@ The current date and time is [code.datetime_stamp.last]
 
 @set _id="defaults"\
      cn="Ken Lowrie"\
-     phone="*512-710-7257*"\
-     email="[ken@cloudylogic.com]"\
+     ph="*512-710-7257*"\
+     em="[ken@cloudylogic.com]"\
      c1="Copyright © 2018 Cloudy Logic Studios, LLC."\
      c2="All Rights Reserved."\
      c3="[www.cloudylogic.com]"
@@ -114,8 +108,6 @@ The current date and time is [code.datetime_stamp.last]
 
 @revision v="***[defaults.revision]***" timestamp="Yes"
 
-@contact cn="Ken Lowrie" ph="*512-710-7257*" em="[ken@cloudylogic.com]" c1="[defaults.c1]" c2="defaults.c2" c3="defaults.c3"
-
 //{:.review}--- divTitle Notes to Reviewer
 //    Please send [me] any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. Within different versions of this proposal, ++additions are marked like this++ and ~~deletions are marked like this~~
 
@@ -123,3 +115,8 @@ The current date and time is [code.datetime_stamp.last]
 
 ///Variables///
 
+@link _="cls" _inherit="_template_" _text="{{self._}}" href="https://cloudylogic.com"  _qlink="{{self.<}}{{self._qtext}}{{self.>}}" _qtext="SETMETOLINKTEXT"
+
+When I write: [link.cls._qlink(_qtext="My Production Website")] and [link.cls._qlink(_qtext="Cloudy Logic Studios, LLC")] and [link.cls] and [link.cls._qlink(_qtext="foo")] and [link.cls._qlink],
+
+@dump link="cls"

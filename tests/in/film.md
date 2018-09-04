@@ -5,8 +5,8 @@
 [revision]=1f
 [proj_desc]=This is the proposed music video treatment for the upcoming **[artist]** single titled [title].
 
-[imports]=in/import
-//[imports]=/Users/Ken/Dropbox/shared/src/script/avscript/tests/in/import
+@var _id="_path_" path="/Users/ken/Dropbox/shared/src/script/avscript/tests/in/import" _format="{{self.path}}"
+[imports]=[var._path_(path="in/import")]
 @import '[imports]/cls-noreviewer.md'
 @import '[imports]/shortcuts.md'
 @import '[imports]/film.md'
@@ -65,7 +65,7 @@ Ethnicities aren't important, however, we will try to cast the [mom], [son] and 
      crane="yes" \
      _format="[_shotinfo_]"
 @set _id="shotinfo" shotid="shot0"
-[varv2.shotinfo]
+[var.shotinfo]
 [slate]
 Probably just use the [title] and [artist] titles on this shot.
 [comment]This needs to start high enough up that you can't see the trunk, and make sure the sky is NOT blown out! It comes down to reveal [mom] opening trunk and reaching in to grab groceries.
@@ -77,7 +77,7 @@ Probably just use the [title] and [artist] titles on this shot.
      crane="yes" \
      _format="[_shotinfo_]"
 @set _id="shotinfo" shotid="shot1"
-[varv2.shotinfo]
+[var.shotinfo]
 [comment]Make sure [mom] is already moving when she comes into frame.
 @break
 
@@ -136,6 +136,5 @@ Originally, production was planned for August 2018, but it has been delayed unti
 
 **NOTE:** Actual shoot days will be scheduled according to cast availability
 
-///Variables///
-///Links///
+@dump basic="." images="." var="." link="."
 ///Shotlist///

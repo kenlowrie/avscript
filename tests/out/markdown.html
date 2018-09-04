@@ -126,10 +126,10 @@
         <p>The next paragraph has inline links defined: This is <strong>&#91;an example]:(http://example.com/ "Inline Link Sample")</strong> of an inline link. <strong>&#91;This inline link]:(http://example.net/)</strong> has no title attribute.</p>
     </div>
     <div class="extras">
-        <p>This is <a href="http://example.com/" title="Inline Link Sample">an example</a> of an inline link. <a href="http://example.net/">This inline link</a> has no title attribute.</p>
+        <p>This is <a href="http://example.com" title="Inline Link Sample">an example</a> of an inline link. <a href="http://example.net">This inline link</a> has no title attribute.</p>
     </div>
     <div class="extras">
-        <p>Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: <a href="http://example.com/" title="Inline Link Sample">an example</a>.</p>
+        <p>Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: <a href="http://example.com" title="Inline Link Sample">an example</a>.</p>
     </div>
     <a id="ref+links"></a>
     <div class="extras">
@@ -142,79 +142,128 @@
         <p>The reference link style <strong>must</strong> be placed at the beginning of a line. Unlike true Markdown, reference links <em>must</em> be defined before they are referenced in the document. Let's create a reference link for the Google Home Page.</p>
     </div>
     <div class="extras">
-        <h3 class="indent">[Google]:https://google.com "Google Search Page"</h3>
+        <h4 class="indent">@link _="Google" _inherit="_template_" title="Google Search Page" href="https://google.com"</h4>
     </div>
     <div class="extras">
         <p>If I write &#91;Google], it is wrapped like so: <a href="https://google.com" title="Google Search Page">Google</a>.</p>
     </div>
     <div class="extras">
-        <h3>Inline links at the start of a new line</h3>
-    </div>
-    <div class="extras">
-        <p>You can also use the inline link format at the start of a line, as in the following example for <strong>[inline 1]</strong>.</p>
-    </div>
-    <div class="extras">
-        <h3 class="indent">&#91;inline 1]:(https://cloudylogic.com "inline link title")</h3>
-    </div>
-    <div class="extras">
-        <p>Now, when we write &#91;inline 1], it has been defined just like a normal reference link, like this: <a href="https://cloudylogic.com" title="inline link title">inline 1</a></p>
-    </div>
-    <div class="extras">
-        <p>When you use the inline link syntax at the start of a line, however, everything following the closing parenthesis is ignored. For example, if we write:</p>
-    </div>
-    <div class="extras">
-        <h3 class="indent"><strong>&#91;inline 2]:(https://cloudylogic.com) - you won't see any of this text...</strong></h3>
-    </div>
-    <div class="extras">
-        <p>Then the inline link isn't expanded inline as normal, and any text following the closing parenthesis is ignored.</p>
-    </div>
-    <div class="extras">
-        <p class="note red width90">If you look at the source document immediately following this note,  you'll see the inline definition of <strong>inline 2</strong>, but it isn't displayed like normal inline links, it is only defined for use later.</p>
-    </div>
-    <div class="extras">
-        <p>Now, I can go ahead and write <strong>&#91;inline 2]</strong>, like this: <a href="https://cloudylogic.com">inline 2</a>, and it's a valid link!</p>
+        <p>Now, I can go ahead and write <strong>&#91;inline 2]</strong>, like this: [inline 2], and it's a valid link!</p>
     </div>
     <a id="auto+links"></a>
     <div class="extras">
         <h3>Automatic links</h3>
     </div>
     <div class="extras">
-        <p>The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with <em><strong>&lt; &gt;</strong></em> like this: <a href="http://www.cloudylogic.com">http://www.cloudylogic.com</a>. When you do that, the URL (everything between the angle brackets) is wrapped with an <strong>A</strong> tag whose <strong>HREF</strong> attribute is the URL.</p>
+        <p>The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with <em><strong>&lt; &gt;</strong></em> like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an <strong>A</strong> tag whose <strong>HREF</strong> attribute is the URL. Unfortunately, this is no longer supported. However, the default template for links includes an attribute <em>_asurl</em>, which returns the href styled appropriately. For example: <a href="https://google.com" title="Google Search Page">https://google.com</a></p>
     </div>
     <div class="extras">
         <p>&nbsp;</p>
     </div>
     <div class="variables">
-        <hr />
-        <p>Variables</p>
         <code>
-            <strong>b=</strong>&lt;br /&gt;<br />
-            <strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
-        </code>
-        <hr />
-        <p>Images</p>
-        <code>
-        </code>
-        <hr />
-        <p>varv2</p>
-        <code>
-            <strong>cover=</strong><br />&nbsp;&nbsp;title:[title]<br />
-&nbsp;&nbsp;author:[author]<br />
-&nbsp;&nbsp;logline:[logline]<br />
-&nbsp;&nbsp;_format:&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
-&nbsp;&nbsp;name:cover<br />
+----------------------------------------<br />
+NAMESPACE: var<br />
+----------------------------------------<br />
+<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>rightside=</strong>{{self.cn}}&lt;br /&gt;{{self.ph}}&lt;br /&gt;{{self.em}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>leftside=</strong>{{self.c1}}&lt;br /&gt;{{self.c2}}&lt;br /&gt;{{self.c3}}&lt;br /&gt;<br />
+&nbsp;&nbsp;<strong>cn=</strong>{{defaults.cn}}<br />
+&nbsp;&nbsp;<strong>ph=</strong>{{defaults.ph}}<br />
+&nbsp;&nbsp;<strong>em=</strong>{{defaults.em}}<br />
+&nbsp;&nbsp;<strong>c1=</strong>{{defaults.c1}}<br />
+&nbsp;&nbsp;<strong>c2=</strong>{{defaults.c2}}<br />
+&nbsp;&nbsp;<strong>c3=</strong>{{defaults.c3}}<br />
 <br />
-        </code>
-    </div>
-    <div class="links">
-        <hr />
-        <p>External Links</p>
-        <code>
-            <strong>Google:</strong>https://google.com<em>:Google Search Page</em><br />
-            <strong>This inline link:</strong>http://example.net/<em>:</em><br />
-            <strong>an example:</strong>http://example.com/<em>:Inline Link Sample</em><br />
-            <strong>inline 1:</strong>https://cloudylogic.com<em>:inline link title</em><br />
-            <strong>inline 2:</strong>https://cloudylogic.com<em>:</em><br />
+<strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>{{defaults.title}}<br />
+&nbsp;&nbsp;<strong>author=</strong>{{defaults.author}}<br />
+&nbsp;&nbsp;<strong>logline=</strong>{{defaults.logline}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+<br />
+<strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
+&nbsp;&nbsp;<strong>author=</strong>[author]<br />
+&nbsp;&nbsp;<strong>logline=</strong>[logline]<br />
+&nbsp;&nbsp;<strong>_nop=</strong><br />
+<br />
+<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>plain=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>v=</strong>{{self.vp}} ({{code.datetime_stamp.run}})<br />
+&nbsp;&nbsp;<strong>vp=</strong>Revision: ***[self.revision]***<br />
+&nbsp;&nbsp;<strong>revision=</strong>{{defaults.revision}}<br />
+<br />
+----------------------------------------<br />
+NAMESPACE: link<br />
+----------------------------------------<br />
+<strong>Google=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>href=</strong>https://google.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>title=</strong>Google Search Page<br />
+<br />
+<strong>_template_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>Usage: link.{{self._}}(_text="Text to Link")<br />
+&nbsp;&nbsp;<strong>href=</strong>www.YOUR-URL-GOES-HERE.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>auto_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>auto+links<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Automatic Links<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>INTERNAL_NAME<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>inline_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>inline+links<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Inline Links<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>inlinemd=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Inline Markdown<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Links<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>ref_links=</strong><br />&nbsp;&nbsp;<strong>id=</strong>ref+links<br />
+&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Reference Links<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>sample1=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>an example<br />
+&nbsp;&nbsp;<strong>href=</strong>http://example.com<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>title=</strong>Inline Link Sample<br />
+<br />
+<strong>sample2=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>This inline link<br />
+&nbsp;&nbsp;<strong>href=</strong>http://example.net<br />
+&nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
+&nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
         </code>
     </div>
 </div>

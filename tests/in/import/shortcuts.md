@@ -10,7 +10,7 @@
 [dblbrk]=[b][b]
 [ul]=<span style="text-decoration:underline">
 [/ul]=</span>
-[slate]=Title: [title][b]Artist: [artist][b]Directed by: Dan Director[b]Produced by: [Production Company]
+[slate]=Title: [title][b]Artist: [artist][b]Directed by: Dan Director[b]Produced by: [link.prodcompany]
 
 [section-class]=:.section
 [section]={[{{section-class}}]}--- divTitle

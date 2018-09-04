@@ -106,12 +106,21 @@ class StreamHandler(object):
         and fall back to the previous file.
         """
         # Process the builtIns first.
-        if self._builtIn < len(self._builtIns):
-            self.line = self._builtIns[self._builtIn]
+        self.line = ''
+        while self._builtIn < len(self._builtIns):
+            self.line += self._builtIns[self._builtIn].strip()
             self._builtIn += 1
+            # If we end with the continuation character ...
+            if self.line.endswith('\\'):
+                # Remove the \ and add a space
+                self.line = self.line[:-1] + ' '
+                # Only continue if there are more lines, in case they put a \ on the last line
+                if self._builtIn < len(self._builtIns):
+                    continue
+
+            # Return the line
             return self.line
 
-        self.line = ''
         while 1:
             if self.idx < 0:
                 # Once we've read from sys.stdin, we need to remember that,

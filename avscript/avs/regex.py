@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from re import compile
+from re import compile, match, error
 
 
 class Regex(object):
@@ -12,7 +12,24 @@ class Regex(object):
         """
         self.regex = compile(regex, flags)
 
+    def is_match(self, str):
+        return match(self.regex, str)
 
+
+class RegexSafe(Regex):
+    def __init__(self, regex, flags=0):
+        try:
+            super(RegexSafe, self).__init__(regex, flags)
+            self.is_valid = True
+        except error:
+            self.is_valid = False
+
+    def is_match(self, str):
+        if self.is_valid:
+            return super(RegexSafe, self).is_match(str)
+
+        return None
+        
 class RegexMD(Regex):
     """This class holds the regular expressions used when applying markdown
     to inline formatting syntax."""

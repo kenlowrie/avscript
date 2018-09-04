@@ -161,21 +161,31 @@ class VariableStore(object):
 
         return d     
 
-    def dumpVars(self, indent=''):
+    def dumpVars(self, which='.*', indent=''):
         """Dumps the variable list, names and values."""
         def escape_html(s):
             return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+        from .regex import RegexSafe
+        reObj = RegexSafe(which)
         for var in sorted(self.vars):
+            if reObj.is_match(var) is None:
+                continue
+
             self.oprint("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].name, self.escape_html(self.vars[var].rval['_rval']), indent))
 
-    def dumpVarsAsStrings(self, indent='', output=print):
+    def dumpVarsAsStrings(self, which='.*', indent=''):
         """Dumps the variable list, names and values."""
         def escape_html(s):
             return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+        from .regex import RegexSafe
+        reObj = RegexSafe(which)
         for var in sorted(self.vars):
-            self.vars[var].dump(output)
+            if reObj.is_match(var) is None:
+                continue
+
+            self.vars[var].dump(self.oprint)
 
 
 class Namespace(VariableStore):
@@ -351,13 +361,18 @@ class AdvancedNamespace(Namespace):
         # passed in. But just in case...
         return '(undefined variable) {}"'.format(id)
 
-    def dumpVars(self, indent='', output=print):
+    def dumpVars(self, which='.*', indent=''):
         """Dumps the image variable list, names and values."""
+        from .regex import RegexSafe
+        reObj = RegexSafe(which)
+        
         for var in sorted(self.vars):
+            if reObj.is_match(var) is None:
+                continue
             dict_str = '<br />'
             for d_item in self.vars[var].rval:
                 dict_str += '&nbsp;&nbsp;<strong>{}=</strong>{}<br />\n'.format(d_item, self.escape_html(self.vars[var].rval[d_item]))
-            output("{2}<strong>{0}=</strong>{1}<br />".format(var, dict_str, indent))
+            self.oprint("{2}<strong>{0}=</strong>{1}<br />".format(var, dict_str, indent))
 
 class VarNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name, oprint):
@@ -552,6 +567,7 @@ class Namespaces(object):
         #for ns in self._namespaces:
         #    print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
 
+        self.oprint = oprint
         setNSxface(self)
 
     def addVariable(self, value, name=None, ns=None):
@@ -666,14 +682,21 @@ class Namespaces(object):
 
     def dump(self):
         for ns in Namespaces._search_order:
-            print("{1}\nNAMESPACE: {0}\n{1}".format(ns,'-'*40))
+            self.oprint("{1}\nNAMESPACE: {0}\n{1}".format(ns,'-'*40))
             self._namespaces[ns].dumpVarsAsStrings()
 
     def dumpVars(self):
         for ns in Namespaces._search_order:
-            print("{1}\nNAMESPACE: {0}\n{1}<br />".format(ns,'-'*40))
+            self.oprint("{1}<br />\nNAMESPACE: {0}<br />\n{1}<br />".format(ns,'-'*40))
             self._namespaces[ns].dumpVars()
 
+    def dumpNamespaces(self, which):
+        for item in which:
+            if item in self._namespaces:
+                self.oprint("{1}<br />\nNAMESPACE: {0}<br />\n{1}<br />".format(item,'-'*40))
+                self._namespaces[item].dumpVars(which=which[item])
+            else:
+                self.oprint("{} is not a valid namespace to dump<br />".format(item))
 
 
 # =================================================================================================

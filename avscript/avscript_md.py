@@ -122,6 +122,7 @@ class AVScriptParser(StdioWrapper):
             'code': RegexMain(True, True, False, r'^(@code(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'link': RegexMain(True, True, False, r'^(@link(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'html': RegexMain(True, True, False, r'^(@html(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
+            'dump': RegexMain(True, True, False, r'^(@dump(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
             'debug': RegexMain(True, False, False, r'^@debug$', None),
@@ -133,7 +134,6 @@ class AVScriptParser(StdioWrapper):
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
             'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\"){0,3})', None),
             'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\"){0,2})', None),
-            'contact': RegexMain(True, True, False, r'^(@contact(\s*([\w]+)\s*=\s*\"(.*?)\"){0,6})', None),
         }
 
         # Dictionary of each markdown type that we process on each line
@@ -639,23 +639,10 @@ class AVScriptParser(StdioWrapper):
         def handle_variables(m, lineObj):
             """Handle the variables parse line"""
             self.oprint(self._html.formatLine("<div class=\"variables\">", 1))
-            self.oprint(self._html.formatLine("<hr />"))
-            self.oprint(self._html.formatLine("<p>Variables</p>"))
             self.oprint(self._html.formatLine("<code>", 1))
-            self._variables.dumpVars(self._html.getIndent(), self.oprint)
-            self.oprint(self._html.formatLine("</code>", -1, False))
-            self.oprint(self._html.formatLine("<hr />"))
-            self.oprint(self._html.formatLine("<p>Images</p>"))
-            self.oprint(self._html.formatLine("<code>", 1))
-            self._images.dumpVars(self._html.getIndent(), self.oprint)
-            self.oprint(self._html.formatLine("</code>", -1, False))
-            self.oprint(self._html.formatLine("<hr />"))
-            self.oprint(self._html.formatLine("<p>varv2</p>"))
-            self.oprint(self._html.formatLine("<code>", 1))
-            self._varV2.dumpVars(self._html.getIndent(), self.oprint)
+            self._ns.dumpVars()
             self.oprint(self._html.formatLine("</code>", -1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
-            self._ns.dumpVars()
 
         def handle_dumplinks(m, lineObj):
             """Handle the dumplinks parse line"""
@@ -734,23 +721,21 @@ class AVScriptParser(StdioWrapper):
             else:
                 self.oprint(lineObj.original_line)
 
-        def handle_contact(m, lineObj):
-            """Handle the contact parse line type."""
+        def handle_dump(m, lineObj):
+            """Handle the dump parse line type."""
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
                 fmt = lambda x: "{0}<br />".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
-                divstr = self._html.formatLine("<div class=\"contact\">\n", 1)
-                divstr += self._html.formatLine("<table>\n", 1)
-                divstr += self._html.formatLine("<tr>\n", 1)
-                divstr += self._html.formatLine("<td class=\"left nowrap\">{0}{1}{2}</td>\n".format(fmt("c1"), fmt("c2"), fmt("c3")))
-                divstr += self._html.formatLine("<td class=\"right nowrap\">{0}{1}{2}</td>\n".format(fmt("cn"), fmt("ph"), fmt("em")), -1)
-                divstr += self._html.formatLine("</tr>\n", -1)
-                divstr += self._html.formatLine("</table>\n", -1)
-                divstr += self._html.formatLine("</div>")
-
-                self.oprint(divstr)
+                self.oprint(self._html.formatLine("<div class=\"variables\">", 1))
+                self.oprint(self._html.formatLine("<code>", 1))
+                if d.get('all') and d.get('all').lower() in ['*', '1', 'y', 'yes', 't', 'true']:
+                    self._ns.dumpVars()
+                else:
+                    self._ns.dumpNamespaces(d)
+                self.oprint(self._html.formatLine("</code>", -1, False))
+                self.oprint(self._html.formatLine("</div>", -1, False))
             else:
                 self.oprint(lineObj.original_line)
 
@@ -848,12 +833,12 @@ class AVScriptParser(StdioWrapper):
             ('dumplinks', handle_dumplinks),
             ('alias', handle_alias),
             ('debug', handle_debug),
+            ('dump', handle_dump),
 
             ('links', handle_links),
             ('anchor', handle_anchor),
             ('cover', handle_cover),
             ('revision', handle_revision),
-            ('contact', handle_contact),
         ]
         
         try:

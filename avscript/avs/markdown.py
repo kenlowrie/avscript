@@ -17,7 +17,7 @@ class Markdown(object):
         self._current_nesting_level = 0
         # Dictionary of each markdown type that we process on each line
         self._regex_markdown = {
-            'vars': RegexMD(r'(\[(\w[^[\]\)]*)([\(](.+)[\)])?\](?!(\=(.+))))', None),
+            'vars': RegexMD(r'(\[(\w[^[\]\)]*)([\(](.+?)[\)])?\](?!(\=(.+))))', None),
             'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
             'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),

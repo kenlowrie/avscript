@@ -119,4 +119,153 @@ The current date and time is [code.datetime_stamp.last]
 
 When I write: [link.cls._qlink(_qtext="My Production Website")] and [link.cls._qlink(_qtext="Cloudy Logic Studios, LLC")] and [link.cls] and [link.cls._qlink(_qtext="foo")] and [link.cls._qlink],
 
-@dump link="cls"
+//@dump link="cls"
+
+[link.ln_factory(nm="mytest42", hr="https://cloudylogic.com", t="cloudylogic.com")]
+[link.mytest42]
+
+@dump link="mytest42|generate"
+
+[link.bm_factory(nm="inlinemd", t="Inline Markdown")]
+
+[link.inlinemd.link] - **Formatting content inline**
+
+// markdown tests
+[link.inlinemd]
+
+{:.toc}--- divTitle My Table of Contents
+    [link.inlinemd.link] - **Formatting content inline**
+
+Inline bookmarks too: [link.inlinemd._inline] This is the location where the links anchor has been dropped.
+
+
+@dump link="[.lin]|bm_|ref|auto"
+
+// TODO: MOVE THESE OVER TO THE BUILTINS FILE. THEY WILL BE USEFUL...
+
+@code _id="repeat"\
+      type="eval"\
+      src="print('{}'.format('{{self.t}}'*{{self.c}}))"\
+      t="Usage: code.repeat(t=\"text to repeat\", c=5)"\
+      c="1"
+
+@code _id="echo"\
+      type="eval"\
+      src="print('{{self.t}}')"\
+      t="Usage: code.echo(t=\"text to echo\")"
+
+@dump code="echo|esc|repeat"
+
+# [code.repeat.run(t="-", c="42")]
+## Make factories for @cover
+
+Things I learned while building these templates and factories.
+
+A. You want to specify the _format="{{self._internal_}}" in the built-ins, so that
+   we can easily reconstruct the functionality in the templates and macros.
+B. You can rename the required variables by simply abstracting them away in the
+   template.
+C. In the factory, you GENERATE a new variable that is based on a TEMPLATE. By doing
+   this, the attributes in the generated variable will be those of the template, not
+   the factory. The factory is essentially a "make me a new variable of type X".
+
+@var _id="cover_template" \
+     _inherit="cover" \
+     title="{{self.t1}}" \
+     author="{{self.t2}}" \
+     logline="{{self.t3}}" \
+     t1="Title" t2="author" t3="logline" \
+     _format="@@ {{self._inline_}}" \
+     inline="{{self._inline_}}"
+
+@var _id="cover_factory" \
+      _format="@var _id=\"{{self.nm}}\" \
+      _inherit=\"cover_template\" \
+      t1=\"\" \
+      t2=\"{{self.usage}}\" \
+      t3=\"\"" \
+     usage="Usage: **{{self.nm}}(t2=&quot;text&quot;)** or **{{self.nm}}.gencover(t2=&quot;text&quot;**)"
+
+[var.cover_factory(nm="c1")]
+[var.c1]
+[var.c1.inline(t2="This is your t2 text")]
+[var.c1.inline(t1="This is your t1 text" t3="This is your t3 text")]
+
+
+@xlink _id="bm_factory" \
+      _format="@link _id=\"{{self.nm}}\" _inherit=\"bm_template\" text=\"{{self.t}}\""
+
+@xlink _id="bm_template" \
+      id="{{self._}}" \
+      _format="@@ {{self._inline}}" \
+      link="<a href=\"#{{self.id}}\">{{self.text}}</a>" \
+      text="TEXT-TO-DISPLAY-FOR-LINK"   \
+      _inline="<a id=\"{{self.id}}\"></a>"
+
+
+# [code.repeat.run(t="-", c="42")]
+## Create AddAlias factory for adding aliases to links...
+
+
+ 
+[code.echo.run(t="@set _id=\"myvar25\" val=\"hello, world\"")]
+[code.echo.run(t="@set _id=\"myvar25\" val2=\"hello, world!!\"")]
+[code.echo.run(t="@set _id=\"link.mytest42\" _generic=\"{{self.<}}{{self._tt_}}{{self.>}}\"")]
+
+
+@set _id="link.mytest42" _generic="{{self.<}}{{self._tt_}}{{self.>}}"
+
+[link.mytest42._generic(_tt_="My link text")]
+
+var.myvar25.val2=[var.myvar25.val2]
+link.mytest42.val=[link.mytest42.val]
+@dump var="myvar25|mytest42" link="mytest42|link.my"
+
+# [code.repeat.run(t="-", c="42")]
+
+[link.ln_factory(nm="jjj", hr="https://cloudylogic.com", t="cls")]
+[link.jjj]
+
+//@set _id="link.jjj" _NEWATTR="{{link.jjj.<}}{{self.NEWTEXT}}{{link.jjj.>}}" _NEWTEXT="MYNEWTEXT" _open="{{self.<}}" _close="{{self.>}}"
+//@dump link="jjj"
+
+
+//@debug 
+# [code.repeat.run(t="-", c="42")]
+//@code _id="format_attr"\
+      type="eval"\
+      src="print('{{self._fmtstr_}}'.format('{{', '}}', '{{self.ns}}', '{{self.nm}}', '{{self.attr}}', '{{self.text}}', '\\"'))"\
+      ns="?" nm="?" attr="?" text="?" _fmtstr_="set _id={6}{2}.{3}{6} {4}={6}{0}{2}.{3}.<{1}{6}{5}{0}{2}.{3}.>{1}\""
+
+
+@code _id="add_attr"\
+      type="eval"\
+      src="print('@set _id=\"{0}\" {1}=\"{3}{3}{0}.<{4}{4}{2}{3}{3}{0}.>{4}{4}\"'.format('{{self.nm}}', '{{self.attr}}', '{{self.text}}', '{', '}'))"\
+      nm="?" attr="?" text="?"
+
+[code.add_attr.run(nm="link.jjj", attr="_altname2", text="Cloudy Logic Studios, LLC")]
+@dump link="jjj"
+
+# WTF
+//[code.format_attr.run(ns="link", nm="jjj", attr="_altname", text="This is my new cool text to link")]
+
+//@dump link="jjj"
+[link.jjj._altname2]
+
+# [code.repeat.run(t="-", c="42")]
+# [code.repeat.run(t="-", c="42")]
+
+@ [code.repeat.run(t="-", c="100")]
+@link _id="AddAlias" \
+     _format="{{code.echo.run(t="@set _id=\\"{{self.nm}}\\" _x{{self.an}}=\\"{{link.{{self.nm}}.<}}{{self.at}}{{link.{{self.nm}}.>}}\\")}}"
+echo [link.AddAlias(nm="cls", an="coolness", at="Cloudy Logic Studios, LLC")]
+@dump link="AddAlias" code="echo"
+
+ECHO [link.AddAlias(nm="cls", an="coolness", at="Cloudy Logic Studios, LLC")]
+//@debug
+[link.AddAlias(nm="cls", an="coolness", at="Cloudy Logic Studios, LLC")]
+@dump link="AddAlias" code="echo"
+
+[cls._coolness]
+
+@dump link="AddAlias|cls"

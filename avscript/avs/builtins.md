@@ -19,7 +19,8 @@
      title="{{defaults.title}}" \
      author="{{defaults.author}}" \
      logline="{{defaults.logline}}" \
-     _format="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
+     _format="{{self._inline_}}" \
+     _inline_="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
 @link _id="_template_" \
       _format="{{self.<}}{{self._text}}{{self.>}}" \
       _text="Usage: link.{{self._}}(_text=\"Text to Link\")" \

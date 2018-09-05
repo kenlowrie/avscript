@@ -71,6 +71,15 @@ class VariableStore(object):
         self.vars = {}
         self._md_ptr = markdown
         self.oprint = oprint
+        self._debug = False
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, args):
+        self._debug = True
 
     def _markdown(self, s):
         markdown = self._md_ptr
@@ -502,6 +511,7 @@ class CodeNamespace(AdvancedNamespace):
 
         # Need to expand any variables inside src...
         src = super(CodeNamespace, self).getValue('{}.src'.format(var_name))
+        if self.debug: print("CODE src={}".format(src))
         dict['_code'] = compile(src, '<string>', dict['type'])
         #dict['last'] = eval(dict['_code']) if dict['type'] == 'eval' else self.executePython(dict)
         dict['last'] = self.executePython(dict)
@@ -530,7 +540,7 @@ class CodeNamespace(AdvancedNamespace):
 
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
-        #print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
+        if self._debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
         if el0 is not None:
             if el0 in CodeNamespace._element_partials:
 
@@ -580,9 +590,32 @@ class Namespaces(object):
 
         self._namespaces[ns].addVariable(value, name)
 
+    # TODO: Clean this up...
+    def findNamespace(self, value):
+        id = self._namespaces['var'].getIDstring(value)
+        if id is not None:
+            ns, name = self._splitNamespace(value[id])
+            if ns is not None:
+                if ns in Namespaces._search_order:
+                    if self._namespaces[ns].exists(name):
+                        #TODO: Review for kludginess
+                        value[id] = name    # remove the NS prefix from the dict. Is this a kludge?
+                        return ns
+
+            for ns in Namespaces._search_order:
+                if self._namespaces[ns].exists(name):
+                    return ns
+
+        return None
+
+    # TODO: Clean this up...
     def updateVariable(self, value, name=None, ns=None):
+        if ns == '?':
+            ns = self.findNamespace(value)
+
+        #print("NS IS: {}--{}<br />".format(ns, value))
         if ns is None:
-            ns = Namespaces._default
+            ns = Namespaces._var
 
         if ns not in self._namespaces:
             #TODO: Raise exception
@@ -679,6 +712,11 @@ class Namespaces(object):
                 return self._namespaces[ns].setAttribute(variable_name, attr_name, attr_value)
 
         return "Variable {} is (undefined)".format(variable_name)    # I don't think this will ever happen
+
+    def debug(self):
+        self._debug = True
+        for ns in Namespaces._search_order:
+            self._namespaces[ns].debug = True
 
     def dump(self):
         for ns in Namespaces._search_order:

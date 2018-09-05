@@ -6,42 +6,42 @@
 [path]=/Users/ken/Dropbox/shared/src/script/avscript/docs/import
 @import '[path]/userguideheading.md'
 
-@link _id="inlinemd" _inherit="bookmark_template"
-@link _id="links" _inherit="bookmark_template"
-@link _id="inline_links" _inherit="bookmark_template"
-@link _id="ref_links" _inherit="bookmark_template"
-@link _id="auto_links" _inherit="bookmark_template"
-@link _id="mailto_links" _inherit="bookmark_template"
-@link _id="aliases" _inherit="bookmark_template"
-@link _id="div" _inherit="bookmark_template"
-@link _id="headers" _inherit="bookmark_template"
-@link _id="anchors" _inherit="bookmark_template"
-@link _id="special_sections" _inherit="bookmark_template"
-@link _id="imports" _inherit="bookmark_template"
-@link _id="advanced" _inherit="bookmark_template"
-@link _id="predefined_classes" _inherit="bookmark_template"
-@link _id="shotlist" _inherit="bookmark_template"
-@link _id="debug" _inherit="bookmark_template"
-@link _id="summary" _inherit="bookmark_template"
+[link.bm_factory(nm="inlinemd" t="Inline Markdown")]
+[link.bm_factory(nm="links" t="Links")]
+[link.bm_factory(nm="inline_links" t="Inline Links")]
+[link.bm_factory(nm="ref_links" t="Reference Links")]
+[link.bm_factory(nm="auto_links" t="Automatic Links")]
+[link.bm_factory(nm="mailto_links" t="mailto Links")]
+[link.bm_factory(nm="aliases" t="Aliases")]
+[link.bm_factory(nm="div" t="DIV")]
+[link.bm_factory(nm="headers" t="Headers")]
+[link.bm_factory(nm="anchors" t="Anchors")]
+[link.bm_factory(nm="special_sections" t="Special Sections")]
+[link.bm_factory(nm="imports" t="Importing files")]
+[link.bm_factory(nm="advanced" t="Advanced Topics")]
+[link.bm_factory(nm="predefined_classes" t="Predefined Classes")]
+[link.bm_factory(nm="shotlist" t="Shotlist")]
+[link.bm_factory(nm="debug" t="Debug")]
+[link.bm_factory(nm="summary" t="Summary")]
 
 {:.toc}@@@ divTitle Table of Contents
-    [link.inlinemd.link(text="Inline Markdown")] - **Formatting content inline**
-    [link.links.link(text="Links")] - **Inline and Reference Link Styles**
-    {:.indent}[link.inline_links.link(text="Inline Links")] - **Creating links inline**
-    {:.indent}[link.ref_links.link(text="Reference Links")] - **Creating reference links**
-    {:.indent}[link.mailto_links.link(text="mailto Links")] - **Creating mailto links**
-    {:.indent}[link.auto_links.link(text="Automatic Links")] - **Creating automatic links**
-    [link.aliases.link(text="Aliases")] - **Text substitution aka Variables**
-    [link.div.link(text="DIV")] - **Creating new DIV sections**
-    [link.headers.link(text="Headers")] - **Adding Headers**
-    [link.anchors.link(text="Anchors")] - **Using Bookmarks**
-    [link.special_sections.link(text="Special Sections")] - **Covers, Revisions &amp; Contact sections**
-    [link.imports.link(text="Importing files")] - **Importing files**
-    [link.advanced.link(text="Advanced Topics")] - **Introducing @raw, @image & @var**
-    [link.predefined_classes.link(text="Predefined Classes")] - **Using predefined CSS classes**
-    [link.shotlist.link(text="Shotlist")] - **Displaying the shotlist**
-    [link.debug.link(text="Debug")] - **Dumping variables and links**
-    [link.summary.link(text="Summary")] - **Summary of the User Guide**
+    [link.inlinemd.link] - **Formatting content inline**
+    [link.links.link] - **Inline and Reference Link Styles**
+    {:.indent}[link.inline_links.link] - **Creating links inline**
+    {:.indent}[link.ref_links.link] - **Creating reference links**
+    {:.indent}[link.mailto_links.link] - **Creating mailto links**
+    {:.indent}[link.auto_links.link] - **Creating automatic links**
+    [link.aliases.link] - **Text substitution aka Variables**
+    [link.div.link] - **Creating new DIV sections**
+    [link.headers.link] - **Adding Headers**
+    [link.anchors.link] - **Using Bookmarks**
+    [link.special_sections.link] - **Covers, Revisions &amp; Contact sections**
+    [link.imports.link] - **Importing files**
+    [link.advanced.link] - **Introducing @raw, @image & @var**
+    [link.predefined_classes.link] - **Using predefined CSS classes**
+    [link.shotlist.link] - **Displaying the shotlist**
+    [link.debug.link] - **Dumping variables and links**
+    [link.summary.link] - **Summary of the User Guide**
 
 ## What is AVScript?
 AVScript is a Python utility that takes plain text files loosely (oh, so loosely) based on Markdown as input, and generates Audio/Video (A/V) Style scripts in HTML format. A CSS file is used to style the output, making it super easy to customize the final render to your liking.
@@ -76,7 +76,7 @@ Lines that begin with a double forward slash [***//***] are treated as comments,
 //This will not appear in the HTML
 If you examine the HTML output, you will not see the previous line in the output.
 
-@@ [link.inlinemd]
+[link.inlinemd]
 ###Inline Markdown
 
 A few of the standard markdown span elements are supported, as are a couple of specialized span elements. These include:
@@ -96,7 +96,7 @@ When you want to wrap text with [lt]ins[gt], use the double plus signs like this
 
 That's a brief look at using AVScript's built-in span element support. Now, let's take a look at support for links, the remaining span element.
 
-@@ [link.links]
+[link.links]
 ###Links
 
 Both inline and reference style links are supported. The syntax for each style is:
@@ -110,7 +110,7 @@ Both inline and reference style links are supported. The syntax for each style i
     {:.indent3.bigandbold}&#91;MyLinkID&#93;:(http://url.com "title") *&lt;-- Inline Link Example - Parenthesis around URL &amp; Title*
     {:.indent3.bigandbold}&#91;MyLinkID&#93;:http://url.com "title" *&lt;-- Reference Link Example - Must be at beginning of line*
 
-@+[inline+links]
+[link.inline_links]
 ###Inline Style:
 
 The next paragraph has the following inline links defined within it: This is **&#91;an example]:(http://example.com/ "Inline Link Sample")** of an inline link. **&#91;This inline link]:(http://example.net/)** has no title attribute.
@@ -119,7 +119,7 @@ This is [an example]:(http://example.com/ "Inline Link Sample") of an inline lin
 
 Inline links can occur anywhere in the text. Once an inline link has been processed the first time, the link ID, i.e. the part between the [ ], can be used over and over. e.g.: [an example].
 
-@+[ref+links]
+[link.ref_links]
 ###Reference Style:
 Reference links use the format [linkID]:url "optional title". Essentially, just like inline links, but without the ( ) surrounding the URL and optional title.
 
@@ -144,7 +144,7 @@ Then the inline link isn't expanded inline as normal, and any text following the
 [inline 2]:(https://cloudylogic.com)-you won't see any of this text...
 
 Now, I can go ahead and write **&#91;inline 2]**, like this: [inline 2], and it's a valid link!
-@+[mailto+links]
+[link.mailto_links]
 ###mailto links
 You can create mailto: links in your document too, which enables users to click on a link to automatically compose an email addressed to the specified email address. AVScript will encode the entire mailto: link URL using a mix of decimal and hexadecimal HTML entities as a deterrent to spam bots that mine email addresses from HTML documents. Here's the syntax for a *mailto:* link:
  
@@ -160,12 +160,12 @@ You can create mailto: links in your document too, which enables users to click 
 
 I've defined the previous examples inline in the user docs, so now we can use them by embedding the link id within square brackets, like so: [email_me]. Or using the second form, send me [feedback].
 
-@+[auto+links]
+[link.auto_links]
 ###Automatic links
 The final type of link format is automatic links. Automatic links are created by simply wrapping a URL with ***&lt; &gt;*** like this: <http://www.cloudylogic.com>. When you do that, the URL (everything between the angle brackets) is wrapped with an **A** tag whose **HREF** attribute is the URL.
 {:.note}**NOTE: **I'm still on the fence as to whether support for automatic links will remain in AVScript, so don't get too comfortable with them just yet...
 
-@+[aliases]
+[link.aliases]
 {:.plain}@@@ plainTitle
 ## Aliases or Variables
 
@@ -230,7 +230,7 @@ And that's all good. It's concise, I only have to write *cls* in [ ] and it is w
 [Cloudy Logic]=cls
 Now, when I write [Cloudy Logic], it is wrapped with the link for *cls*. Cool!
 
-@+[divs]
+[link.divs]
 {:.plain}@@@ plainTitle
 ##Divs
 You can create a new DIV using ***---*** or ***@@@*** at the start of a new line. The complete syntax is: 
@@ -263,7 +263,7 @@ There are a several built-in CSS classes that are defined in the accompanying **
 
 Remember, you can add your own classes in a CSS file, and then reference them using the built-in formatting of **avscript_md**.
 
-@+[headers]
+[link.headers]
 {:.plain}@@@ plainTitle
 ##Headers
 
@@ -284,7 +284,7 @@ And this is how they will look in the document when it's formatted:
 
 You may want to style the headers to your liking in the avscript_md.css file.
 
-@+[anchors]
+[link.anchors]
 ##Bookmarks
 You can also define bookmarks in your document, and then reference them with links using the following syntax:
 
@@ -295,7 +295,7 @@ This is useful for creating things like a table of contents (TOC) for your docum
 
 For an example of bookmarks, just take a look at how this user guide defined and uses its own TOC.
 
-@+[special+sections]
+[link.special_sections]
 ##Cover, Revision & Contact Sections
 
 There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:
@@ -347,7 +347,7 @@ The contact section allows you to specify several key elements about the script 
 
 Each contact element is optional, and the elements can appear in any order. To see these tags in action, take a look at the **userguideheading.md** document in the import folder of this user guide.
 
-@+[imports]
+[link.imports]
 {:.plain}@@@ plainTitle
 ##Importing documents
 
@@ -368,7 +368,7 @@ Would be the same as writing **@import "/mydir/vars.md"**. This is useful becaus
 The path can be specified as either **'$/path/filename'** or **'$path/filename'**. In other words, you can specify the '/' after '$' or leave it off, whatever your preference is.
 
 
-@+[advanced]
+[link.advanced]
 {:.plain}@@@ plainTitle
 ##Advanced Topics: @raw, @image, @var &amp; @set
 
@@ -590,7 +590,7 @@ Same image, but without a border.
 
 So that pretty much sums up the advanced section. Hopefully it was helpful, if not, ask questions, and I'll clarify. Or better yet, improve the docs, and submit a pull request. :)
 
-@+[predefined classes]
+[link.predefined_classes]
 {:.plain}@@@ plainTitle
 ##Predefined classes
 There are a number of predefined classes in the primary CSS file that can be used to quickly style your AV scripts. You can add others as required, and decorate your elements as needed. Here are a few of them, used outside the AV DIV, and then again inside an AV DIV.
@@ -643,7 +643,7 @@ You can stack multiple classes by simply stringing them together. For example, o
 
 {:.greybg.bigandbold.blue}This is a big and bold blue note on a grey background.
 
-@+[shotlist]
+[link.shotlist]
 {:.plain}@@@ plainTitle
 ##Shotlist
 
@@ -651,7 +651,7 @@ For convenience, you can list all of the defined shots in a list at the end of y
 
 ///Shotlist///
 
-@+[debug]
+[link.debug]
 {:.plain}@@@ plainTitle
 {:.plainTitle}##Debugging
 
@@ -665,7 +665,7 @@ Here are those two tags in action for this document.
 ///Links///
 ///Variables///
 
-@+[summary]
+[link.summary]
 {:.plain}@@@ plainTitle
 ## Summary
 

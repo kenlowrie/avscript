@@ -55,7 +55,8 @@ NAMESPACE: var<br />
 <strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[workingtitle]<br />
 &nbsp;&nbsp;<strong>author=</strong>**This guide is NOT Confidential**<br />
 &nbsp;&nbsp;<strong>logline=</strong>[storysummary].<br />
-&nbsp;&nbsp;<strong>_format=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+&nbsp;&nbsp;<strong>_format=</strong>{{self._inline_}}<br />
+&nbsp;&nbsp;<strong>_inline_=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
 <br />
 <strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
 &nbsp;&nbsp;<strong>author=</strong>[author]<br />

@@ -619,6 +619,8 @@ class AVScriptParser(StdioWrapper):
             """Handle a debug line"""
             self.oprint("Entering Debug Mode<br />")
             self._debug = True
+            self._ns.debug()
+            self._md._debug=True
 
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""
@@ -759,7 +761,7 @@ class AVScriptParser(StdioWrapper):
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
                 #self._varV2.updateVarV2(d.copy(), self.oprint)
                 #TODO: This needs to have an option for "finding namespace"
-                self._ns.updateVariable(d, ns="var")
+                self._ns.updateVariable(d, ns="?")
 
             else:
                 self.oprint(lineObj.original_line)

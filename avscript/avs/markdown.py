@@ -26,6 +26,7 @@ class Markdown(object):
         self._special_parameter = Regex(r'([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
         self._namespaces = DummyNamespaces()
         self._stripClass = self.DummyStripClass
+        self._debug = False
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1
@@ -137,7 +138,7 @@ class Markdown(object):
         ]
 
         self._inc_nesting_level()
-        #print("CALLED: {}".format(s))
+        if self._debug: print("CALLED: {}<br />".format(s))
         # For each type of markdown
         for key, md_func in markdownTypes:
             md_obj = self._regex_markdown[key]

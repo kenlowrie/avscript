@@ -5,6 +5,7 @@ from .line import *
 from .regex import *
 from .stdio import *
 from .stream import *
+from .utility import *
 from .variable import *
 from .bookmark import *
 from .markdown import *

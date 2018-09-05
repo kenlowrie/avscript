@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 
+from .utility import HtmlUtils
+
 """
 
 """
@@ -154,13 +156,6 @@ class VariableStore(object):
 
         raise
 
-    def escape_html(self, s):
-        if type(s) != type(''):
-            # If we weren't passed a string, convert it to a string before we escape it.
-            s = str(s)
-
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
     def unescapeString(self,s):
         return s.replace('\\"', '"')
 
@@ -172,22 +167,17 @@ class VariableStore(object):
 
     def dumpVars(self, which='.*', indent=''):
         """Dumps the variable list, names and values."""
-        def escape_html(s):
-            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
         from .regex import RegexSafe
         reObj = RegexSafe(which)
         for var in sorted(self.vars):
             if reObj.is_match(var) is None:
                 continue
 
-            self.oprint("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].name, self.escape_html(self.vars[var].rval['_rval']), indent))
+            self.oprint("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].name, 
+                                                                   HtmlUtils.escape_html(self.vars[var].rval['_rval']), indent))
 
     def dumpVarsAsStrings(self, which='.*', indent=''):
         """Dumps the variable list, names and values."""
-        def escape_html(s):
-            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
         from .regex import RegexSafe
         reObj = RegexSafe(which)
         for var in sorted(self.vars):
@@ -380,7 +370,7 @@ class AdvancedNamespace(Namespace):
                 continue
             dict_str = '<br />'
             for d_item in self.vars[var].rval:
-                dict_str += '&nbsp;&nbsp;<strong>{}=</strong>{}<br />\n'.format(d_item, self.escape_html(self.vars[var].rval[d_item]))
+                dict_str += '&nbsp;&nbsp;<strong>{}=</strong>{}<br />\n'.format(d_item, HtmlUtils.escape_html(self.vars[var].rval[d_item]))
             self.oprint("{2}<strong>{0}=</strong>{1}<br />".format(var, dict_str, indent))
 
 class VarNamespace(AdvancedNamespace):
@@ -540,7 +530,7 @@ class CodeNamespace(AdvancedNamespace):
 
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
-        if self._debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
+        if self.debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
         if el0 is not None:
             if el0 in CodeNamespace._element_partials:
 
@@ -566,6 +556,7 @@ class Namespaces(object):
     _search_order = [_default, _var, _image, _link, _html, _code]
 
     def __init__(self, markdown, setNSxface, oprint=print):
+        self._debug = False
         self._namespaces = {
             Namespaces._default: BasicNamespace(markdown, Namespaces._default, oprint),
             Namespaces._html: HtmlNamespace(markdown, Namespaces._html, oprint),
@@ -579,6 +570,14 @@ class Namespaces(object):
 
         self.oprint = oprint
         setNSxface(self)
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, args):
+        self._debug = True
 
     def addVariable(self, value, name=None, ns=None):
         if ns is None:
@@ -713,10 +712,10 @@ class Namespaces(object):
 
         return "Variable {} is (undefined)".format(variable_name)    # I don't think this will ever happen
 
-    def debug(self):
-        self._debug = True
+    def debugToggle(self, toggle):
+        self.debug = toggle
         for ns in Namespaces._search_order:
-            self._namespaces[ns].debug = True
+            self._namespaces[ns].debug = toggle
 
     def dump(self):
         for ns in Namespaces._search_order:
@@ -776,16 +775,10 @@ class VariableDict(object):
         TODO: Should this just return an empty string if undefined?"""
         return "(undefined)" if not self.exists(id) else self.vars[id].text
 
-    def escape_html(self, s):
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
     def dumpVars(self, indent='', output=print):
         """Dumps the variable list, names and values."""
-        def escape_html(s):
-            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
         for var in sorted(self.vars):
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, self.escape_html(self.vars[var].text), indent))
+            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, HtmlUtils.escape_html(self.vars[var].text), indent))
 
 
 class VariableV2Dict(VariableDict):
@@ -900,7 +893,7 @@ class VariableV2Dict(VariableDict):
         for var in sorted(self.vars):
             dict_str = '<br />'
             for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
+                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, HtmlUtils.escape_html(self.vars[var].text[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 
@@ -965,7 +958,7 @@ class ImageDict(VariableDict):
         for var in sorted(self.vars):
             dict_str = '<br />'
             for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, self.escape_html(self.vars[var].text[d_item]))
+                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, HtmlUtils.escape_html(self.vars[var].text[d_item]))
             output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 

@@ -3,6 +3,7 @@
 from re import findall, compile, IGNORECASE
 
 from .regex import Regex, RegexMD
+from .utility import HtmlUtils
 from .exception import LogicError, NestingError
 
 
@@ -27,6 +28,14 @@ class Markdown(object):
         self._namespaces = DummyNamespaces()
         self._stripClass = self.DummyStripClass
         self._debug = False
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, args):
+        self._debug = True
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1
@@ -138,7 +147,7 @@ class Markdown(object):
         ]
 
         self._inc_nesting_level()
-        if self._debug: print("CALLED: {}<br />".format(s))
+        if self.debug: print("markdown({})<br />".format(HtmlUtils.escape_html(s)))
         # For each type of markdown
         for key, md_func in markdownTypes:
             md_obj = self._regex_markdown[key]

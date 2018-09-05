@@ -204,9 +204,11 @@ C. In the factory, you GENERATE a new variable that is based on a TEMPLATE. By d
       src="print('@set _id=\"{0}\" {1}=\"{3}{3}{0}.<{4}{4}{2}{3}{3}{0}.>{4}{4}\"'.format('{{self.nm}}', '{{self.attr}}', '{{self.lt}}', '{', '}'))"\
       nm="link.?" attr="_attr_name" lt="New Link Text goes here"
 
+@debug 
 [code.AddAliasToLink.run(nm="link.cls2", attr="_clsllc", lt="Cloudy Logic Studios, LLC")]
 @dump link="cls2"
 [link.cls2._clsllc]
 
 # [code.repeat.run(t="-", c="42")]
 
+//@dump all="*"

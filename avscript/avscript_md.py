@@ -148,6 +148,16 @@ class AVScriptParser(StdioWrapper):
             'del': RegexMD(r'(\~{2}(.+?)\~{2})', '<del>{0}</del>')
         }
 
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, args):
+        self._debug = True
+        self._ns.debugToggle(True)
+        self._md.debug = True
+
     def _regex(self, id):
         """
         Returns the RegexMain object for a specific parse type.
@@ -605,12 +615,10 @@ class AVScriptParser(StdioWrapper):
 
         def handle_raw(m, lineObj):
             """Handle a raw line"""
-            #TODO: Make this available everywhere...
-            def esc_html(x):
-                return x.replace('<','&lt;').replace('>','&gt;').replace('&','&amp;')
+            from .avs.utility import HtmlUtils
             if(m is not None):
-                if self._debug:
-                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(esc_html(lineObj.current_line),esc_html(m.group(2))))
+                if self.debug:
+                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(HtmlUtility.escape_html(lineObj.current_line),HtmlUtility.escape_html(m.group(2))))
                 self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
@@ -618,9 +626,7 @@ class AVScriptParser(StdioWrapper):
         def handle_debug(m, lineObj):
             """Handle a debug line"""
             self.oprint("Entering Debug Mode<br />")
-            self._debug = True
-            self._ns.debug()
-            self._md._debug=True
+            self.debug = True
 
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""

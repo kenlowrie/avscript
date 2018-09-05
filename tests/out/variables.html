@@ -115,6 +115,7 @@
 NAMESPACE: basic<br />
 ----------------------------------------<br />
 <strong>My Email Address=</strong>me<br />
+<strong>SP=</strong>&amp;nbsp;<br />
 <strong>abc=</strong>123<br />
 <strong>b=</strong>&lt;br /&gt;<br />
 <strong>bb=</strong>&lt;br /&gt;&lt;br /&gt;<br />
@@ -164,6 +165,13 @@ NAMESPACE: link<br />
 &nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
+<strong>aliases=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline}}<br />
+&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>text=</strong>Aliases aka Variables<br />
+&nbsp;&nbsp;<strong>_inline=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
 <strong>article1=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
 &nbsp;&nbsp;<strong>_text=</strong>Link to Article<br />
 &nbsp;&nbsp;<strong>href=</strong>https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/<br />
@@ -180,14 +188,20 @@ NAMESPACE: link<br />
 &nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
-<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
-&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+<strong>bm_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@link _id="{{self.nm}}" _inherit="bm_template" text="{{self.t}}"<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>nm=</strong>aliases<br />
+&nbsp;&nbsp;<strong>t=</strong>Aliases aka Variables<br />
+<br />
+<strong>bm_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline}}<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
+&nbsp;&nbsp;<strong>_inline=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
 <strong>cls=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
-&nbsp;&nbsp;<strong>_text=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_text=</strong>cls<br />
 &nbsp;&nbsp;<strong>href=</strong>https://cloudylogic.com<br />
 &nbsp;&nbsp;<strong>_asurl=</strong>{{self.&lt;}}{{code.esc_html.run(url="{{self.href}}")}}{{self.&gt;}}<br />
 &nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
@@ -217,6 +231,12 @@ NAMESPACE: link<br />
 &nbsp;&nbsp;<strong>_qlink=</strong>{{self.&lt;}}{{self._qtext}}{{self.&gt;}}<br />
 &nbsp;&nbsp;<strong>_qtext=</strong>SETMETOLINKTEXT<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
+<br />
+<strong>ln_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@link _id="{{self.nm}}" _inherit="_template_" href="{{self.hr}}"  _text="{{self.t}}"<br />
+&nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>nm=</strong>article1<br />
+&nbsp;&nbsp;<strong>hr=</strong>https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/<br />
+&nbsp;&nbsp;<strong>t=</strong>Link to Article<br />
 <br />
 <strong>withtitle=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{self.&lt;}}{{self._text}}{{self.&gt;}}<br />
 &nbsp;&nbsp;<strong>_text=</strong>One with Title<br />

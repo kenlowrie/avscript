@@ -1,6 +1,6 @@
 // variables
-
-@+[aliases]
+[link.bm_factory(nm="aliases" t="Aliases aka Variables")]
+[link.aliases]
 {:.plain}@@@ plainTitle Aliases
 ## Aliases or Variables
 
@@ -16,7 +16,7 @@ And now, [my name] &lt;-- should be Ken Lowrie wrapped with &lt;em> tags.
 
 Building on that, we can create aliases for inline links. Say I define a reference link like this: 
 {:.indent}###&#91;cls]:https://cloudylogic.com
-@link _="cls" _inherit="_template_" _text="{{self._}}" href="https://cloudylogic.com"  _qlink="{{self.<}}{{self._qtext}}{{self.>}}" _qtext="SETMETOLINKTEXT"
+[link.ln_factory(nm="cls", hr="https://cloudylogic.com", t="{{self.nm}}")]
 Now, when I write **&#91;cls]**, it is replaced with a link to https://cloudylogic.com. For example: [cls].
 And that's all good. It's concise, I only have to write *cls* in [ ] and it is wrapped with an HTML link. Saves a lot of typing and potential mistakes. But what if I want to have other, more descriptive names for that URL? Good news, we can do that using a special form of aliases: [Descriptive Text]=[id], where *id* is the name of a previously described reference link. Let me go ahead and create an alias for the *cls* link so the descriptive name is Cloudy Logic. ThIS TEXT IS ALL WRONG. DOESN'T WORK THIS WAY ANYMORE...
 {:.indent}###&#91;Cloudy Logic]=cls
@@ -59,7 +59,7 @@ Most of the time, you'll just add normal links with the regular link syntax, but
 
 Here are a couple more examples:
 
-@link _="article1" _inherit="_template_" _text="Link to Article" href="https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/"
+[link.ln_factory(nm="article1", hr="https://wordpress.org/news/2018/05/the-month-in-wordpress-april-2018/", t="Link to Article")]
 @link _="article2" _inherit="_template_" _text="Link to Article2" href="https://domain.com/another_article_link"
 [domain]=cls
 [article1] <-- That should have been turned into a link

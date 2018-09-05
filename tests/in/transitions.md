@@ -61,7 +61,8 @@ Description
 {:.green}$$contact$$:<<.NOT>>:<<.HERE>>:<<.EITHER>>:<<1>>:<<2>>:<<3>>
 {:.red}[variable]=NO NOT HERE EITHER
 {:.blue}[link]:not_in_links_either_
-@link _id="myanchor" _inherit="bookmark_template"
-@raw [link.myanchor(id="{{self._}}" text="*This is my text*")]
+@break
+[link.bm_factory(nm="myanchor" t="*This is my text*")]
+[link.myanchor]
 [link.myanchor.link]
 

@@ -1,5 +1,5 @@
-@link _id="bm-section1" _inherit="bookmark_template"
-[link.bm-section1(id="special+sections" text="Cover, Revision & Contract Sections")]
+[link.bm_factory(nm="special_sections" t="Cover, Revision &amp; Contract Sections")]
+[link.special_sections]
 ##Cover, Revision & Contact Sections
 
 There are three (3) specialized sections that can be defined within your document to add commonly used information in script files. They are:
@@ -43,7 +43,7 @@ Each element is optional, and the elements can appear in any order. By default, 
 
 To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.
 
-[link.bm-section1.link]
+[link.special_sections.link]
 // And now let's try various versions
 
 [var.cover(title="Title of Script" author="Script Author")]

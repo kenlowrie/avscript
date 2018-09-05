@@ -1,7 +1,5 @@
 <div class="wrapper">
-    <div class="extras">
-        <p><a id="special+sections"></a></p>
-    </div>
+    <a id="special_sections"></a>
     <div class="extras">
         <h2>Cover, Revision & Contact Sections</h2>
     </div>
@@ -50,7 +48,7 @@
         <p>To see these tags in action, take a look at the userguideheading.md document in the import folder of this user guide.</p>
     </div>
     <div class="extras">
-        <p><a href="#special+sections">Cover, Revision & Contract Sections</a></p>
+        <p><a href="#special_sections">Cover, Revision &amp; Contract Sections</a></p>
     </div>
     <div class="extras">
         <p><div class="cover"><h3>Title of Script</h3><p>Script Author</p><p class="coverSummary">[logline]</p></div></p>
@@ -358,16 +356,16 @@ NAMESPACE: var<br />
 ----------------------------------------<br />
 NAMESPACE: link<br />
 ----------------------------------------<br />
-<strong>bm-section1=</strong><br />&nbsp;&nbsp;<strong>id=</strong>special+sections<br />
-&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
-&nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
-&nbsp;&nbsp;<strong>text=</strong>Cover, Revision &amp; Contract Sections<br />
+<strong>bm_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@link _id="{{self.nm}}" _inherit="bm_template" text="{{self.t}}"<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
+&nbsp;&nbsp;<strong>nm=</strong>special_sections<br />
+&nbsp;&nbsp;<strong>t=</strong>Cover, Revision &amp;amp; Contract Sections<br />
 <br />
-<strong>bookmark_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
-&nbsp;&nbsp;<strong>_format=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
+<strong>bm_template=</strong><br />&nbsp;&nbsp;<strong>id=</strong>{{self._}}<br />
+&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline}}<br />
 &nbsp;&nbsp;<strong>link=</strong>&lt;a href="#{{self.id}}"&gt;{{self.text}}&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>text=</strong>TEXT-TO-DISPLAY-FOR-LINK<br />
+&nbsp;&nbsp;<strong>_inline=</strong>&lt;a id="{{self.id}}"&gt;&lt;/a&gt;<br />
 &nbsp;&nbsp;<strong>_tag=</strong>a<br />
 <br />
         </code>

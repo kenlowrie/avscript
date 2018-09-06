@@ -618,7 +618,7 @@ class AVScriptParser(StdioWrapper):
             from .avs.utility import HtmlUtils
             if(m is not None):
                 if self.debug:
-                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(HtmlUtility.escape_html(lineObj.current_line),HtmlUtility.escape_html(m.group(2))))
+                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(HtmlUtils.escape_html(lineObj.current_line),HtmlUtils.escape_html(m.group(2))))
                 self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)

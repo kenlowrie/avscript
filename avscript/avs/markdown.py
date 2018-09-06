@@ -35,7 +35,7 @@ class Markdown(object):
 
     @debug.setter
     def debug(self, args):
-        self._debug = True
+        self._debug = args
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1

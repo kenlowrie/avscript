@@ -125,15 +125,15 @@ class AVScriptParser(StdioWrapper):
             'dump': RegexMain(True, True, False, r'^(@dump(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
-            'debug': RegexMain(True, False, False, r'^@debug$', None),
+            'debug': RegexMain(True, False, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
             'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
  
             'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
             'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
-            'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\"){0,3})', None),
-            'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\"){0,2})', None),
+            'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\")+)', None),
+            'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
         }
 
         # Dictionary of each markdown type that we process on each line
@@ -154,9 +154,10 @@ class AVScriptParser(StdioWrapper):
 
     @debug.setter
     def debug(self, args):
-        self._debug = True
-        self._ns.debugToggle(True)
-        self._md.debug = True
+        # self.oprint("<br />debug args={}<br />".format(args))
+        self._debug = args
+        self._ns.debugToggle(args)
+        self._md.debug = args
 
     def _regex(self, id):
         """
@@ -618,15 +619,43 @@ class AVScriptParser(StdioWrapper):
             from .avs.utility import HtmlUtils
             if(m is not None):
                 if self.debug:
-                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'.format(HtmlUtils.escape_html(lineObj.current_line),HtmlUtils.escape_html(m.group(2))))
+                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />'   \
+                                '{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'
+                                .format(HtmlUtils.escape_html(lineObj.current_line),
+                                        HtmlUtils.escape_html(m.group(2)))
+                    )
                 self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
 
         def handle_debug(m, lineObj):
             """Handle a debug line"""
-            self.oprint("Entering Debug Mode<br />")
-            self.debug = True
+
+            if(m is not None):
+                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
+
+                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
+
+                if not d:
+                    self.oprint("<br />Toggling Debug Mode<br />")
+                    self.debug = not self.debug
+                else:
+                
+                    self.oprint("<br />d={}".format(d))
+                    #ts_key = "timestamp"
+
+                    #if d.get(ts_key) and d.get(ts_key).lower() in ['false', 'no', 'off', '0']:
+                    #    ts_str = ""
+                    #else:
+                    #    from time import strftime
+                    #    ts_str = " ({})".format(strftime("%Y%m%d @ %H:%M:%S"))
+
+                    #divstr = self._html.formatLine("<div class=\"revision\">\n", 1)
+                    #divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0}{1}</p>\n".format(fmt("v").rstrip(), ts_str), -1)
+                    #divstr += self._html.formatLine("</div>")
+            else:
+                self.oprint(lineObj.current_line)
+
 
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""
@@ -637,7 +666,11 @@ class AVScriptParser(StdioWrapper):
             shotnum = 1
             for shot in self._shotListQ.getBookmarkList():
                 self.oprint(self._html.formatLine("<div class=\"shot\">", 1))
-                self.oprint(self._html.formatLine("<p>{1}&#160;<a class=\"shotlist-backref\" href=\"#{0}\" rel=\"tag\" title=\"Jump back to shot {2} in the script\">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
+                self.oprint(self._html.formatLine("<p>{1}&#160;"
+                                                  "<a class=\"shotlist-backref\""
+                                                     " href=\"#{0}\" rel=\"tag\""
+                                                     " title=\"Jump back to shot {2} in the script\""
+                                                  ">&#8617;</a></p>".format(shot[0], shot[1], shotnum), -1))
                 self.oprint(self._html.formatLine("</div>"))
                 shotnum += 1
 
@@ -696,11 +729,7 @@ class AVScriptParser(StdioWrapper):
 
                 fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
-                divstr = self._html.formatLine("<div class=\"cover\">\n", 1)
-                divstr += self._html.formatLine("<h3>{}</h3>\n".format(fmt("title")))
-                divstr += self._html.formatLine("<p>{}</p>\n".format(fmt("author")))
-                divstr += self._html.formatLine("<p class=\"coverSummary\">{}</p>\n".format(fmt("logline")))
-                divstr += self._html.formatLine("</div>", -1, False)
+                divstr = self._html.formatLine("<div class=\"extras\"><p>@cover has been deprecated. Use [var.cover]</p></div><br />")
 
                 self.oprint(divstr)
             else:
@@ -713,17 +742,7 @@ class AVScriptParser(StdioWrapper):
 
                 fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
-                ts_key = "timestamp"
-
-                if d.get(ts_key) and d.get(ts_key).lower() in ['false', 'no', 'off', '0']:
-                    ts_str = ""
-                else:
-                    from time import strftime
-                    ts_str = " ({})".format(strftime("%Y%m%d @ %H:%M:%S"))
-
-                divstr = self._html.formatLine("<div class=\"revision\">\n", 1)
-                divstr += self._html.formatLine("<p class=\"revTitle\">Revision: {0}{1}</p>\n".format(fmt("v").rstrip(), ts_str), -1)
-                divstr += self._html.formatLine("</div>")
+                divstr = self._html.formatLine("<div class=\"extras\"><p>@revision has been deprecated. Use [var.cover]</p></div><br />")
 
                 self.oprint(divstr)
             else:

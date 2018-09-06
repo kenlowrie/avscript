@@ -149,6 +149,7 @@ Inline bookmarks too: [link.inlinemd._inline] This is the location where the lin
       t="Usage: code.repeat(t=\"text to repeat\", c=5)"\
       c="1"
 
+// How the hell is echo useful? Seriously? It provides no value...
 @code _id="echo"\
       type="eval"\
       src="print('{{self.t}}')"\
@@ -199,16 +200,39 @@ C. In the factory, you GENERATE a new variable that is based on a TEMPLATE. By d
 [link.cls2]
 
 
+@code _id="AddAliasToLink2"\
+      type="exec"\
+      src="from .utility import CodeHelpers;print('@set _id=\"{0}\" {1}=\"{3}{0}.<{4}{2}{3}{0}.>{4}\"'.format('{{self.nm}}', '{{self.attr}}', '{{self.lt}}', CodeHelpers.b(0), CodeHelpers.b(1)))"\
+      nm="link.?" attr="_attr_name" lt="New Link Text goes here"
+
+
 @code _id="AddAliasToLink"\
       type="eval"\
       src="print('@set _id=\"{0}\" {1}=\"{3}{3}{0}.<{4}{4}{2}{3}{3}{0}.>{4}{4}\"'.format('{{self.nm}}', '{{self.attr}}', '{{self.lt}}', '{', '}'))"\
       nm="link.?" attr="_attr_name" lt="New Link Text goes here"
 
-@debug 
 [code.AddAliasToLink.run(nm="link.cls2", attr="_clsllc", lt="Cloudy Logic Studios, LLC")]
+[code.AddAliasToLink2.run(nm="link.cls2", attr="_clsllc0", lt="Cloudy Logic Studios")]
 @dump link="cls2"
 [link.cls2._clsllc]
+[link.cls2._clsllc0]
 
 # [code.repeat.run(t="-", c="42")]
+
+@code _id="escape"\
+      type="exec"\
+      src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('{{self.t}}'))"\
+      t="<http://www.google.com?h=1&w=0>"
+
+[code.escape.last]
+
+[globals.basepath]
+[globals.import_path]
+
+[var.contact]
+[var.revision]
+[var.revision.plain]
+[var.revision._inline_]
+[var.revision._inline_plain_]
 
 //@dump all="*"

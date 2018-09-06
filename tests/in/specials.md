@@ -46,26 +46,26 @@ To see these tags in action, take a look at the userguideheading.md document in 
 [link.special_sections.link]
 // And now let's try various versions
 
-[var.cover(title="Title of Script" author="Script Author")]
-[var.cover(title="Title of Script" author="Script Author" logline="Logline")]
-[var.cover(author="Script Author")]
-[var.cover(logline="Logline")]
-[var.cover(author="Script Author" logline="Logline")]
-[var.cover(title="Title of Script" logline="Logline")]
-[var.cover(title="Title of Script")]
-[var.cover(title="" author="Script Author" logline="")]
+[var.cover._inline_(title="Title of Script" author="Script Author")]
+[var.cover._inline_(title="Title of Script" author="Script Author" logline="Logline")]
+[var.cover._inline_(author="Script Author")]
+[var.cover._inline_(logline="Logline")]
+[var.cover._inline_(author="Script Author" logline="Logline")]
+[var.cover._inline_(title="Title of Script" logline="Logline")]
+[var.cover._inline_(title="Title of Script")]
+[var.cover._inline_(title="" author="Script Author" logline="")]
 [var.cover(title =     "Title of Script" author   =   "Script Author")]
 [var.cover(title="Title of Script" author  ="Script Author" logline=  "Logline")]
 [var.cover(     author    =    "Script Author"    )]
 [var.cover]
 [var.cover( author="author")]
-@@ [var.cover(author="author" title="title" logline="logline")]
+[var.cover(author="author" title="title" logline="logline")]
 
 Note that we'll always use timestamp off in the unittest scripts, because otherwise the comparison will fail... The code is unit tested separately...
 
-[var.revision(v="1.0")]
-[var.revision(v="1.1")]
-@raw [var.revision]
+[var.revision._inline_plain_(v="1.0")]
+[var.revision._inline_plain_(v="1.1")]
+[var.revision.plain]
  
 [var.contact]  
 [var.contact(cn="")]
@@ -77,13 +77,13 @@ Note that we'll always use timestamp off in the unittest scripts, because otherw
 [var.contact(cn="cn"  c2="c2")]
 [var.contact(c2=""  cn="")]
 
-[var.contact(cn ="Contact Name"   )]   
-[var.contact(ph="210-555-1212"   )]  
-[var.contact(cn="Contact Name2" ph="210-555-1212"   )]  
-[var.contact(em="email@mydomain.com"    )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3")]
+[var.contact._inline_(cn ="Contact Name"   )]   
+[var.contact._inline_(ph="210-555-1212"   )]  
+[var.contact._inline_(cn="Contact Name2" ph="210-555-1212"   )]  
+[var.contact._inline_(em="email@mydomain.com"    )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3")]
 
 [var.contact( ph="210-555-5309" em="" c1="" c2="" c3=""    )]
 [var.contact( ph="210-555-1212" em="email@mydomain.com"    )]
@@ -91,10 +91,10 @@ Note that we'll always use timestamp off in the unittest scripts, because otherw
 [var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2"   )]
 [var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 
-[var.contact(  em="EMAIL@mydomain.com"    )]
-[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1a"     )]
-[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2b"   )]
-[var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3c" )]
+[var.contact._inline_(  em="EMAIL@mydomain.com"    )]
+[var.contact._inline_(  em="email@mydomain.com" c1="Copyright  Line 1a"     )]
+[var.contact._inline_(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2b"   )]
+[var.contact._inline_(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3c" )]
 
 [var.contact(   c1="Copyright  Line 1a"  )]
 [var.contact(   c1="Copyright  Line 1"  c2="Copyright Line 2b" )]
@@ -105,12 +105,12 @@ Note that we'll always use timestamp off in the unittest scripts, because otherw
 
 [var.contact(     c3="Copyright Line 3" )]
 
-[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact._inline_( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 [var.contact(  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact( ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
@@ -119,42 +119,42 @@ Note that we'll always use timestamp off in the unittest scripts, because otherw
 [var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 
-[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" )]c3="Copyright Line 3" 
-[var.contact(cn="Contact Name"   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" )]c3="Copyright Line 3" 
+[var.contact._inline_(cn="Contact Name"   c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 [var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"   c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2")]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"   c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2")]
 
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1" )]
 
 [var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name"  em="email@mydomain.com" c1="Copyright  Line 1"  c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name"   c1="Copyright  Line 1"  c3="Copyright Line 3" )]
 [var.contact(cn="Contact Name"   c1="Copyright  Line 1"  )]
 
-[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2")]
 
 
 [var.contact( ph="210-444-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact( ph="210-555-1212"  c1="Copyright  Line 1"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact( ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 [var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1b"  c3="Copyright Line 3" )]
-[var.contact( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
-[var.contact(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2c" c3="Copyright Line 3" )]
-[var.contact(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_( ph="210-555-1212" em="email@mydomain.com" c1="Copyright  Line 1"  c2="Copyright Line 2")]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212" em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name" ph="210-555-1212"   c2="Copyright Line 2c" c3="Copyright Line 3" )]
+[var.contact._inline_(cn="Contact Name"  em="email@mydomain.com"  c2="Copyright Line 2" c3="Copyright Line 3" )]
 
 @dump var=".*" link="b"

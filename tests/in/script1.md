@@ -3,9 +3,9 @@
 @link _="me" _inherit="_template_" _text="me" href="email@yourdomain.com"
 @link _="feedback" _inherit="me" _text="feedback" href="mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
 
-@@ [var.cover(title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever.")]
-@@ [var.revision.plain(revision="1a")]
-@@ [var.contact(cn="Contact Name" ph="Phone" em="[me]" c1="Copyright (c) 2018 by YOURNAME." c2="All Rights Reserved." c3="Don't steal my script")]
+[var.cover(title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever.")]
+[var.revision.plain(revision="1a")]
+[var.contact(cn="Contact Name" ph="Phone" em="[me]" c1="Copyright (c) 2018 by YOURNAME." c2="All Rights Reserved." c3="Don't steal my script")]
 {:.review}---    noteTitle       Notes to Reviewers
     Please send [me] any and all [feedback], preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. ++additions are marked like this++ ~~deletions are marked like this~~
 

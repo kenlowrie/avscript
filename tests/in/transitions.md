@@ -34,10 +34,12 @@ Description
 //$$revision$$:<<1b>>
 - Shot
 Description
-@@ [var.cover(title="A" author="B" logline="C")]
+@break
+[var.cover(title="A" author="B" logline="C")]
 - Shot
 Description
-@@ [var.contact(c1="D" c2="E"  c3="F"  cn = "A"  ph  =  "B"    em   ="C")]
+@break
+[var.contact(c1="D" c2="E"  c3="F"  cn = "A"  ph  =  "B"    em   ="C")]
 - Shot
 Description
 @dump basic="b|v" var="cover"

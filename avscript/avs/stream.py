@@ -11,7 +11,8 @@ flexibility.
 from sys import stdin
 from os.path import join, split, abspath, isfile, realpath, dirname
 
-from .exception import FileError
+from .exception import FileError, LogicError
+from .globals import init_globals
 
 class _OpenFile(object):
     """A simple class to keep track of files that are opened."""
@@ -19,6 +20,56 @@ class _OpenFile(object):
         self.file = f
         self.name = name
 
+class Cache(object):
+    """A class to abstract a line cache.
+    
+    Initially, this is used to process the built-ins that are part of avscript. However,
+    it can also be used to cache lines in the middle of processing normal files.
+    """
+    def __init__(self):
+        builtins = join(abspath(dirname(realpath(__file__))), 'builtins.md')
+        with open(builtins) as f:
+            builtins = [line for line in f]
+
+        # Reverse the list (make this a stack)
+        self._cache = builtins[::-1]
+
+        # add the globals onto the stack
+        for line in init_globals():
+            self._cache.append(line)
+
+    def pushline(self, s):
+        self._cache.append(s)
+
+    def readline(self):
+        line = ''
+        while self.gotCachedLine():
+            line += self._cache.pop().strip()
+            if line.endswith('\\'):
+                # Remove the \ and add a space
+                line = line[:-1] + ' '
+                # Only continue if there are more lines, in case they put a \ on the last line
+                if self._cache:
+                    continue
+
+            # If the line we have is blank, then it only has white space.
+            if not line.strip():
+                if self._cache:
+                    # if there's more lines, then by all means, keep reading, ignore blanks
+                    continue
+                else:
+                    # This is an odd spot. We don't want to make it difficult to add built-ins,
+                    # so we need to handle this gracefully. Let's pretend the line was a comment
+                    line = "// Blank line in the cache..."
+
+            # Return the line
+            return line
+
+        raise LogicError("Cache().readline() failed while processing cache.")
+
+    def gotCachedLine(self):
+        return self._cache      # self._builtIn < len(self._builtIns)
+        
 
 class StreamHandler(object):
     """
@@ -37,10 +88,7 @@ class StreamHandler(object):
         self.line = ''
         self._started_with_stdin = None
         self._started_with_file = None
-        self._builtIn = 0
-        builtins = join(abspath(dirname(realpath(__file__))), 'builtins.md')
-        with open(builtins) as f:
-            self._builtIns = [line for line in f]
+        self._cache = Cache()
 
     def push(self, fh, name=None):
         """
@@ -107,19 +155,8 @@ class StreamHandler(object):
         """
         # Process the builtIns first.
         self.line = ''
-        while self._builtIn < len(self._builtIns):
-            self.line += self._builtIns[self._builtIn].strip()
-            self._builtIn += 1
-            # If we end with the continuation character ...
-            if self.line.endswith('\\'):
-                # Remove the \ and add a space
-                self.line = self.line[:-1] + ' '
-                # Only continue if there are more lines, in case they put a \ on the last line
-                if self._builtIn < len(self._builtIns):
-                    continue
-
-            # Return the line
-            return self.line
+        if self._cache.gotCachedLine():
+            return self._cache.readline()
 
         while 1:
             if self.idx < 0:

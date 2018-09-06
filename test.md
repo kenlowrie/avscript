@@ -68,9 +68,6 @@ And now for the attempted retry ...
 [link.cloudylogic(_text="Cloudy Logic Studios")]
 [link.cloudylogic._asurl]
 
-//@code _id="datetime_stamp" type="exec" src="from time import strftime;print(strftime(\"{{self.fmtstr}}\"))" _format="{{self.last}}" fmtstr="%Y%m%d @ %H:%M:%S"
-
-
 The current date and time is [code.datetime_stamp.last]
 
 ### Here is how to embed the cover page:
@@ -102,18 +99,9 @@ The current date and time is [code.datetime_stamp.last]
 [var.contact]
 @@ [var.contact]
 
-### These are the old ways of embedding cover, revision and contact information:
-
-@cover author="**DISCLAIMER**: This document is strictly private, confidential and personal to its recipients and should not be copied, distributed or reproduced in whole or in part, nor passed to any third party without the expressed, written consent of [Cloudy Logic Studios], LLC."
-
-@revision v="***[defaults.revision]***" timestamp="Yes"
-
 //{:.review}--- divTitle Notes to Reviewer
 //    Please send [me] any and all feedback, preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. Within different versions of this proposal, ++additions are marked like this++ and ~~deletions are marked like this~~
 
-
-
-///Variables///
 
 @link _="cls" _inherit="_template_" _text="{{self._}}" href="https://cloudylogic.com"  _qlink="{{self.<}}{{self._qtext}}{{self.>}}" _qtext="SETMETOLINKTEXT"
 
@@ -170,23 +158,6 @@ C. In the factory, you GENERATE a new variable that is based on a TEMPLATE. By d
    this, the attributes in the generated variable will be those of the template, not
    the factory. The factory is essentially a "make me a new variable of type X".
 
-@var _id="cover_template" \
-     _inherit="cover" \
-     title="{{self.t1}}" \
-     author="{{self.t2}}" \
-     logline="{{self.t3}}" \
-     t1="Title" t2="author" t3="logline" \
-     _format="@@ {{self._inline_}}" \
-     inline="{{self._inline_}}"
-
-@var _id="cover_factory" \
-      _format="@var _id=\"{{self.nm}}\" \
-      _inherit=\"cover_template\" \
-      t1=\"\" \
-      t2=\"{{self.usage}}\" \
-      t3=\"\"" \
-     usage="Usage: **{{self.nm}}(t2=&quot;text&quot;)** or **{{self.nm}}.gencover(t2=&quot;text&quot;**)"
-
 [var.cover_factory(nm="c1")]
 [var.c1]
 [var.c1.inline(t2="This is your t2 text")]
@@ -234,5 +205,14 @@ C. In the factory, you GENERATE a new variable that is based on a TEMPLATE. By d
 [var.revision.plain]
 [var.revision._inline_]
 [var.revision._inline_plain_]
+
+### These are the old ways of embedding cover, revision and contact information:
+
+@debug 
+@cover author="**DISCLAIMER**: This document is strictly private, confidential and personal to its recipients and should not be copied, distributed or reproduced in whole or in part, nor passed to any third party without the expressed, written consent of [Cloudy Logic Studios], LLC."
+@debug 
+//@debug av="t" ns="f" 
+
+@revision v="***[defaults.revision]***" timestamp="Yes"
 
 //@dump all="*"

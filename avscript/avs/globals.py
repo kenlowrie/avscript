@@ -7,7 +7,7 @@ def _getBasepath():
 
 def init_globals():
     return [
-        '@var _id="globals" basepath="{}" import_path="{}"'.format(_getBasepath(), join(_getBasepath(),'import')),
+        '@var _id="sys" basepath="{}" imports="{}"'.format(_getBasepath(), join(_getBasepath(),'import')),
     ]
 
 if __name__ == '__main__':

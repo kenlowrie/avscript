@@ -1,16 +1,36 @@
 [b]=<br />
 [bb]=[b][b]
-    
 [SP]=&nbsp;
+//
 @code _id="esc_html"\
       type="eval"\
       src="print('{{self.url}}'.replace('<', '&lt;').replace('>','&gt;'))"\
-      url="Usage: code.esc_html(url=\"text to escape\")"
+      url="Usage: code.esc_html.run(url=\"text to escape\")"
+@code _id="escape"\
+      type="exec"\
+      src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('{{self.t}}'))"\
+      t="Usage: code.escape.run(t=\"text to escape\")"
+@code _id="split_as"\
+      type="exec"\
+      src="from .utility import CodeHelpers;print(CodeHelpers.split_as('{{self.t}}'))"\
+      t="Usage: {{self._}}(t=\"var._public_attrs_\")"
 @code _id="datetime_stamp"\
       type="exec"\
       src="from time import strftime;print(strftime(\"{{self.fmtstr}}\"))"\
       _format="{{self.last}}"\
       fmtstr="%Y%m%d @ %H:%M:%S"
+@code _id="ln_alias"\
+      type="exec"\
+      src="from .utility import CodeHelpers;print('@set _id=\"{0}\" \
+      {1}=\"{3}{0}.<{4}{2}{3}{0}.>{4}\"'.format('{{self.nm}}', \
+      '{{self.attr}}', '{{self.lt}}', CodeHelpers.b(0), CodeHelpers.b(1)))"\
+      nm="link.?" attr="_attr_name" lt="NEW_LINK_TEXT_HERE"
+@code _id="repeat"\
+      type="eval"\
+      src="print('{}'.format('{{self.t}}'*{{self.c}}))"\
+      t="Usage: code.repeat(t=\"text to repeat\", c=5)"\
+      c="1"
+//
 @var _id="defaults"\
      title="[title]"\
      author="[author]"\
@@ -43,13 +63,13 @@
 @html _id="revision-div" class="revision" _inherit="div"
 @html _id="revision-p" class="revTitle" _inherit="p"
 @var _id="revision" \
-     _format="@@ {{self._inline_}}" \
-     _inline_="{{html.revision-div.<}}{{html.revision-p.<}}{{self.v}} {{html.revision-p.>}}{{html.revision-div.>}}" \
-     plain="@@ {{self._inline_plain_}}"\
-     _inline_plain_="{{html.revision-div.<}}{{html.revision-p.<}}{{self.vp}}{{html.revision-p.>}}{{html.revision-div.>}}" \
-     v="{{self.vp}} ({{code.datetime_stamp.run}})" \
-     vp="Revision: ***[self.revision]***" \
-     revision="{{defaults.revision}}"
+     _format="@@ {{self.inline}}" \
+     inline="{{html.revision-div.<}}{{html.revision-p.<}}{{self._v}} {{html.revision-p.>}}{{html.revision-div.>}}" \
+     plain="@@ {{self.inline_plain}}"\
+     inline_plain="{{html.revision-div.<}}{{html.revision-p.<}}{{self._vp}}{{html.revision-p.>}}{{html.revision-div.>}}" \
+     _v="{{self._vp}} ({{code.datetime_stamp.run}})" \
+     _vp="Revision: ***{{self.v}}***" \
+     v="{{defaults.revision}}"
 @html _id="contact-div" class="contact" _tag="div"
 @html _id="contact-table" style="border:none" _inherit="table"
 @html _id="contact-tr" style="border:none" _inherit="tr"
@@ -57,8 +77,8 @@
 @html _id="contact-td-right" class="right nowrap" style="border:none" _tag="td"
 //
 @var _id="contact" \
-     _format="@@ {{self._inline_}}"\
-     _inline_="{{html.contact-div.<}}{{html.contact-table.<}}{{html.contact-tr.<}}{{html.contact-td-left.<}}{{self.leftside}}{{html.contact-td-left.>}}{{html.contact-td-right.<}}{{self.rightside}}{{html.contact-td-right.>}}{{html.contact-tr.>}}{{html.contact-table.>}}{{html.contact-div.>}}" \
+     _format="@@ {{self.inline}}"\
+     inline="{{html.contact-div.<}}{{html.contact-table.<}}{{html.contact-tr.<}}{{html.contact-td-left.<}}{{self.leftside}}{{html.contact-td-left.>}}{{html.contact-td-right.<}}{{self.rightside}}{{html.contact-td-right.>}}{{html.contact-tr.>}}{{html.contact-table.>}}{{html.contact-div.>}}" \
      rightside="{{self.cn}}<br />{{self.ph}}<br />{{self.em}}<br />" \
      leftside="{{self.c1}}<br />{{self.c2}}<br />{{self.c3}}<br />" \
      cn="{{defaults.cn}}" \
@@ -72,8 +92,8 @@
      title="{{defaults.title}}" \
      author="{{defaults.author}}" \
      logline="{{defaults.logline}}" \
-     _format="@@ {{self._inline_}}" \
-     _inline_="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
+     _format="@@ {{self.inline}}" \
+     inline="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
 //
 @var _id="cover_template" \
      _inherit="cover" \

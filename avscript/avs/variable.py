@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 from .utility import HtmlUtils
+from .exception import LogicError
 
 """
 
@@ -11,7 +12,10 @@ from .utility import HtmlUtils
 class Variable(object):
     private = '_private_attrs_'
     public = '_public_attrs_'
+    public_keys = '_public_keys_'
+    private_keys = '_private_keys_'
     all = '_all_attrs_'
+    null = '_null_'
     rvalue = '_rval'
     prefix = '_'
 
@@ -47,6 +51,14 @@ class Variable(object):
 
         return attrs
 
+    def getKeysAsString(self, which):
+        attrsDict = self.getAttrsAsDict(which)
+        keys = ''
+        for item in attrsDict:
+            keys += '{}, '.format(item)
+
+        return keys
+
     def addAttribute(self, attrName, attrValue):
         self.rval[attrName] = attrValue
 
@@ -66,7 +78,7 @@ class Variable(object):
 
 
 class VariableStore(object):
-    _special_attributes = [Variable.public, Variable.private, Variable.all]
+    _special_attributes = [Variable.public, Variable.private, Variable.public_keys, Variable.private_keys, Variable.all, Variable.null]
 
     """Class to abstract a dictionary of variables"""
     def __init__(self, markdown, oprint):
@@ -138,9 +150,17 @@ class VariableStore(object):
         if self.exists(name):
             return self.vars[name].getAttrsAsString(Variable.public)
 
+    def getPublicKeys(self, name):
+        if self.exists(name):
+            return self.vars[name].getKeysAsString(Variable.public)
+
     def getPrivateAttrs(self, name):
         if self.exists(name):
             return self.vars[name].getAttrsAsString(Variable.private)
+
+    def getPrivateKeys(self, name):
+        if self.exists(name):
+            return self.vars[name].getKeysAsString(Variable.private)
 
     def getAllAttrs(self, name):
         if self.exists(name):
@@ -153,8 +173,14 @@ class VariableStore(object):
             return self.getPrivateAttrs(variable)
         elif which == Variable.all:
             return self.getAllAttrs(variable)
+        elif which == Variable.null:
+            return ''   # empty string, useful for adding attributes w/o printing anything
+        elif which == Variable.public_keys:
+            return self.getPublicKeys(variable)
+        elif which == Variable.private_keys:
+            return self.getPrivateKeys(variable)
 
-        raise
+        raise LogicError("Oops. Special attribute {} isn't valid for {}".format(which, variable))
 
     def unescapeString(self,s):
         return s.replace('\\"', '"')
@@ -351,7 +377,11 @@ class AdvancedNamespace(Namespace):
 
             compoundVar = ''
             for item in sorted(self.vars[id0].rval):
-                attrText = self._markdown(self.vars[id0].rval[item])
+                # This prevents a crash if a value is not a string...
+                attrValue = self.vars[id0].rval[item]
+                if type(attrValue) != type(''):
+                    attrValue = str(attrValue)
+                attrText = self._markdown(attrValue)
                 compoundVar += ' {}="{}"<br />\n'.format(item, attrText)
             return compoundVar
 
@@ -531,17 +561,15 @@ class CodeNamespace(AdvancedNamespace):
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
         if self.debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
-        if el0 is not None:
-            if el0 in CodeNamespace._element_partials:
+        if el0 is None or el0 == CodeNamespace._run:
+            dict = super(CodeNamespace, self).getRVal(id0)
+            if self.debug: print(">>>>>{}--{}--{}<br />".format(id, id0, el0))
+            # Need to expand any variables inside src...
+            src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
+            dict['_code'] = compile(src, '<string>', dict['type'])
+            dict['last'] = self.executePython(dict)
 
-                dict = super(CodeNamespace, self).getRVal(id0)
-                #print(">>>>>{}--{}--{}<br />".format(id, id0, el0))
-                # Need to expand any variables inside src...
-                src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
-                dict['_code'] = compile(src, '<string>', dict['type'])
-                dict['last'] = self.executePython(dict)
-
-                return dict['last']
+            return dict['last']
 
         return super(CodeNamespace, self).getValue(id)
 

@@ -125,8 +125,8 @@ NAMESPACE: var<br />
 <strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>A<br />
 &nbsp;&nbsp;<strong>author=</strong>B<br />
 &nbsp;&nbsp;<strong>logline=</strong>C<br />
-&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+&nbsp;&nbsp;<strong>_format=</strong>@@ {{self.inline}}<br />
+&nbsp;&nbsp;<strong>inline=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
 <br />
 <strong>cover_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@var _id="{{self.nm}}"  _inherit="cover_template"  t1=""  t2="{{self.usage}}"  t3=""<br />
 &nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self.nm}}(t2=&amp;quot;text&amp;quot;)** or **{{self.nm}}.gencover(t2=&amp;quot;text&amp;quot;**)<br />
@@ -135,11 +135,10 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>author=</strong>{{self.t2}}<br />
 &nbsp;&nbsp;<strong>logline=</strong>{{self.t3}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+&nbsp;&nbsp;<strong>inline=</strong>{{self._inline_}}<br />
 &nbsp;&nbsp;<strong>t1=</strong>Title<br />
 &nbsp;&nbsp;<strong>t2=</strong>author<br />
 &nbsp;&nbsp;<strong>t3=</strong>logline<br />
-&nbsp;&nbsp;<strong>inline=</strong>{{self._inline_}}<br />
 <br />
         </code>
     </div>

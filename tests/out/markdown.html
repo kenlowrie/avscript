@@ -165,8 +165,8 @@
 ----------------------------------------<br />
 NAMESPACE: var<br />
 ----------------------------------------<br />
-<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
+<strong>contact=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@@ {{self.inline}}<br />
+&nbsp;&nbsp;<strong>inline=</strong>{{html.contact-div.&lt;}}{{html.contact-table.&lt;}}{{html.contact-tr.&lt;}}{{html.contact-td-left.&lt;}}{{self.leftside}}{{html.contact-td-left.&gt;}}{{html.contact-td-right.&lt;}}{{self.rightside}}{{html.contact-td-right.&gt;}}{{html.contact-tr.&gt;}}{{html.contact-table.&gt;}}{{html.contact-div.&gt;}}<br />
 &nbsp;&nbsp;<strong>rightside=</strong>{{self.cn}}&lt;br /&gt;{{self.ph}}&lt;br /&gt;{{self.em}}&lt;br /&gt;<br />
 &nbsp;&nbsp;<strong>leftside=</strong>{{self.c1}}&lt;br /&gt;{{self.c2}}&lt;br /&gt;{{self.c3}}&lt;br /&gt;<br />
 &nbsp;&nbsp;<strong>cn=</strong>{{defaults.cn}}<br />
@@ -179,8 +179,8 @@ NAMESPACE: var<br />
 <strong>cover=</strong><br />&nbsp;&nbsp;<strong>title=</strong>{{defaults.title}}<br />
 &nbsp;&nbsp;<strong>author=</strong>{{defaults.author}}<br />
 &nbsp;&nbsp;<strong>logline=</strong>{{defaults.logline}}<br />
-&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+&nbsp;&nbsp;<strong>_format=</strong>@@ {{self.inline}}<br />
+&nbsp;&nbsp;<strong>inline=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
 <br />
 <strong>cover_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@var _id="{{self.nm}}"  _inherit="cover_template"  t1=""  t2="{{self.usage}}"  t3=""<br />
 &nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self.nm}}(t2=&amp;quot;text&amp;quot;)** or **{{self.nm}}.gencover(t2=&amp;quot;text&amp;quot;**)<br />
@@ -189,11 +189,10 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>author=</strong>{{self.t2}}<br />
 &nbsp;&nbsp;<strong>logline=</strong>{{self.t3}}<br />
 &nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>&lt;div class="cover"&gt;&lt;h3&gt;{{self.title}}&lt;/h3&gt;&lt;p&gt;{{self.author}}&lt;/p&gt;&lt;p class="coverSummary"&gt;{{self.logline}}&lt;/p&gt;&lt;/div&gt;<br />
+&nbsp;&nbsp;<strong>inline=</strong>{{self._inline_}}<br />
 &nbsp;&nbsp;<strong>t1=</strong>Title<br />
 &nbsp;&nbsp;<strong>t2=</strong>author<br />
 &nbsp;&nbsp;<strong>t3=</strong>logline<br />
-&nbsp;&nbsp;<strong>inline=</strong>{{self._inline_}}<br />
 <br />
 <strong>defaults=</strong><br />&nbsp;&nbsp;<strong>title=</strong>[title]<br />
 &nbsp;&nbsp;<strong>author=</strong>[author]<br />
@@ -203,13 +202,13 @@ NAMESPACE: var<br />
 <strong>globals=</strong><br />&nbsp;&nbsp;<strong>basepath=</strong>/Users/ken/Dropbox/shared/src/script/avscript/avscript<br />
 &nbsp;&nbsp;<strong>import_path=</strong>/Users/ken/Dropbox/shared/src/script/avscript/avscript/import<br />
 <br />
-<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@@ {{self._inline_}}<br />
-&nbsp;&nbsp;<strong>_inline_=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
-&nbsp;&nbsp;<strong>plain=</strong>@@ {{self._inline_plain_}}<br />
-&nbsp;&nbsp;<strong>_inline_plain_=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self.vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
-&nbsp;&nbsp;<strong>v=</strong>{{self.vp}} ({{code.datetime_stamp.run}})<br />
-&nbsp;&nbsp;<strong>vp=</strong>Revision: ***[self.revision]***<br />
-&nbsp;&nbsp;<strong>revision=</strong>{{defaults.revision}}<br />
+<strong>revision=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@@ {{self.inline}}<br />
+&nbsp;&nbsp;<strong>inline=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self._v}} {{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>plain=</strong>@@ {{self.inline_plain}}<br />
+&nbsp;&nbsp;<strong>inline_plain=</strong>{{html.revision-div.&lt;}}{{html.revision-p.&lt;}}{{self._vp}}{{html.revision-p.&gt;}}{{html.revision-div.&gt;}}<br />
+&nbsp;&nbsp;<strong>_v=</strong>{{self._vp}} ({{code.datetime_stamp.run}})<br />
+&nbsp;&nbsp;<strong>_vp=</strong>Revision: ***{{self.v}}***<br />
+&nbsp;&nbsp;<strong>v=</strong>{{defaults.revision}}<br />
 <br />
 ----------------------------------------<br />
 NAMESPACE: link<br />

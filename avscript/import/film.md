@@ -24,6 +24,10 @@
      perf="{:.bigandbold.green}Performance -" \
      stock="{:.bigandbold.red}Stock -" \
      unk="{:.bigandbold.italic}Unknown - " \
+     wardrobe="{:.wardrobe}**WARDROBE**" \
+     makeup="{:.makeup}**MAKEUP**" \
+     props="{:.props}**PROPS**" \
+     cast="{:.cast}**CAST**" \
      _format="**Shot Tags:**[bb]***{{self._public_keys_}}***"
 
 @html _id="_div_gen_" \

@@ -14,7 +14,7 @@
       _b_size="1px" \
       _b_type="solid" \
       img_border_style="border:{{self._b_size}} {{self._b_type}};padding:1em;" \
-      img_inline_style="margin_left:auto;margin_right:auto;width:{{self._i_width}};" \
+      img_inline_style="margin-left:auto;margin-right:auto;width:{{self._i_width}};" \
       img_st_inline="{{self.img_inline_style}}" \
       img_st_inline_border="{{self.img_inline_style}}{{self.img_border_style}}" \
       img_st_block="display:block;{{self.img_inline_style}}" \

@@ -95,17 +95,16 @@
      title="{{defaults.title}}" \
      author="{{defaults.author}}" \
      logline="{{defaults.logline}}" \
-     _format="@@ {{self.inline}}" \
-     inline="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
+     _format="@@ {{self._inline_}}" \
+     inline="{{self._inline_}}" \
+     _inline_="<div class=\"cover\"><h3>{{self.title}}</h3><p>{{self.author}}</p><p class=\"coverSummary\">{{self.logline}}</p></div>"
 //
 @var _id="cover_template" \
      _inherit="cover" \
      title="{{self.t1}}" \
      author="{{self.t2}}" \
      logline="{{self.t3}}" \
-     t1="Title" t2="author" t3="logline" \
-     _format="@@ {{self._inline_}}" \
-     inline="{{self._inline_}}"
+     t1="Title" t2="author" t3="logline"
 //
 @var _id="cover_factory" \
       _format="@var _id=\"{{self.nm}}\" \
@@ -113,4 +112,4 @@
       t1=\"\" \
       t2=\"{{self.usage}}\" \
       t3=\"\"" \
-     usage="Usage: **{{self.nm}}(t2=&quot;text&quot;)** or **{{self.nm}}.gencover(t2=&quot;text&quot;**)"
+     usage="Usage:[bb]**{{self.nm}}(t1=&quot;&quot; t2=&quot;text&quot; t3=&quot;&quot;)[b]{{self.nm}}.inline(same)**"

@@ -95,11 +95,6 @@ class AVScriptParser(StdioWrapper):
         self._lineInCache = False       # if we have a line in the cache
         self._shotListQ = BookmarkList()    # shot list link Q
 
-        self._links = LinkDict()            # dict of links
-        self._variables = VariableDict()    # dict of document variables
-        self._images = ImageDict()          # dict of image dictionaries
-        self._varV2 = VariableV2Dict()      # dict of varv2 dictionaries
-        
         self._md = Markdown()               # New markdown support in separate class
         self._ns = Namespaces(self._md.markdown, self._md.setNSxface, oprint=self.oprint)
         #TODO: Clean this up. _stripClass needs to be handled better than this...
@@ -128,24 +123,7 @@ class AVScriptParser(StdioWrapper):
             'debug': RegexMain(True, False, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
-            'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None),
- 
-            'anchor': RegexMain(True, True, False, r'^[@]\+\[([^\]]*)\]', None),
-            'links': RegexMain(True, True, False, r'^\[([^\]]+)\]:\(?[ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\)?', None),
-            'cover': RegexMain(True, True, False, r'^(@cover(\s+([\w]+)\s*=\s*\"(.*?)\")+)', None),
-            'revision': RegexMain(True, True, False, r'^(@revision(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
-        }
-
-        # Dictionary of each markdown type that we process on each line
-        self.____regex_markdown = {
-            'inline_links': RegexMD(r'(\[([^\]]+)\]:[ ]*\([ ]*([^\s|\)]*)[ ]*(\"(.+)\")?\))', None),
-            'link_to_bookmark': RegexMD(r'([@]\:\[([^\]]*)\]\<{2}([^\>{2}]*)\>{2})', None),
-            'links_and_vars': RegexMD(r'(\[([^[\]]+)\](?!(:(.+))|(\=(.+))))', None),
-            'automatic_link': RegexMD(r'(<((?:http|ftp)s?://(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[?[A-F0-9]*:[A-F0-9:]+\]?)(?::\d+)?(?:/?|[/?]\S+))>)', '<a href=\"{0}\">{0}</a>', IGNORECASE),
-            'strong': RegexMD(r'(\*{2}(?!\*)(.+?)\*{2})', '<strong>{0}</strong>'),
-            'emphasis': RegexMD(r'(\*(.+?)\*)', '<em>{0}</em>'),
-            'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
-            'del': RegexMD(r'(\~{2}(.+?)\~{2})', '<del>{0}</del>')
+            'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None), 
         }
 
     @property
@@ -210,139 +188,6 @@ class AVScriptParser(StdioWrapper):
 
         #print('reprocess line failing...<br />')
         return False
-            
-    def _md_value(self, value):
-        i = 25  # shouldn't have more than 25 levels of nesting, right?
-        last_value = value
-        for i in range(25):
-            value = self._markdown(value)
-            if value == last_value:
-                return value
-            last_value = value
-
-        return 'Expansion nested too deeply {}'.format(value)
-
-    def _markdown(self, s):
-        """
-        Apply markdown to the passed string.
-
-        As each line is read, it is inspected for markdown tags and those
-        tags are processed on the fly. That way, the line is ready to be
-        output without additional processing.
-
-        A copy of the unmodified line is also retained in the main loop,
-        since certain parse tags require the use of the original line.
-        In those cases, the _markdown() method can be invoked later, to
-        apply markdown to specific elements of a given parse type. For
-        an example, take a look at the contact parse type.
-
-        Arguments:
-            s -- the string to process markdown elements in
-
-        Returns:
-            A string that has all the markdown elements applied.
-        """
-
-        """
-        Start with some helper functions to process each markdown type.
-        Each markdown element has a method to handle the specifics. Each
-        method is passed the following parameters:
-
-        Arguments:
-            m -- a list of the elements parsed for the match. m[0] is
-                 the full matched substring within s.
-            s -- the string to process
-            new_str -- the string used to build the replacement string.
-                       Generally of the format 'stuff{}stuff', where
-                       'stuff' is markdown, and {} is replaced with the
-                       text between the markdown tags.
-
-        Returns:
-            Modified string with inline markdown element expanded.
-        """
-
-        def md_inline_links(m, s, new_str):
-            """
-            Handle inline links: [linkname]:(url [optional_title])
-
-            See docstring in code for argument information.
-            """
-            optTitle = '' if len(m) < 5 or not m[4] else " title=\"{0}\"".format(m[4])
-            s = s.replace(m[0], '<a href=\"{0}\"{2}>{1}</a>'.format(m[2], m[1], optTitle))
-            self._links.addLink(m[1], m[2], m[4])
-            return s
-
-        def md_link_to_bookmark(m, s, new_str):
-            """
-            Handle converting inline link to bookmark: @:[linkname]<<link_text>>
-
-            See docstring in code for argument information.
-            """
-            s = s.replace(m[0], '<a href=\"#{0}\">{1}</a>'.format(m[1], m[2]))
-            return s
-
-        def md_links_and_vars(m, s, new_str):
-            """
-            Handle inline link and vars: [link_or_variable_name]
-
-            See docstring in code for argument information.
-            """
-            if self._links.exists(m[1]):
-                # m[0] is an ID for a LINK, apply the link URL to the text
-                s = s.replace(m[0], self._links.getLinkMarkup(m[1]))
-            elif self._variables.exists(m[1]):
-                # m[0] is a variable name; get the variable value
-                varValue = self._variables.getText(m[1])
-                if self._links.exists(varValue):
-                    # There is a link ID by that name, wrap the text with hyperlink
-                    s = s.replace(m[0], self._links.getLinkMarkup(varValue, m[1]))
-                else:
-                    # Substitute the variable name with the value
-                    c, v = self._stripClass(self._variables.getText(m[1]))
-                    v = self._md_value(v)
-                    if(not c):
-                        s = s.replace(m[0], v)
-                    else:
-                        s = s.replace(m[0], '<{0}{1}>{2}</{0}>'.format('span', c, v))
-            elif self._images.exists(m[1]):
-                s = s.replace(m[0],self._images.getImage(m[1], self._md_value))
-            elif self._varV2.exists(m[1]):
-                s = s.replace(m[0],self._varV2.getVarV2(m[1], self._md_value))
-            else:
-                # No need to do anything here, just leave the unknown link/variable alone
-                pass
-
-            return s
-
-        def md_plain(m, s, new_str):
-            """
-            Handle simple replacement markdown. e.g. *foo* or **bar**, etc.
-
-            See docstring in code for argument information.
-            """
-            return s.replace(m[0], new_str.format(m[1]))
-
-        # A map linking markdown keys to processor functions
-        markdownTypes = [
-            ('inline_links', md_inline_links),
-            ('link_to_bookmark', md_link_to_bookmark),
-            ('links_and_vars', md_links_and_vars),
-            ('automatic_link', md_plain),
-            ('strong', md_plain),
-            ('emphasis', md_plain),
-            ('ins', md_plain),
-            ('del', md_plain),
-        ]
-
-        # For each type of markdown
-        for key, md_func in markdownTypes:
-            md_obj = self._regex_markdown[key]
-            matches = findall(md_obj.regex, s)    # find all the matches
-            for m in matches:
-                # for each match, process it
-                s = md_func(m, s, md_obj.new_str)
-
-        return s    # return the processed string
 
     def _setLineAttrs(self, line):
         """Initialize the data members of the Line() object
@@ -657,6 +502,7 @@ class AVScriptParser(StdioWrapper):
                 self.oprint(lineObj.current_line)
 
 
+        # TODO: Should this be a namespace?
         def handle_shotlist(m, lineObj):
             """Handle a shotlist parse line."""
             self.oprint(self._html.formatLine("<div class=\"shotlist\">", 1))
@@ -677,74 +523,12 @@ class AVScriptParser(StdioWrapper):
             self.oprint(self._html.formatLine("</code>", -1, False))
             self.oprint(self._html.formatLine("</div>", -1, False))
 
-        def handle_variables(m, lineObj):
-            """Handle the variables parse line"""
-            self.oprint(self._html.formatLine("<div class=\"variables\">", 1))
-            self.oprint(self._html.formatLine("<code>", 1))
-            self._ns.dumpVars()
-            self.oprint(self._html.formatLine("</code>", -1, False))
-            self.oprint(self._html.formatLine("</div>", -1, False))
-
-        def handle_dumplinks(m, lineObj):
-            """Handle the dumplinks parse line"""
-            self.oprint(self._html.formatLine("<div class=\"links\">", 1))
-            self.oprint(self._html.formatLine("<hr />"))
-            self.oprint(self._html.formatLine("<p>External Links</p>"))
-            self.oprint(self._html.formatLine("<code>", 1))
-            self._links.dumpLinks(self._html.getIndent(), self.oprint)
-            self.oprint(self._html.formatLine("</code>", -1, False))
-            self.oprint(self._html.formatLine("</div>", -1, False))
-
-        def handle_links(m, lineObj):
-            """Handle the links parse line"""
-            optTitle = '' if len(m.groups()) < 4 or not m.group(4) else m.group(4)
-
-            if(m is not None and len(m.groups()) == 4):
-                self._links.addLink(m.group(1), self._md.markdown(m.group(2)), optTitle)
-                # self.oprint("RL:AL:{0}{1}{2}<br />".format(m.group(1),m.group(2),m.group(3)))
-            else:
-                self.oprint(lineObj.original_line)
-
         def handle_alias(m, lineObj):
             """Handle the alias parse line type"""
             if(m is not None and len(m.groups()) == 3):
                 #self._variables.addVar(m.group(1), self._markdown(m.group(3)))
                 #TODO: Should m.group(3) be self._md.markdown(m.group(3))?
                 self._ns.addVariable(self._md.markdown(m.group(3)), name=m.group(1), ns="basic")
-            else:
-                self.oprint(lineObj.original_line)
-
-        def handle_anchor(m, lineObj):
-            """Handle an anchor parse line type"""
-            # For this case, we just need to drop an anchor.
-            if(m is not None and len(m.groups()) == 1):
-                self.oprint(self._html.formatLine("<a id=\"{0}\"></a>".format(m.group(1))))
-            else:
-                self.oprint(lineObj.original_line)
-
-        def handle_cover(m, lineObj):
-            """Handle the cover parse line type"""
-            if(m is not None):
-                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
-
-                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
-
-                divstr = self._html.formatLine("<div class=\"extras\"><p>@cover has been deprecated. Use [var.cover]</p></div><br />")
-
-                self.oprint(divstr)
-            else:
-                self.oprint(lineObj.original_line)
-
-        def handle_revision(m, lineObj):
-            """Handle the revision parse line type"""
-            if(m is not None):
-                d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
-
-                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
-
-                divstr = self._html.formatLine("<div class=\"extras\"><p>@revision has been deprecated. Use [var.cover]</p></div><br />")
-
-                self.oprint(divstr)
             else:
                 self.oprint(lineObj.original_line)
 
@@ -856,16 +640,9 @@ class AVScriptParser(StdioWrapper):
             ('break', handle_break),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),
-            ('variables', handle_variables),
-            ('dumplinks', handle_dumplinks),
             ('alias', handle_alias),
             ('debug', handle_debug),
             ('dump', handle_dump),
-
-            ('links', handle_links),
-            ('anchor', handle_anchor),
-            ('cover', handle_cover),
-            ('revision', handle_revision),
         ]
         
         try:

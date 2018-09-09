@@ -4,23 +4,19 @@
 @var _id="_path_" path="/Users/ken/Dropbox/shared/src/script/avscript/tests/in/import" _format="{{self.path}}"
 [imports]=[var._path_(path="in/import")]
 
-@import '[imports]/image.md'
+@import '[sys.imports]/image.md'
 
-[_i_width]=[IMG_SIZE_LARGE]
-[ss]=[{{img-st-inline-border}}]
+[IMG_SIZE_LARGE]
+[ss]=[{{var.img_def.img_st_inline_border}}]
 [trythis]={:.red.bold}Try to get this shot
 [beforeshoot]={:.red.bold}NEED TO GET THIS DONE BEFORE PRODUCTION
 
-@import '[imports]/shot.md'
+@import '[sys.imports]/shot.md'
 @image _id="needshot" src="[imports]/needshot.png" style="[ss]"
 
-//Use _shotinfo_ as _format string
-@image _id="shot1" src="[imports]/shot1.jpg" style="[ss]"
-@var _id="shot1" \ 
-     desc="*Short Description Here*" \ 
-     lens="**85mm**" \   
-     crane="yes" \
-     _format="[_shotinfo_]"
+[shot_factory(nm="shot1" d="*Short Description Here*" c="yes" l="85mm")]
+[img_factory(nm="shot1" s="[imports]/shot1.jpg")]
+
 //Can be used inside a shot like this
 - WS:a shot
     [image.shot1]
@@ -33,30 +29,33 @@
 @raw [image.shot1]
 @raw [var.shot1]
 
-@image _id="shot0" src="[imports]/shot0.jpg" style="[ss]"
-@var _id="shot0" \
+[shot_factory(nm="shot0" d="*Short Description*" c="yes" l="85mm")]
+[img_factory(nm="shot0" s="[imports]/shot1.jpg")]
+
+//@image _id="shot0" src="[imports]/shot0.jpg" style="[ss]"
+//@var _id="shot0" \
      desc="*Short Description*" \
      lens="**85mm**" \
      crane="yes" \
      _format="[_shotinfo_]"
 
-@set _="shotinfo" shotid="shot0"
-[var.shotinfo]
+[var.shotinfo2(shotid="shot0")]
 And here is some info about shot0
+@break
 
-@set _="needshot" shotid="shot0"
-@set _="needshot"
-[var.needshot]
+[shot_factory(nm="needshot" d="*Short Description*" c="yes" l="50mm")]
+[var.needshot(shotid="shot0")]
+[var.shotinfo2(shotid="needshot")]
 
-@image _id="shot2a" src="[imports]/shot1.jpg" style="[img-st-inline]"
-@image _id="shot2b" src="[imports]/shot1.jpg" style="[img-st-inline-border]"
-@image _id="shot3a" src="[imports]/shot1.jpg" style="[img-st-block]"
-@image _id="shot3b" src="[imports]/shot1.jpg" style="[img-st-block-border]"
+@image _id="shot2a" src="[imports]/shot1.jpg" style="[var.img_def.img_st_inline]"
+@image _id="shot2b" src="[imports]/shot1.jpg" style="[var.img_def.img_st_inline_border]"
+@image _id="shot3a" src="[imports]/shot1.jpg" style="[var.img_def.img_st_block]"
+@image _id="shot3b" src="[imports]/shot1.jpg" style="[var.img_def.img_st_block_border]"
 
-@var _id="shot2a" desc="shot1.jpg" lens="85mm" _format="[_shotinfo_]"
-@var _id="shot2b" desc="shot1.jpg" lens="50mm" _format="[_shotinfo_]"
-@var _id="shot3a" desc="shot1.jpg" lens="24mm" _format="[_shotinfo_]"
-@var _id="shot3b" desc="shot1.jpg" lens="70mm" _format="[_shotinfo_]"
+[shot_factory(nm="shot2a" d="shot1.jpg" c="yes" l="85mm")]
+[shot_factory(nm="shot2b" d="shot1.jpg" c="yes" l="50mm")]
+[shot_factory(nm="shot3a" d="shot1.jpg" c="yes" l="24mm")]
+[shot_factory(nm="shot3b" d="shot1.jpg" c="yes" l="70mm")]
 
 - Single Shot Sequence
     [image.shot2a]
@@ -79,26 +78,22 @@ And here is some info about shot0
 @raw [image.shot3b]
 
 ## Splitting smart shots
-@set _="shotinfo" shotid="shot2a"
-[var.shotinfo]
-@set _="shotinfo" shotid="shot2b"
-[var.shotinfo]
-@set _="shotinfo" shotid="shot3a"
-[var.shotinfo]
-@set _="shotinfo" shotid="shot3b"
-[var.shotinfo]
+[var.shotinfo2(shotid="shot2a")]
+[var.shotinfo2(shotid="shot2b")]
+[var.shotinfo2(shotid="shot3a")]
+[var.shotinfo2(shotid="shot3b")]
 
 ## Testing namespaces
 
-[shotinfo]
-shotinfo._=[shotinfo._]
-shotinfo._id=[shotinfo._id]
-shotinfo.shotid=[shotinfo.shotid]
+[shotinfo2]
+shotinfo2._=[shotinfo2._]
+shotinfo2._id=[shotinfo2._id]
+shotinfo2.shotid=[shotinfo2.shotid]
 ### Namespace with prefix
-[var.shotinfo]
-var.shotinfo._=[var.shotinfo._]
-var.shotinfo._id=[var.shotinfo._id]
-var.shotinfo.shotid=[var.shotinfo.shotid]
+[var.shotinfo2]
+var.shotinfo2._=[var.shotinfo2._]
+var.shotinfo2._id=[var.shotinfo2._id]
+var.shotinfo2.shotid=[var.shotinfo2.shotid]
 
 ## Now just 'shot2a' in the brackets with attributes
 @break
@@ -116,4 +111,4 @@ shot2a._format=[shot2a._format]
 [var.shot2a.lens]
 [var.shot2a._format]
 
-//Variables///
+@dump var=".*shot" image="."

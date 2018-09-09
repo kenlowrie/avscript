@@ -1,4 +1,5 @@
-@+[divs]
+[link.bm_factory(nm="divs" t="Divs")]
+[link.divs]
 {:.plain}@@@ plainTitle
 ##Divs
 You can create a new DIV using ***---*** or ***@@@*** at the start of a new line. The complete syntax is: 
@@ -20,7 +21,8 @@ If I indent subsequent lines immediately following the DIV declaration, they bec
 
 There are a several built-in CSS classes that are defined in the accompanying **avscript_md.css** file, and you can add your own to get new DIVs formatted to your liking.
 
-@+[headers]
+[link.bm_factory(nm="headers" t="Headers")]
+[link.headers]
 {:.plain}@@@ plainTitle
 ##Headers
 
@@ -41,7 +43,8 @@ And this is how they will look in the document when it's formatted:
 
 You may want to style the headers to your liking in the avscript_md.css file.
 
-@+[anchors]
+[link.bm_factory(nm="anchors" t="Bookmarks")]
+[link.anchors]
 ##Bookmarks
 You can also define bookmarks in your document, and then reference them with links using the following syntax:
 

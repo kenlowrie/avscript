@@ -4,7 +4,7 @@
 //
 @code _id="esc_html"\
       type="eval"\
-      src="print('{{self.url}}'.replace('<', '&lt;').replace('>','&gt;'))"\
+      src="print('$.url'.replace('<', '&lt;').replace('>','&gt;'))"\
       url="Usage: code.esc_html.run(url=\"text to escape\")"
 @code _id="escape"\
       type="exec"\
@@ -25,11 +25,21 @@
       {1}=\"{3}{0}.<{4}{2}{3}{0}.>{4}\"'.format('{{self.nm}}', \
       '{{self.attr}}', '{{self.lt}}', CodeHelpers.b(0), CodeHelpers.b(1)))"\
       nm="link.?" attr="_attr_name" lt="NEW_LINK_TEXT_HERE"
+@code _id="get"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.get_ns_var('{{self.v}}')"\
+      _help_="Usage: {{self._}}(v=\"variable_name\")" v="$.v"
+@code _id="get_default"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.default('$.v', '$.default')"\
+      __v="default"\
+      __default="undefined variable"\
+      _help_="Usage: {{self._}}(v=&quot;variable_name&quot;, default=&quot;default value&quot;)"
 @code _id="repeat"\
       type="eval"\
-      src="print('{}'.format('{{self.t}}'*{{self.c}}))"\
-      t="Usage: code.repeat(t=\"text to repeat\", c=5)"\
-      c="1"
+      src="print('{}'.format('$.__t'*$.__c))"\
+      __t="repeat_str "\
+      __c="2"
 //
 @var _id="defaults"\
      title="[title]"\

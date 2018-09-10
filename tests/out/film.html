@@ -166,9 +166,10 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>_format=</strong>{{self.path}}<br />
 <br />
 <strong>_shot_template_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}                {{html.tr.&lt;}}                    {{html._td_header_.&lt;}}***Shot Information***{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._th_item_.&lt;}}Item{{html.th.&gt;}}                    {{html._th_desc_.&lt;}}Description{{html.th.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Shot{{html.td.&gt;}}                    {{html._td_desc_.&lt;}}{{self._id}}{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Desc{{html.td.&gt;}}                    {{html.td.&lt;}}*{{self.desc}}*{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Lens{{html.td.&gt;}}                    {{html.td.&lt;}}**{{self.lens}}**{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Crane{{html.td.&gt;}}                    {{html.td.&lt;}}{{self.crane}}{{html.td.&gt;}}                {{html.tr.&gt;}}            {{html.table.&gt;}}<br />
-&nbsp;&nbsp;<strong>desc=</strong>{{self.d}}<br />
-&nbsp;&nbsp;<strong>lens=</strong>{{self.l}}<br />
-&nbsp;&nbsp;<strong>crane=</strong>{{self.c}}<br />
+&nbsp;&nbsp;<strong>desc=</strong>{{code.get_default(v="self.d", default="Your shot description here")}}<br />
+&nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="24mm")}}<br />
+&nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="No")}}<br />
+&nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
 <br />
 <strong>_shotinfo2_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}                {{html.tr.&lt;}}                    {{html._td_header_.&lt;}}***Shot Information***{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._th_item_.&lt;}}Item{{html.th.&gt;}}                    {{html._th_desc_.&lt;}}Description{{html.th.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Shot{{html.td.&gt;}}                    {{html._td_desc_.&lt;}}{{self._id}}{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Desc{{html.td.&gt;}}                    {{html.td.&lt;}}*{{self.desc}}*{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Lens{{html.td.&gt;}}                    {{html.td.&lt;}}**{{self.lens}}**{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Crane{{html.td.&gt;}}                    {{html.td.&lt;}}{{self.crane}}{{html.td.&gt;}}                {{html.tr.&gt;}}            {{html.table.&gt;}}<br />
 <br />
@@ -300,23 +301,19 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>c=</strong><br />
 <br />
 <strong>shot0=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}                {{html.tr.&lt;}}                    {{html._td_header_.&lt;}}***Shot Information***{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._th_item_.&lt;}}Item{{html.th.&gt;}}                    {{html._th_desc_.&lt;}}Description{{html.th.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Shot{{html.td.&gt;}}                    {{html._td_desc_.&lt;}}{{self._id}}{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Desc{{html.td.&gt;}}                    {{html.td.&lt;}}*{{self.desc}}*{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Lens{{html.td.&gt;}}                    {{html.td.&lt;}}**{{self.lens}}**{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Crane{{html.td.&gt;}}                    {{html.td.&lt;}}{{self.crane}}{{html.td.&gt;}}                {{html.tr.&gt;}}            {{html.table.&gt;}}<br />
-&nbsp;&nbsp;<strong>desc=</strong>{{self.d}}<br />
-&nbsp;&nbsp;<strong>lens=</strong>{{self.l}}<br />
-&nbsp;&nbsp;<strong>crane=</strong>{{self.c}}<br />
-&nbsp;&nbsp;<strong>d=</strong>&lt;strong&gt;WS:&amp;nbsp;&lt;/strong&gt;Crane high shooting over car<br />
-&nbsp;&nbsp;<strong>l=</strong>24mm<br />
+&nbsp;&nbsp;<strong>desc=</strong>{{code.get_default(v="self.d", default="Your shot description here")}}<br />
+&nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="24mm")}}<br />
+&nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="No")}}<br />
+&nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
+&nbsp;&nbsp;<strong>d=</strong>[ws]Crane high shooting over car<br />
 &nbsp;&nbsp;<strong>c=</strong>yes<br />
+&nbsp;&nbsp;<strong>l=</strong>24mm<br />
 <br />
 <strong>shot1=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}                {{html.tr.&lt;}}                    {{html._td_header_.&lt;}}***Shot Information***{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._th_item_.&lt;}}Item{{html.th.&gt;}}                    {{html._th_desc_.&lt;}}Description{{html.th.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Shot{{html.td.&gt;}}                    {{html._td_desc_.&lt;}}{{self._id}}{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Desc{{html.td.&gt;}}                    {{html.td.&lt;}}*{{self.desc}}*{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Lens{{html.td.&gt;}}                    {{html.td.&lt;}}**{{self.lens}}**{{html.td.&gt;}}                {{html.tr.&gt;}}                {{html.tr.&lt;}}                    {{html._td_item_.&lt;}}Crane{{html.td.&gt;}}                    {{html.td.&lt;}}{{self.crane}}{{html.td.&gt;}}                {{html.tr.&gt;}}            {{html.table.&gt;}}<br />
-&nbsp;&nbsp;<strong>desc=</strong>{{self.d}}<br />
-&nbsp;&nbsp;<strong>lens=</strong>{{self.l}}<br />
-&nbsp;&nbsp;<strong>crane=</strong>{{self.c}}<br />
-&nbsp;&nbsp;<strong>d=</strong>&lt;strong&gt;WS:&amp;nbsp;&lt;/strong&gt;Crane Down to Mom removing groceries<br />
-&nbsp;&nbsp;<strong>l=</strong>24mm<br />
-&nbsp;&nbsp;<strong>c=</strong>yes<br />
-<br />
-<strong>shot_factory=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>@var _id="{{self.nm}}"       _inherit="_shot_template_"       d="{{self.d}}"       l="{{self.l}}"       c="{{self.c}}"      usage=<br />
-&nbsp;&nbsp;<strong>nm=</strong>shot1<br />
+&nbsp;&nbsp;<strong>desc=</strong>{{code.get_default(v="self.d", default="Your shot description here")}}<br />
+&nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="24mm")}}<br />
+&nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="No")}}<br />
+&nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
 &nbsp;&nbsp;<strong>d=</strong>[ws]Crane Down to Mom removing groceries<br />
 &nbsp;&nbsp;<strong>c=</strong>yes<br />
 &nbsp;&nbsp;<strong>l=</strong>24mm<br />

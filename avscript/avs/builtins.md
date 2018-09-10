@@ -6,9 +6,13 @@
       type="eval"\
       src="print('$.url'.replace('<', '&lt;').replace('>','&gt;'))"\
       url="Usage: code.esc_html.run(url=\"text to escape\")"
+@code _id="escape2"\
+      type="exec"\
+      src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('$.__t'))"\
+      __t="Usage: code.escape.run(t=\"text to escape\")"
 @code _id="escape"\
       type="exec"\
-      src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('{{self.t}}'))"\
+      src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('$.t'))"\
       t="Usage: code.escape.run(t=\"text to escape\")"
 @code _id="split_as"\
       type="exec"\
@@ -28,18 +32,19 @@
 @code _id="get"\
       type="exec"\
       src="from .utility import CodeHelpers;CodeHelpers.get_ns_var('{{self.v}}')"\
-      _help_="Usage: {{self._}}(v=\"variable_name\")" v="$.v"
+      v="variable_name"\
+      _help_="Usage: {{self._}}(v=\"variable_name\")"
 @code _id="get_default"\
       type="exec"\
       src="from .utility import CodeHelpers;CodeHelpers.default('$.v', '$.default')"\
-      __v="default"\
-      __default="undefined variable"\
+      v="default"\
+      default="undefined variable"\
       _help_="Usage: {{self._}}(v=&quot;variable_name&quot;, default=&quot;default value&quot;)"
 @code _id="repeat"\
       type="eval"\
-      src="print('{}'.format('$.__t'*$.__c))"\
-      __t="repeat_str "\
-      __c="2"
+      src="print('{}'.format('$.t'*$.c))"\
+      t="repeat_str "\
+      c="2"
 //
 @var _id="defaults"\
      title="[title]"\

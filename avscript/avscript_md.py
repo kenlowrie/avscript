@@ -67,7 +67,6 @@ from .avs.line import Line
 from .avs.link import LinkDict
 from .avs.regex import Regex, RegexMD, RegexMain
 from .avs.stdio import StdioWrapper
-from .avs.variable import VariableDict, VariableV2Dict, ImageDict
 from .avs.variable import Namespaces
 from .avs.bookmark import BookmarkList
 from .avs.markdown import Markdown
@@ -99,6 +98,10 @@ class AVScriptParser(StdioWrapper):
         self._ns = Namespaces(self._md.markdown, self._md.setNSxface, oprint=self.oprint)
         #TODO: Clean this up. _stripClass needs to be handled better than this...
         self._md.setStripClass(self._stripClass)
+
+        #_set_ns_xface(ns_ptr)
+        exec("from .avs.utility import _set_ns_xface;_set_ns_xface(self._ns)")
+
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
         self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')

@@ -537,8 +537,6 @@ class CodeNamespace(AdvancedNamespace):
     def addVariable(self, dict, name=None):
         var_name = super(CodeNamespace, self).addVariable(dict)
 
-        #if not super(CodeNamespace, self).exists('{}.{}'.format(var_name, AdvancedNamespace._default_format_attr)):
-        #    super(CodeNamespace, self).addAttribute(var_name,AdvancedNamespace._default_format_attr,'<{{self._tag}}{{self._public_attrs_}}/>')
         """
         [code.ref.exec] - returns exec(_code)
         [code.ref.eval] - returns eval(_code)
@@ -555,13 +553,7 @@ class CodeNamespace(AdvancedNamespace):
         # TODO: Fix this so it doesn't compile here or getvalue.
         #       That should be done inside ExecutePython
         #       And that is only needed during execution, not during ADD
-        # Need to expand any variables inside src...
-        # _params_ is reserved, so force it empty on the add. is this ok?
         
-        #all_attrs = super(CodeNamespace, self).getAllAttrsDict(var_name)
-        #defaults = {key: value for (key, value) in all_attrs.items() if key[0:2] == '__'}
-        #self.oprint("ALL:{}<br />\nDEF:{}<br />".format(all_attrs, defaults))
-
         # Compile a string for now, it isn't needed until the variable is expanded.
         src = 'print("<strong>raw src=</strong>{}")'.format(dict['src'].replace('"','\\"'))
         if self.debug: print("Compiling CODE(av) src={}<br />".format(src))
@@ -579,7 +571,6 @@ class CodeNamespace(AdvancedNamespace):
 
     def exists(self, id):
         id0, el0 = self._parseVariable(id)
-        #print(">>>{}-{}-{}<br />".format(id, id0, el0))
         if el0 is not None:
             if el0 in CodeNamespace._element_partials:
                 return True
@@ -596,38 +587,45 @@ class CodeNamespace(AdvancedNamespace):
         id0, el0 = self._parseVariable(id)
         if self.debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
         if el0 is None or el0 == CodeNamespace._run:
+            # Get the dictionary (not a copy, the actual dictionary, so if you change it, your changing it. Got it? Good.)
             dict = super(CodeNamespace, self).getRVal(id0)
+
+            # TODO: Don't hard code what's be skipped over
+            # Build a dictionary of the attrs that need to be restored after we process this getValue()
+            restoreValues = {key: value for (key, value) in dict.items() if key not in ['_code', 'last', '_params_']}
+            if self.debug: self.oprint("Saving these: {}<br />".format(restoreValues))
+
             if self.debug: self.oprint("START CODE(gv) src={}<br />".format(dict['src']))
+
+            # Shouldn't this always be true? Doesn't jit_attrs() add this, always?
+            if CodeNamespace._params_ in dict:
+                params = dict[CodeNamespace._params_]
+                if self.debug: self.oprint("PARAMS: {}<br />".format(params))
+                for var in params:
+                    if self.debug: self.oprint("REP: {} with {}<br />".format(var, params[var]))
+                    dict[var] = params[var]
+
 
             # Need to expand any variables inside src... (referencing self. overwrites _params_ :(
             src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
             if self.debug: self.oprint("Markdown CODE(src)={}<br />\nDICT={}<br />".format(src, dict))
 
-            # get the defaults from this variable
-            all_attrs = super(CodeNamespace, self).getAllAttrsDict(id0)
-            #if self.debug: self.oprint("all_attrs={}<br />".format(all_attrs))
+            # Now build a dictionary of the attrs that need substitution (if present) in the src code
+            replaceValues = {key: value for (key, value) in dict.items() if key not in ['_code', 'last', '_params_']}
 
-            # now eliminate all but the defaults, attrs that begin with __
-            defaults = {key: value for (key, value) in all_attrs.items() if key[0:2] == '__'}
-            #if self.debug: self.oprint("defaults={}<br />".format(defaults))
-            
-            # now replace any defaults with parameters
-            params = dict[CodeNamespace._params_]
-            #if self.debug: self.oprint("{}-passed={}<br />".format(id0,params))
-            for item in params:
-                defaults[item] = params[item]
-
-            #if self.debug: self.oprint("locals:{}<br />".format(defaults))
-
-            if self.debug: self.oprint("PreXLAT CODE(gv) src={}<br />".format(src))
-
-            # Now translate $.var to values from the defaults dictionary
-            src = xlat_parameters(src, defaults)
+            # Now translate $.attr to values from the replaceValues dictionary
+            src = xlat_parameters(src, replaceValues)
 
             # Finally, compile it and execute it
             if self.debug: self.oprint("Compiling CODE(gv) src={}<br />".format(src))
             dict['_code'] = compile(src, '<string>', dict['type'])
             dict['last'] = self.executePython(dict)
+
+            # And now, put back the attributes as they were on entrance. This is a requirement for @code vars.
+            # The only way to change an attribute is to use @set (TODO: test that theory)
+            for key in restoreValues:
+                if self.debug: self.oprint("RES: {} with {}<br />".format(key, restoreValues[key]))
+                dict[key] = restoreValues[key]
 
             return dict['last']
 
@@ -760,34 +758,31 @@ class Namespaces(object):
                     jit_attrs['_'] = self._namespaces[ns].getVarID(var)
                     self._namespaces[ns].updateVariable(jit_attrs)
             else:
+                # @code namespace has special requirements. We need to pass
+                # the jit_attrs inside the _params_ key, as they are substituted
+                # on the fly when getValue() is called.
                 if jit_attrs is None:
-                    #self.oprint("jit_attrs is NONE<br />")
+                    #if self.debug: self.oprint("jit_attrs is NONE<br />")
                     jit_attrs = {}
-                #self.oprint("&lt;!!!!&gt;{}--{}<br />".format(var,jit_attrs))
+                # Make a temp dictionary with "_" and "_params_" keys
                 params = {CodeNamespace._params_: jit_attrs, 
                           '_': self._namespaces[ns].getVarID(var)}
-                #self.oprint("&gt;&gt; Updating to: {}<br />".format(params))
+                # Add _params_ to the variable dictionary
+                #if self.debug: self.oprint("Adding/Updating _params_ to: {}<br />".format(params))
                 self._namespaces[ns].updateVariable(params)
         
         ns, name = self._splitNamespace(variable_name)
-        #if jit_attrs is not None:
-        #    print('{}'.format(jit_attrs))
-        #print('ns,name={},{}'.format(ns,name))
         if ns is not None:
             if ns in Namespaces._search_order:
-                # TODO: add jit_attrs right here (like below)?
                 addJITattrs(jit_attrs, ns, name)
 
-                #print("FALLING THRU")
                 # TODO: Shouldn't we check to see that it's there?
                 return self._namespaces[ns].getValue(name)
 
-        #print("NO NAMESPACE OR UNKNOWN NAMESPACE")
+        #if self.debug self.oprint("NO NAMESPACE OR UNKNOWN NAMESPACE")
         # Since the NS wasn't valid, we need to fall back to the full name again
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):
-                # TODO: add jit_attrs right here
-                # except right here, we need just the root part of the name
                 # TODO: this is confusing, and will lead to errors. REFACTOR.
                 addJITattrs(jit_attrs, ns, name)
                 return self._namespaces[ns].getValue(variable_name)

@@ -1,20 +1,25 @@
-If you try to reference attrs (self.) within a code macro, it overwrites params... ick.
+# 0------------
+[code.datetime_stamp(fmtstr="%Y%m%d")]
+[code.datetime_stamp]
 
 @var _id="header" \
-     _format="# [code.repeat.run(__t=\"-\", __c=\"42\")]"
+     _format="# [code.repeat.run(t=\"-\", c=\"42\")]"
 
 [header]
 
-# code.escape(t="<https://www.google.com>"))
+## code.escape(t="&lt;https://www.google.com&gt;"))
 [code.escape(t="<https://www.google.com>")]
 [code.escape.last]
+
+[code.escape2(__t="<https://www.cloudylogic.com>")]
+
+[code.datetime_stamp][b][code.datetime_stamp(fmtstr="%Y%m%d")][b][code.datetime_stamp]
 
 // -------------------------------------------------------------------
 [header]
 
-
-## right here dude
-
+### Testing code.get and code.get_default
+ 
 [code.get._help_]
 [code.get]
 [code.get(v="madeup")]
@@ -24,19 +29,20 @@ If you try to reference attrs (self.) within a code macro, it overwrites params.
 d = [code.get_default]
 [code.get_default(v="madeup", default="that didnt exist")]
 [code.get_default(v="sys.basepath", default="that didnt exist")]
-@dump code="get_default"
 dd = [code.get_default]
-@dump code="get_default"
+
 
 [header]
 
 @import '[sys.imports]/shot.md'
 
- Weird thing about how shot factory works. public attrs become sticky in the generated @var. 
- How is that happening? It's totally a side effect...
- 
-[shot_factory(nm="shot2", c="y", l="50mm", d="sticky desc")]
-@dump var="shot2"
+Weird thing about how shot factory works. public attrs become sticky in the generated @var. 
+How is that happening? It's totally a side effect...
+Not anymore. Fixing the @code logic fixed that. Now, can I make it happen on purpose?
+
+@dump code="shot_f"
+[code.shot_factory(nm="shot2", c="y", l="50mm", d="sticky desc")]
+@dump code="shot_f" var="shot2"
 [var.shot2.d]
 [var.shot2.l]
 [var.shot2.c]
@@ -47,9 +53,9 @@ dd = [code.get_default]
 [shot_factory(nm="shot31c", c="n")]
 [shot_factory(nm="shot31d")]
 
-[shot31a]
-[shot31b]
-[shot31c]
+[shot31a(c="y", l="50mm", d="my desc")]
+[shot31b(c="y", l="85mm")]
+[shot31c(c="heck no")]
 [shot31d]
 
 ## test1
@@ -72,25 +78,10 @@ dd = [code.get_default]
 [f3(d="This is my fancy shot", l="50mm", c="Maybe")]
 [f4(c="Yes")]
 
-[code.get_default(v="$.x", default="nowayjose")]
-
-## hi!
-
-code.get is broken.
-code.escape too
-code.repeat too.
-
-maybe if i could have both params and attrs. Is that possible?
+[code.get_default(v="var.x", default="nowayjose")]
 
 # code.get(v="var.f3")
 [code.get(v="var.f3")]
-
-
-code.vn(local1="val")
-
-when you define @code id="foo" var="x" ...
-
-
 
 
 //@debug

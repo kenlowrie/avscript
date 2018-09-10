@@ -146,6 +146,10 @@ class VariableStore(object):
         if self.exists(name):
             self.vars[name].rval[attr] = value
 
+    def getPublicAttrsDict(self, name):
+        if self.exists(name):
+            return self.vars[name].getAttrsAsDict(Variable.public)
+
     def getPublicAttrs(self, name):
         if self.exists(name):
             return self.vars[name].getAttrsAsString(Variable.public)
@@ -153,6 +157,10 @@ class VariableStore(object):
     def getPublicKeys(self, name):
         if self.exists(name):
             return self.vars[name].getKeysAsString(Variable.public)
+
+    def getPrivateAttrsDict(self, name):
+        if self.exists(name):
+            return self.vars[name].getAttrsAsDict(Variable.private)
 
     def getPrivateAttrs(self, name):
         if self.exists(name):
@@ -165,6 +173,10 @@ class VariableStore(object):
     def getAllAttrs(self, name):
         if self.exists(name):
             return self.vars[name].getAttrsAsString(Variable.all)
+
+    def getAllAttrsDict(self, name):
+        if self.exists(name):
+            return self.vars[name].getAttrsAsDict(Variable.all)
 
     def getSpecialAttr(self, which, variable):
         if which == Variable.public:
@@ -183,6 +195,8 @@ class VariableStore(object):
         raise LogicError("Oops. Special attribute {} isn't valid for {}".format(which, variable))
 
     def unescapeString(self,s):
+        if type(s) != type(''):
+            return s
         return s.replace('\\"', '"')
 
     def unescapeStringQuotes(self,d):
@@ -487,7 +501,11 @@ class LinkNamespace(HtmlNamespace):
 
 class CodeNamespace(AdvancedNamespace):
     _run = 'run'
+    _params_ = '_params_'
+    _defaults_ = '_defaults_'
+    #_locals_ = '_locals_'
     _element_partials = [_run]
+
     def __init__(self, markdown, namespace_name, oprint):
         super(CodeNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
 
@@ -505,10 +523,15 @@ class CodeNamespace(AdvancedNamespace):
             yield so
             sys.stdout = old
 
+        exceptionMessage = ''
         with stdoutIO() as s:
-            exec(dict['_code']) if dict['type'] == 'exec' else eval(dict['_code'])
+            try:
+                exec(dict['_code']) if dict['type'] == 'exec' else eval(dict['_code'])
+            except Exception as e:
+                exceptionMessage = "{}".format(str(e))
 
         #print('>>>>>>>>>>>{}{}'.format(type(s.getvalue()),s.getvalue()))
+        if exceptionMessage: self.oprint("<br />\n<strong><em>Exception:</em> {}</strong><br />\n<strong>src=</strong>{}<br />".format(exceptionMessage, dict['src']))
         return s.getvalue().rstrip()
 
     def addVariable(self, dict, name=None):
@@ -529,17 +552,22 @@ class CodeNamespace(AdvancedNamespace):
             print('CODE namespace type= must be either "exec" or "eval"')
             return
 
+        # TODO: Fix this so it doesn't compile here or getvalue.
+        #       That should be done inside ExecutePython
+        #       And that is only needed during execution, not during ADD
         # Need to expand any variables inside src...
-        src = super(CodeNamespace, self).getValue('{}.src'.format(var_name))
-        if self.debug: print("CODE src={}".format(src))
+        # _params_ is reserved, so force it empty on the add. is this ok?
+        
+        #all_attrs = super(CodeNamespace, self).getAllAttrsDict(var_name)
+        #defaults = {key: value for (key, value) in all_attrs.items() if key[0:2] == '__'}
+        #self.oprint("ALL:{}<br />\nDEF:{}<br />".format(all_attrs, defaults))
+
+        # Compile a string for now, it isn't needed until the variable is expanded.
+        src = 'print("<strong>raw src=</strong>{}")'.format(dict['src'].replace('"','\\"'))
+        if self.debug: print("Compiling CODE(av) src={}<br />".format(src))
         dict['_code'] = compile(src, '<string>', dict['type'])
-        #dict['last'] = eval(dict['_code']) if dict['type'] == 'eval' else self.executePython(dict)
         dict['last'] = self.executePython(dict)
         
-        #print("<<<<<<<<<<<<{}{}".format(type(dict['last']), dict['last']))
-
-        #type = 
-        #print("CODE: My NS is: {}".format(self.namespace))
 
     # When you have special attributes for your class, you have to define your own
     # _isSpecial, so you can check yours before passing it along to the sub classes.
@@ -559,13 +587,45 @@ class CodeNamespace(AdvancedNamespace):
         return super(CodeNamespace, self).exists(id)
 
     def getValue(self, id):
+        def xlat_parameters(s, d):
+            if not d: return s
+            for item in d:
+                s = s.replace("$.{}".format(item), d[item])
+            return s
+
         id0, el0 = self._parseVariable(id)
         if self.debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
         if el0 is None or el0 == CodeNamespace._run:
             dict = super(CodeNamespace, self).getRVal(id0)
-            if self.debug: print(">>>>>{}--{}--{}<br />".format(id, id0, el0))
-            # Need to expand any variables inside src...
+            if self.debug: self.oprint("START CODE(gv) src={}<br />".format(dict['src']))
+
+            # Need to expand any variables inside src... (referencing self. overwrites _params_ :(
             src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
+            if self.debug: self.oprint("Markdown CODE(src)={}<br />\nDICT={}<br />".format(src, dict))
+
+            # get the defaults from this variable
+            all_attrs = super(CodeNamespace, self).getAllAttrsDict(id0)
+            #if self.debug: self.oprint("all_attrs={}<br />".format(all_attrs))
+
+            # now eliminate all but the defaults, attrs that begin with __
+            defaults = {key: value for (key, value) in all_attrs.items() if key[0:2] == '__'}
+            #if self.debug: self.oprint("defaults={}<br />".format(defaults))
+            
+            # now replace any defaults with parameters
+            params = dict[CodeNamespace._params_]
+            #if self.debug: self.oprint("{}-passed={}<br />".format(id0,params))
+            for item in params:
+                defaults[item] = params[item]
+
+            #if self.debug: self.oprint("locals:{}<br />".format(defaults))
+
+            if self.debug: self.oprint("PreXLAT CODE(gv) src={}<br />".format(src))
+
+            # Now translate $.var to values from the defaults dictionary
+            src = xlat_parameters(src, defaults)
+
+            # Finally, compile it and execute it
+            if self.debug: self.oprint("Compiling CODE(gv) src={}<br />".format(src))
             dict['_code'] = compile(src, '<string>', dict['type'])
             dict['last'] = self.executePython(dict)
 
@@ -662,9 +722,10 @@ class Namespaces(object):
         # name [[ns].name]
         pass
 
-    def removeAttribute(self, name):
+    def removeAttribute(self, name=None):
         # TODO: Add this
         # name [[ns].name.attr]
+        self.oprint("inside removeAttribute")
         pass
 
     def dupVariable(self, curname, newname):
@@ -693,10 +754,20 @@ class Namespaces(object):
                 # TODO: Should I print a message or something?
                 return  # For now, just return. Basic namespace doesn't support attrs...
 
-            if jit_attrs is not None:   # and self._namespaces[ns].exists(variable_name):
-                #print('inside addJITattrs({})'.format(var))
-                jit_attrs['_'] = self._namespaces[ns].getVarID(var)
-                self._namespaces[ns].updateVariable(jit_attrs)
+            if ns != Namespaces._code:
+                # jit_attrs are sticky on everything except code
+                if jit_attrs is not None:
+                    jit_attrs['_'] = self._namespaces[ns].getVarID(var)
+                    self._namespaces[ns].updateVariable(jit_attrs)
+            else:
+                if jit_attrs is None:
+                    #self.oprint("jit_attrs is NONE<br />")
+                    jit_attrs = {}
+                #self.oprint("&lt;!!!!&gt;{}--{}<br />".format(var,jit_attrs))
+                params = {CodeNamespace._params_: jit_attrs, 
+                          '_': self._namespaces[ns].getVarID(var)}
+                #self.oprint("&gt;&gt; Updating to: {}<br />".format(params))
+                self._namespaces[ns].updateVariable(params)
         
         ns, name = self._splitNamespace(variable_name)
         #if jit_attrs is not None:
@@ -762,232 +833,6 @@ class Namespaces(object):
                 self._namespaces[item].dumpVars(which=which[item])
             else:
                 self.oprint("{} is not a valid namespace to dump<br />".format(item))
-
-
-# =================================================================================================
-
-
-class _Variable(object):
-    """Class to abstract a variable (alias). Keep track of the ID (name) and
-    the value (text)."""
-    def __init__(self, id, text):
-        self.id = id
-        self.text = text
-
-
-class VariableDict(object):
-    """Class to abstract a dictionary of variables (aliases)"""
-    def __init__(self):
-        self.vars = {}
-        from .regex import Regex
-        self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
-
-    def addVar(self, id, text):
-        """Add a variable called 'id' to the list and set its value to 'text'."""
-        if type(text) is str:
-            from re import findall
-            matches = findall(self.delayedExpansion.regex, text)
-            for m in matches:
-                # for each delayed expansion variable, strip the {{}} from the name
-                text = text.replace(m[0],'[{}]'.format(m[1]))
-
-        self.vars[id] = _Variable(id, text)
-
-    def exists(self, id):
-        """Returns true if the variable 'id' exists."""
-        return id in self.vars
-
-    def getText(self, id):
-        """Gets the value of the variable 'id', unless it doesn't exist, in
-        which case it returns (undefined).
-        TODO: Should this just return an empty string if undefined?"""
-        return "(undefined)" if not self.exists(id) else self.vars[id].text
-
-    def dumpVars(self, indent='', output=print):
-        """Dumps the variable list, names and values."""
-        for var in sorted(self.vars):
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, HtmlUtils.escape_html(self.vars[var].text), indent))
-
-
-class VariableV2Dict(VariableDict):
-    """Class to abstract a dictionary of images"""
-    _var_prefix = 'varv2.'
-    _idstr = ["_id", "__", "_"]
-
-    def __init__(self):
-        super(VariableV2Dict, self).__init__()  # Initialize the base class(es)
-
-    def _missingID(self, dict, oprint, which="ADD"):
-        #from sys import stderr
-        oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, VariableV2Dict._idstr, dict))
-
-    def getIDstr(self, dict):
-        for id in VariableV2Dict._idstr:
-            if id in dict:
-                return id
-        return None
-
-    def unescapeString(self,s):
-        return s.replace('\\"', '"')
-
-    def unescapeStringQuotes(self,d):
-        for item in d:
-            d[item] = self.unescapeString(d[item])
-
-        return d     
-
-    def addVarV2(self, dict, oprint):
-        myID = self.getIDstr(dict)
-        if myID is None:
-            self._missingID(dict, oprint)
-            return
-
-        varID = dict[myID]
-        del dict[myID]
-        if 'name' not in dict:
-            dict['name'] = varID
-
-        self.addVar(varID, self.unescapeStringQuotes(dict))
-
-    def updateVarV2(self, dict, oprint):
-        myID = self.getIDstr(dict)
-        if myID is None:
-            self._missingID(dict, oprint, "UPDATE")
-            return
-
-        varID = dict[myID]
-        if varID not in self.vars:
-            return self.addVarV2(dict, oprint)
-
-        del dict[myID]
-        for item in dict:
-            self.vars[varID].text[item] = self.unescapeString(dict[item])
-
-    def _parseVar(self, id):
-        if id.startswith(VariableV2Dict._var_prefix):
-            id = id[len(VariableV2Dict._var_prefix):]
-
-        compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
-        if len(compoundVar) == 2:
-            id0, el0 = compoundVar
-            if id0 in self.vars and (el0 in self.vars[id0].text or el0 in VariableV2Dict._idstr):
-                return compoundVar
-
-        return id, None
-
-    def exists(self, id):
-        id0, el0 = self._parseVar(id)
-        if el0 is not None:
-            # _parseVar() only returns both elements if the attribute exists
-            return True
-
-        return id0 in self.vars
-
-    # TODO: what if we could specify the HTML tag that should be formed with one of these
-    # Maybe have an _element=HTMLTAG, and form it like the one for IMAGE if you ask for all
-
-    def getVarV2(self, id, _markdown):
-        id0, el0 = self._parseVar(id)
-        if el0 is not None:
-            # If they are asking for the special name (_, __, _id)
-            if el0 in VariableV2Dict._idstr:
-                # return the variable name itself, no markdown.
-                return id0
-
-            return _markdown(self.vars[id0].text[el0])
-
-        if self.exists(id0):
-            # if the special _format element exists, return it with markdown applied
-            fmt = '_format'
-            if fmt in self.vars[id0].text:
-                # First, apply standard markdown in case _format has regular variables in it.
-                fmt_str = _markdown(self.vars[id0].text[fmt]).replace('{{','[').replace('}}',']')
-                # And now, markdown again, to expand the self. namespace variables
-                return _markdown(fmt_str.replace('self.','{}.'.format(id)))
-
-            compoundVar = ''
-            for item in sorted(self.vars[id0].text):
-                attrText = _markdown(self.vars[id0].text[item])
-                compoundVar += ' {}="{}"<br />\n'.format(item, attrText)
-            return compoundVar
-
-        # logically, you won't ever get here, because everyone always
-        # calls exists() first, and if false, it just echos out what you
-        # passed in. But just in case...
-        return '(undefined variable) {}"'.format(id)
-
-    def dumpVars(self, indent='', output=print):
-        """Dumps the image variable list, names and values."""
-        for var in sorted(self.vars):
-            dict_str = '<br />'
-            for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, HtmlUtils.escape_html(self.vars[var].text[d_item]))
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
-
-
-class ImageDict(VariableDict):
-    """Class to abstract a dictionary of images"""
-    _var_prefix = 'image.'
-    _idstr = "_id"
-
-    def __init__(self):
-        super(ImageDict, self).__init__()  # Initialize the base class(es)
-
-    def _missingID(self, dict, oprint, which="ADDIMAGE"):
-        oprint("{}: Dictionary is missing {}<br />{}<br />".format(which, VariableV2Dict._idstr, dict))
-
-    def addImage(self, dict, oprint):
-        if ImageDict._idstr not in dict:
-            self._missingID(dict, oprint)
-            return
-
-        imageID = dict[ImageDict._idstr]
-        del dict[ImageDict._idstr]
-        self.addVar(imageID, dict)
-
-    def _parseVar(self, id):
-        if id.startswith(ImageDict._var_prefix):
-            id = id[len(ImageDict._var_prefix):]
-
-        compoundVar = id.split('.')     # split at '.' if present, might be looking to get dict element
-        if len(compoundVar) == 2:
-            id0, el0 = compoundVar
-            if id0 in self.vars and el0 in self.vars[id0].text:
-                return compoundVar
-
-        return id, None
-
-    def exists(self, id):
-        id0, el0 = self._parseVar(id)
-        if el0 is not None:
-            return id0 in self.vars and el0 in self.vars[id0].text
-
-        return id0 in self.vars
-
-    def getImage(self, id, _markdown):
-        id0, el0 = self._parseVar(id)
-        if el0 is not None:
-            return _markdown(self.vars[id0].text[el0])
-
-        if self.exists(id0):
-            imageTag = '<img'
-            for item in sorted(self.vars[id0].text):
-                if item[0] == '_':
-                    continue    # don't add any attributes that start with _
-                attrText = _markdown(self.vars[id0].text[item])
-                imageTag += ' {}="{}"'.format(item, attrText)
-            imageTag += '/>'
-            return imageTag
-
-        return '<img src="undefined image {}"/>'.format(id)
-
-    def dumpVars(self, indent='', output=print):
-        """Dumps the image variable list, names and values."""
-        for var in sorted(self.vars):
-            dict_str = '<br />'
-            for d_item in self.vars[var].text:
-                dict_str += '&nbsp;&nbsp;{}:{}<br />\n'.format(d_item, HtmlUtils.escape_html(self.vars[var].text[d_item]))
-            output("{2}<strong>{0}=</strong>{1}<br />".format(self.vars[var].id, dict_str, indent))
 
 
 if __name__ == '__main__':

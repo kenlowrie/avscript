@@ -390,7 +390,7 @@ sep()
 ref5 = {
        '_id':"ref5",
        'type':"exec", 
-       'src':'from time import strftime\nprint(strftime("{{self.fmtstr}}"))',
+       'src':'from time import strftime;print(strftime("{{self.fmtstr}}"))',
        '_format':'{{self.last}}',
        'fmtstr':'%Y%m%d @ %H:%M:%S'
 }

@@ -1,49 +1,13 @@
-# 0--------
-@code _id="get_default"\
-      type="exec"\
-      src="from .utility import CodeHelpers;CodeHelpers.default('$.v', '$.default')"\
-      __v="default"\
-      __default="undefined variable"\
-      _help_="Usage: {{self._}}(v=&quot;variable_name&quot;, default=&quot;default value&quot;)"
-//
-@code _id="repeat"\
-      type="eval"\
-      src="print('{}'.format('$.__t'*$.__c))"\
-      __t="repeat_str "\
-      __c="2"
-
 If you try to reference attrs (self.) within a code macro, it overwrites params... ick.
-
-### b4 repeat
-@dump code="repeat"
-[code.repeat]
-@dump code="repeat"
-### b4 repeat(__c="5")
-[code.repeat(__c="5")]
-@dump code="repeat"
-[code.repeat(__t="xx --")]
-@dump code="repeat"
-
-# 1---------
-[code.repeat(__t="hey", __c="15")]
-@dump code="repeat"
-# 2---------
-
-[code.repeat(__t="hihihi", __c="7", __hi="3")] 
 
 @var _id="header" \
      _format="# [code.repeat.run(__t=\"-\", __c=\"42\")]"
-
-@dump var="header"
 
 [header]
 
 # code.escape(t="<https://www.google.com>"))
 [code.escape(t="<https://www.google.com>")]
 [code.escape.last]
-
-[sys.basepath]
-[sys.import_path]
 
 // -------------------------------------------------------------------
 [header]
@@ -64,17 +28,23 @@ d = [code.get_default]
 dd = [code.get_default]
 @dump code="get_default"
 
+[header]
+
 @import '[sys.imports]/shot.md'
+
+ Weird thing about how shot factory works. public attrs become sticky in the generated @var. 
+ How is that happening? It's totally a side effect...
  
-[shot_factory(nm="shot2", c="y", l="50mm", d="my desc")]
+[shot_factory(nm="shot2", c="y", l="50mm", d="sticky desc")]
+@dump var="shot2"
 [var.shot2.d]
 [var.shot2.l]
 [var.shot2.c]
 @dump var="shot2|shot"
 
 [shot_factory(nm="shot31a", c="y", l="50mm", d="my desc")]
-[shot_factory(nm="shot31b", c="y", l="50mm")]
-[shot_factory(nm="shot31c", c="y")]
+[shot_factory(nm="shot31b", c="y", l="85mm")]
+[shot_factory(nm="shot31c", c="n")]
 [shot_factory(nm="shot31d")]
 
 [shot31a]
@@ -87,17 +57,6 @@ dd = [code.get_default]
 [code.get_default(v="shot31ab", default="xxxx")]
 
 @import '[sys.imports]/shot.md'
-
-@var _id="_shot_template_" \
-     _inherit="_shotinfo2_" \
-     desc="{{code.get_default(v=\"self.d\", default=\"Your shot description here\")}}" \
-     lens="{{code.get_default(v=\"self.l\", default=\"24mm\")}}" \
-     crane="{{code.get_default(v=\"self.c\", default=\"No\")}}"\
-     usage="Usage: **{{self._}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
-
-@code _id="shot_factory" type="eval" \
-    src="print('@var _id=\"$.nm\" _inherit=\"_shot_template_\"')"\
-    usage="Usage: **{{self.nm}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
 
 # 2-----
 

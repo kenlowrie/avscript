@@ -78,7 +78,8 @@ Ethnicities aren't important, however, we will try to cast the [mom], [son] and 
        c="[wardrobe][bb][props] [grocerybags][bb][makeup][bb][cast] [mom], [daughter]" \
 )]
 
-[shot_factory(nm="shot0" d="[ws]Crane high shooting over car" c="yes" l="24mm")]
+[shot_factory(nm="shot0")]
+[var.shot0._null_(d="[ws]Crane high shooting over car" c="yes" l="24mm")]
 [img_factory(nm="shot0" s="[imports]/shot0.jpg")]
 [var.shotinfo2(shotid="shot0")]
 [slate]
@@ -86,7 +87,8 @@ Probably just use the [title] and [artist] titles on this shot.
 [comment(t="This needs to start high enough up that you can't see the trunk, and make sure the sky is NOT blown out! It comes down to reveal [mom] opening trunk and reaching in to grab groceries.")]
 
 @break
-[shot_factory(nm="shot1" d="[ws]Crane Down to Mom removing groceries" c="yes" l="24mm")]
+[shot_factory(nm="shot1")]
+[var.shot1._null_(d="[ws]Crane Down to Mom removing groceries" c="yes" l="24mm")]
 [img_factory(nm="shot1" s="[imports]/shot1.jpg")]
 [var.shotinfo2(shotid="shot1")]
 [comment(t="Make sure [mom] is already moving when she comes into frame.")]

@@ -14,7 +14,8 @@
 @import '[sys.imports]/shot.md'
 @image _id="needshot" src="[imports]/needshot.png" style="[ss]"
 
-[shot_factory(nm="shot1" d="*Short Description Here*" c="yes" l="85mm")]
+[shot_factory(nm="shot1")]
+[var.shot1._null_(d="*Short Description Here*" c="yes" l="85mm")]
 [img_factory(nm="shot1" s="[imports]/shot1.jpg")]
 
 //Can be used inside a shot like this
@@ -29,7 +30,8 @@
 @raw [image.shot1]
 @raw [var.shot1]
 
-[shot_factory(nm="shot0" d="*Short Description*" c="yes" l="85mm")]
+[shot_factory(nm="shot0")]
+[var.shot0._null_(d="*Short Description*" c="yes" l="85mm")]
 [img_factory(nm="shot0" s="[imports]/shot1.jpg")]
 
 //@image _id="shot0" src="[imports]/shot0.jpg" style="[ss]"
@@ -43,7 +45,8 @@
 And here is some info about shot0
 @break
 
-[shot_factory(nm="needshot" d="*Short Description*" c="yes" l="50mm")]
+[shot_factory(nm="needshot")]
+[var.needshot._null_(d="*Short Description*" c="yes" l="50mm")]
 [var.needshot(shotid="shot0")]
 [var.shotinfo2(shotid="needshot")]
 
@@ -52,10 +55,14 @@ And here is some info about shot0
 @image _id="shot3a" src="[imports]/shot1.jpg" style="[var.img_def.img_st_block]"
 @image _id="shot3b" src="[imports]/shot1.jpg" style="[var.img_def.img_st_block_border]"
 
-[shot_factory(nm="shot2a" d="shot1.jpg" c="yes" l="85mm")]
-[shot_factory(nm="shot2b" d="shot1.jpg" c="yes" l="50mm")]
-[shot_factory(nm="shot3a" d="shot1.jpg" c="yes" l="24mm")]
-[shot_factory(nm="shot3b" d="shot1.jpg" c="yes" l="70mm")]
+[shot_factory(nm="shot2a")]
+[var.shot2a._null_(d="shot1.jpg" c="yes" l="85mm")]
+[shot_factory(nm="shot2b")]
+[var.shot2b._null_(d="shot1.jpg" c="yes" l="50mm")]
+[shot_factory(nm="shot3a")]
+[var.shot3a._null_(d="shot1.jpg" c="yes" l="24mm")]
+[shot_factory(nm="shot3b")]
+[var.shot3b._null_(d="shot1.jpg" c="yes" l="70mm")]
 
 - Single Shot Sequence
     [image.shot2a]

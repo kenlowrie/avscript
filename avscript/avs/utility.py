@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# This global is used to hold the interface to Namespaces.
+_ns_xface = None
+
+# Called during avscript initialization to save the interface to Namespaces
+def _set_ns_xface(ns_ptr):
+    global _ns_xface
+    _ns_xface = ns_ptr
+
+
 class HtmlUtils():
 
     @staticmethod
@@ -27,6 +36,30 @@ class CodeHelpers():
             news += '***{}***={}<br />'.format(i, HtmlUtils().escape_html(d[i]))
 
         return news
+
+    @staticmethod
+    def get_ns_var(v=None):
+        global _ns_xface
+        if not _ns_xface:
+            print("interface not initialized")
+            return
+
+        if not v:
+            print("missing variable name")
+        elif _ns_xface.exists(v):
+            print(_ns_xface.getValue(v))
+        else:
+            print("{} is undefined.".format(v))
+
+
+    @staticmethod
+    def default(v=None, default_value=""):
+        if not v:
+            print("existing variable name is required")
+            return
+
+        print("{}".format(default_value if not _ns_xface.exists(v) else _ns_xface.getValue(v)))
+
 
 if __name__ == '__main__':
     print("Library module. Not directly callable.")

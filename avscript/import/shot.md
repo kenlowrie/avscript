@@ -46,19 +46,28 @@
                 {{html.tr.>}}\
             {{html.table.>}}"
 
-@var _id="_shot_template_" \
-     _inherit="_shotinfo2_" \
-     desc="{{self.d}}" \
-     lens="{{self.l}}" \
-     crane="{{self.c}}"
-//Would be nice if there was a way to say if {{self.c}} is not defined, make it NO...
-@var _id="shot_factory" \
+//@var _id="shot_factory" \
       _format="@var _id=\"{{self.nm}}\" \
       _inherit=\"_shot_template_\" \
-      d=\"{{self.d}}\" \
-      l=\"{{self.l}}\" \
-      c=\"{{self.c}}\" \
+      d=\"{{code.get_default(v=\"self.d\", default=\"Your shot description here\")}}\" \
+      l=\"{{code.get_default(v=\"self.l\", default=\"24mm\")}}\" \
+      c=\"{{code.get_default(v=\"self.c\", default=\"No\")}}\"\
      usage="Usage: **{{self.nm}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)" \
+
+@var _id="_shot_template_" \
+     _inherit="_shotinfo2_" \
+     desc="{{code.get_default(v=\"self.d\", default=\"Your shot description here\")}}" \
+     lens="{{code.get_default(v=\"self.l\", default=\"24mm\")}}" \
+     crane="{{code.get_default(v=\"self.c\", default=\"No\")}}"\
+     usage="Usage: **{{self._}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
+
+// Weird thing about how shot factory works. public attrs become sticky in the generated @var. 
+// How is that happening? It's totally a side effect...
+
+@code _id="shot_factory" type="eval" \
+    src="print('@var _id=\"$.nm\" _inherit=\"_shot_template_\"')"\
+    usage="Usage: **{{self.nm}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
+
 
 @var _id="img_factory" \
       _format="@image _id=\"{{self.nm}}\" src=\"{{self.s}}\" style=\"{{self.st}}\""\

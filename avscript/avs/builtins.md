@@ -26,9 +26,13 @@
 @code _id="ln_alias"\
       type="exec"\
       src="from .utility import CodeHelpers;print('@set _id=\"{0}\" \
-      {1}=\"{3}{0}.<{4}{2}{3}{0}.>{4}\"'.format('{{self.nm}}', \
-      '{{self.attr}}', '{{self.lt}}', CodeHelpers.b(0), CodeHelpers.b(1)))"\
-      nm="link.?" attr="_attr_name" lt="NEW_LINK_TEXT_HERE"
+      {1}=\"{3}{0}.<{4}{2}{3}{0}.>{4}\"'.format('$.nm', \
+      '$.attr', '$.lt', CodeHelpers.b(0), CodeHelpers.b(1)))"\
+      nm="link.?" attr="_attr_name" lt="NEW_LINK_TEXT_HERE"\
+      _help_="<strong><em>usage:</em> \
+                {{self._}}</strong>(<em>nm=</em>&quot;link.name_to_add_alias&quot;, \
+                <em>attr=</em>&quot;attr_name&quot;, \
+                <em>lt=</em>&quot;new link text&quot;)"
 @code _id="get"\
       type="exec"\
       src="from .utility import CodeHelpers;CodeHelpers.get_ns_var('{{self.v}}')"\

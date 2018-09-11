@@ -66,3 +66,37 @@
           t="This is your scene title" \
           c="This is your content"
 
+@html _id="_span_" \
+      _inherit="span" \
+      _format="{{self.<}}{{self._t}}{{self.>}}"\
+      _t="spantext" 
+
+@html _id="_props_" \
+      _inherit="_span_"\
+      class="props" \
+      _t="prop"
+
+@html _id="_cast_" \
+      class="cast"\
+      _inherit="_span_" \
+      _t="castmembername" 
+
+@var _id="_castmember_" \
+      _format="{{html._cast_.<}}{{self.castmember}}{{html._cast_.>}}" \
+      castmember="UNDEFINED" \
+      _help_="x"
+@var _id="_propitem_" \
+      _format="{{html._props_.<}}{{self.prop}}{{html._props_.>}}" \
+      prop="UNDEFINED" \
+      _help_="x"
+
+@code _id="cast_factory" type="eval" \
+    src="print('@var _id=\"$.nm\" _inherit=\"_castmember_\" castmember=\"$.c\"')"\
+    c = "*UNDEFINED*" \
+    usage="Usage: **{{self.nm}}(c=&quot;castmember&quot;)**)"
+
+@code _id="prop_factory" type="eval" \
+    src="print('@var _id=\"$.nm\" _inherit=\"_propitem_\" prop=\"$.p\"')"\
+    p = "*UNDEFINED*" \
+    usage="Usage: **{{self.nm}}(p=&quot;prop&quot;)**)"
+

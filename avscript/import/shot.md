@@ -77,5 +77,6 @@
 
 @var _id="shotinfo2" _format="- [var.{{self.shotid}}.desc][b][image.{{self.shotid}}][b][var.{{self.shotid}}]" shotid="NOTSET"
 
-// TEMPORARY UNTIL I CONVERT EVERYTHING
-@import '$/old_shot.md'
+@var _id="needshot" \
+     _format="- [var.{{self.shotid}}.desc][image.needshot]<br />[var.{{self.shotid}}]" shotid="NOTSET"
+

@@ -471,7 +471,7 @@ class HtmlNamespace(AdvancedNamespace):
             # TODO: should do error checking here (make sure _tag is defined?)
             return '</{{self._tag}}>'
 
-        raise
+        raise SyntaxError("Invalid element partial [{}]".format(which))
 
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
@@ -490,7 +490,7 @@ class HtmlNamespace(AdvancedNamespace):
 
 class LinkNamespace(HtmlNamespace):
     def __init__(self, markdown, namespace_name, oprint):
-        var_name = super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
+        super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         #print("LINK: My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
@@ -570,7 +570,7 @@ class CodeNamespace(AdvancedNamespace):
         return super(CodeNamespace, self)._isSpecial(attr)
 
     def exists(self, id):
-        id0, el0 = self._parseVariable(id)
+        id0, el0 = self._parseVariable(id) # pylint: disable=W0612
         if el0 is not None:
             if el0 in CodeNamespace._element_partials:
                 return True
@@ -671,8 +671,7 @@ class Namespaces(object):
             ns = Namespaces._default
 
         if ns not in self._namespaces:
-            #TODO: Raise exception
-            raise
+            raise SyntaxError("Invalid namespace [{}]".format(ns))
 
         self._namespaces[ns].addVariable(value, name)
 
@@ -704,8 +703,7 @@ class Namespaces(object):
             ns = Namespaces._var
 
         if ns not in self._namespaces:
-            #TODO: Raise exception
-            raise
+            raise SyntaxError("Invalid namespace [{}]".format(ns))
 
         self._namespaces[ns].updateVariable(value, name)
 

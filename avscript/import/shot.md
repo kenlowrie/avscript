@@ -46,17 +46,29 @@
                 {{html.tr.>}}\
             {{html.table.>}}"
 
+@var _id="_shot_defs_" \
+     desc="Your shot description here." \
+     lens="24mm" \
+     crane="No" \
+     _format="<strong><em>{{self._}}</em> defaults:</strong>[bb]{{code.split_as(t=\"{{self._public_attrs_}}\")}}"
+
 @var _id="_shot_template_" \
      _inherit="_shotinfo2_" \
-     desc="{{code.get_default(v=\"self.d\", default=\"Your shot description here\")}}" \
-     lens="{{code.get_default(v=\"self.l\", default=\"24mm\")}}" \
-     crane="{{code.get_default(v=\"self.c\", default=\"No\")}}"\
+     desc="{{code.get_default(v=\"self.d\", default=\"{{var._shot_defs_.desc}}\")}}" \
+     lens="{{code.get_default(v=\"self.l\", default=\"{{var._shot_defs_.lens}}\")}}" \
+     crane="{{code.get_default(v=\"self.c\", default=\"{{var._shot_defs_.crane}}\")}}"\
      usage="Usage: **{{self._}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
 
 @code _id="shot_factory" type="eval" \
-    src="print('@var _id=\"$.nm\" _inherit=\"_shot_template_\"')"\
+    src="print('@var _id=\"$.nm\" _inherit=\"_shot_template_\" \
+                     d=\"$.d\" \
+                     l=\"$.l\" \
+                     c=\"$.c\" \
+    ')"\
+    d = "{{var._shot_defs_.desc}}" \
+    l = "{{var._shot_defs_.lens}}" \
+    c = "{{var._shot_defs_.crane}}" \
     usage="Usage: **{{self.nm}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
-
 
 @var _id="img_factory" \
       _format="@image _id=\"{{self.nm}}\" src=\"{{self.s}}\" style=\"{{self.st}}\""\

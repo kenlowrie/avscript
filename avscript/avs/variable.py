@@ -610,8 +610,9 @@ class CodeNamespace(AdvancedNamespace):
             src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
             if self.debug: self.oprint("Markdown CODE(src)={}<br />\nDICT={}<br />".format(src, dict))
 
+            # TODO: Is this working right? If new attrs are added, they'll be sticky. Is that okay?
             # Now build a dictionary of the attrs that need substitution (if present) in the src code
-            replaceValues = {key: value for (key, value) in dict.items() if key not in ['_code', 'last', '_params_']}
+            replaceValues = {key: value for (key, value) in dict.items() if key not in ['_code', '_params_']}
 
             # Now translate $.attr to values from the replaceValues dictionary
             src = xlat_parameters(src, replaceValues)
@@ -784,7 +785,7 @@ class Namespaces(object):
         for ns in Namespaces._search_order:
             if self._namespaces[ns].exists(variable_name):
                 # TODO: this is confusing, and will lead to errors. REFACTOR.
-                addJITattrs(jit_attrs, ns, name)
+                addJITattrs(jit_attrs, ns, variable_name)
                 return self._namespaces[ns].getValue(variable_name)
 
         # TODO: We may want to just return variable_name instead... like before...

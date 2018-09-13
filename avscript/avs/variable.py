@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+from .debug import Debug
 from .utility import HtmlUtils
 from .exception import LogicError
 
@@ -12,9 +13,12 @@ from .exception import LogicError
 class Variable(object):
     private = '_private_attrs_'
     public = '_public_attrs_'
+    private_esc = '_private_attrs_esc_'
+    public_esc = '_public_attrs_esc_'
     public_keys = '_public_keys_'
     private_keys = '_private_keys_'
     all = '_all_attrs_'
+    all_esc = '_all_attrs_esc_'
     null = '_null_'
     rvalue = '_rval'
     prefix = '_'
@@ -78,22 +82,22 @@ class Variable(object):
 
 
 class VariableStore(object):
-    _special_attributes = [Variable.public, Variable.private, Variable.public_keys, Variable.private_keys, Variable.all, Variable.null]
+    _special_attributes = [Variable.public, Variable.private, 
+                           Variable.public_esc, Variable.private_esc, 
+                           Variable.public_keys, Variable.private_keys, 
+                           Variable.all, Variable.all_esc,
+                           Variable.null]
 
     """Class to abstract a dictionary of variables"""
     def __init__(self, markdown, oprint):
         self.vars = {}
         self._md_ptr = markdown
         self.oprint = oprint
-        self._debug = False
 
-    @property
-    def debug(self):
-        return self._debug
-
-    @debug.setter
-    def debug(self, args):
-        self._debug = True
+    def dbgPrint(self, msg, ctx=None):
+        if not hasattr(self, 'debug') or not isinstance(self.debug, Debug):
+            raise NotImplementedError("Object must define a variable 'debug' of class Debug")
+        self.debug.print(msg, ctx)  #pylint: disable=E1101
 
     def _markdown(self, s):
         markdown = self._md_ptr
@@ -150,9 +154,10 @@ class VariableStore(object):
         if self.exists(name):
             return self.vars[name].getAttrsAsDict(Variable.public)
 
-    def getPublicAttrs(self, name):
+    def getPublicAttrs(self, name, escape=False):
         if self.exists(name):
-            return self.vars[name].getAttrsAsString(Variable.public)
+            s = self.vars[name].getAttrsAsString(Variable.public)
+            return self.escapeString(s) if escape else s
 
     def getPublicKeys(self, name):
         if self.exists(name):
@@ -162,17 +167,19 @@ class VariableStore(object):
         if self.exists(name):
             return self.vars[name].getAttrsAsDict(Variable.private)
 
-    def getPrivateAttrs(self, name):
+    def getPrivateAttrs(self, name, escape=False):
         if self.exists(name):
-            return self.vars[name].getAttrsAsString(Variable.private)
+            s = self.vars[name].getAttrsAsString(Variable.private)
+            return self.escapeString(s) if escape else s
 
     def getPrivateKeys(self, name):
         if self.exists(name):
             return self.vars[name].getKeysAsString(Variable.private)
 
-    def getAllAttrs(self, name):
+    def getAllAttrs(self, name, escape=False):
         if self.exists(name):
-            return self.vars[name].getAttrsAsString(Variable.all)
+            s = self.vars[name].getAttrsAsString(Variable.all)
+            return self.escapeString(s) if escape else s
 
     def getAllAttrsDict(self, name):
         if self.exists(name):
@@ -187,12 +194,24 @@ class VariableStore(object):
             return self.getAllAttrs(variable)
         elif which == Variable.null:
             return ''   # empty string, useful for adding attributes w/o printing anything
+        elif which == Variable.public_esc:
+            return self.getPublicAttrs(variable, True)
+        elif which == Variable.private_esc:
+            return self.getPrivateAttrs(variable, True)
+        elif which == Variable.all_esc:
+            return self.getAllAttrs(variable, True)
         elif which == Variable.public_keys:
             return self.getPublicKeys(variable)
         elif which == Variable.private_keys:
             return self.getPrivateKeys(variable)
 
         raise LogicError("Oops. Special attribute {} isn't valid for {}".format(which, variable))
+
+    def escapeString(self,s):
+        if type(s) != type(''):
+            return s
+        self.dbgPrint('escapeString({})'.format(s))
+        return s.replace('"', '\\"')
 
     def unescapeString(self,s):
         if type(s) != type(''):
@@ -239,8 +258,9 @@ class Namespace(VariableStore):
 
 class BasicNamespace(Namespace):
     def __init__(self, markdown, namespace_name, oprint):
+        self.debug = Debug('ns.basic')
         super(BasicNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-        #print("BASIC: My NS is: {}".format(self.namespace))
+        self.dbgPrint("My NS is: {}".format(self.namespace))
         from .regex import Regex
         self.delayedExpansion = Regex(r'(\[{{([^}]+)}}\])')
 
@@ -267,7 +287,7 @@ class BasicNamespace(Namespace):
         return id
 
     def exists(self, name):
-        #print("basic: {}".format(name))
+        self.dbgPrint("exists({})".format(name))
         #if name == 'class':
         #    raise NameError("WTF, How did I get here?")
         return super(BasicNamespace, self).exists(self._stripNamespace(name))
@@ -346,6 +366,7 @@ class AdvancedNamespace(Namespace):
         return id, None
 
     def exists(self, id):
+        self.dbgPrint('exists("{}")'.format(id))
         id0, el0 = self._parseVariable(id)
         if el0 is not None:
             # _parseVar() only returns both elements if the attribute exists
@@ -358,6 +379,7 @@ class AdvancedNamespace(Namespace):
         return id0 if el0 is not None else id
 
     def getValue(self, id):
+        self.dbgPrint('getValue("{}")'.format(id))
         id0, el0 = self._parseVariable(id)
         if el0 is not None:
             # If they are asking for the special name (_, _id)
@@ -373,17 +395,15 @@ class AdvancedNamespace(Namespace):
             #       Feels a bit like a side affect...
             # First, apply standard markdown in case _format has regular variables in it.
             fmt_str = self._markdown(self.vars[id0].rval[el0]).replace('{{','[').replace('}}',']')
+
             # And now, markdown again, to expand the self. namespace variables
-            #print("SETTING SELF to: {}{}".format(self.namespace,id0))
-            #if self.namespace == 'image.' and id0 == 'v0':
-                #raise NameError("WTF")
             return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
 
         if self.exists(id0):
             # if the special _format element exists, return it with markdown applied
             fmt = AdvancedNamespace._default_format_attr
             if fmt in self.vars[id0].rval:
-                #print("RETURNING _format()")
+                self.dbgPrint("Returning _format(\"{}\") as value for {}".format(self.vars[id0].rval[fmt], id))
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = self._markdown(self.vars[id0].rval[fmt]).replace('{{','[').replace('}}',']')
                 # And now, markdown again, to expand the self. namespace variables
@@ -420,15 +440,16 @@ class AdvancedNamespace(Namespace):
 class VarNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name, oprint):
         super(VarNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-
-        #print("VAR: My NS is: {}".format(self.namespace))
+        self.debug = Debug('ns.var')
+        self.dbgPrint("My NS is: {}".format(self.namespace))
 
 
 
 class ImageNamespace(AdvancedNamespace):
     def __init__(self, markdown, namespace_name, oprint):
         super(ImageNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-        #print("IMAGE: My NS is: {}".format(self.namespace))
+        self.debug = Debug('ns.image')
+        self.dbgPrint("My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
         var_name = super(ImageNamespace, self).addVariable(dict)
@@ -443,11 +464,14 @@ class ImageNamespace(AdvancedNamespace):
 class HtmlNamespace(AdvancedNamespace):
     _start = '<'
     _end = '>'
-    _element_partials = [_start, _end]
+    _start_esc = '<+'
+    _element_partials = [_start, _end, _start_esc]
 
-    def __init__(self, markdown, namespace_name, oprint):
+    def __init__(self, markdown, namespace_name, oprint, add_debug_obj=True):
         super(HtmlNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-        #print("HTML: My NS is: {}".format(self.namespace))
+        if add_debug_obj:
+            self.debug = Debug('ns.html')
+            self.dbgPrint("My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
         var_name = super(HtmlNamespace, self).addVariable(dict)
@@ -464,9 +488,9 @@ class HtmlNamespace(AdvancedNamespace):
         return super(HtmlNamespace, self)._isSpecial(attr)
 
     def getElementPartial(self, which):
-        if which == HtmlNamespace._start:
+        if which in [HtmlNamespace._start, HtmlNamespace._start_esc]:
             # TODO: should do error checking here (make sure _tag is defined?)
-            return '<{0}self._tag{1}{0}self.{2}{1}>'.format('{{', '}}', Variable.public)
+            return '<{0}self._tag{1}{0}self.{2}{1}>'.format('{{', '}}', Variable.public if which == HtmlNamespace._start else Variable.public_esc)
         elif which == HtmlNamespace._end:
             # TODO: should do error checking here (make sure _tag is defined?)
             return '</{{self._tag}}>'
@@ -475,14 +499,14 @@ class HtmlNamespace(AdvancedNamespace):
 
     def getValue(self, id):
         id0, el0 = self._parseVariable(id)
-        #print("HTML.getValue({},{},{})".format(id,id0,el0))
+        self.dbgPrint('getValue("{}","{}",{})'.format(id,id0,None if el0 is None else '"{}"'.format(el0)))
         if el0 is not None:
             if el0 in HtmlNamespace._element_partials:
 
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = self._markdown(self.getElementPartial(el0).replace('{{','[').replace('}}',']'))
                 # And now, markdown again, to expand the self. namespace variables
-                #print("LINK: {}".format(self.namespace))
+                self.dbgPrint("Replace self.{}{} in {} and markdown".format(self.namespace, id0, fmt_str))
                 return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace,id0)))
 
         return super(HtmlNamespace, self).getValue(id)
@@ -490,8 +514,9 @@ class HtmlNamespace(AdvancedNamespace):
 
 class LinkNamespace(HtmlNamespace):
     def __init__(self, markdown, namespace_name, oprint):
-        super(LinkNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
-        #print("LINK: My NS is: {}".format(self.namespace))
+        super(LinkNamespace, self).__init__(markdown, namespace_name, oprint, False)  # Initialize the base class(es)
+        self.debug = Debug('ns.link')
+        self.dbgPrint("My NS is: {}".format(self.namespace))
 
     def addVariable(self, dict, name=None):
         var_name = super(LinkNamespace, self).addVariable(dict)
@@ -508,6 +533,8 @@ class CodeNamespace(AdvancedNamespace):
 
     def __init__(self, markdown, namespace_name, oprint):
         super(CodeNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
+        self.debug = Debug('ns.code')
+        self.dbgPrint("My NS is: {}".format(self.namespace))
 
     def executePython(self, dict):
         import sys
@@ -530,7 +557,6 @@ class CodeNamespace(AdvancedNamespace):
             except Exception as e:
                 exceptionMessage = "{}".format(str(e))
 
-        #print('>>>>>>>>>>>{}{}'.format(type(s.getvalue()),s.getvalue()))
         if exceptionMessage: self.oprint("<br />\n<strong><em>Exception:</em> {}</strong><br />\n<strong>src=</strong>{}<br />".format(exceptionMessage, dict['src']))
         return s.getvalue().rstrip()
 
@@ -543,11 +569,11 @@ class CodeNamespace(AdvancedNamespace):
         """
         dict = super(CodeNamespace, self).getRVal(var_name)
         if 'src' not in dict or 'type' not in dict:
-            print('CODE namespace requires src= and type= attributes')
+            self.oprint('@code namespace requires src= and type= attributes')
             return
 
         if dict['type'] not in ['exec', 'eval']:
-            print('CODE namespace type= must be either "exec" or "eval"')
+            self.oprint('@code namespace type= must be either "exec" or "eval"')
             return
 
         # TODO: Fix this so it doesn't compile here or getvalue.
@@ -556,7 +582,7 @@ class CodeNamespace(AdvancedNamespace):
         
         # Compile a string for now, it isn't needed until the variable is expanded.
         src = 'print("<strong>raw src=</strong>{}")'.format(dict['src'].replace('"','\\"'))
-        if self.debug: print("Compiling CODE(av) src={}<br />".format(src))
+        self.dbgPrint("Compiling CODE(av) src={}".format(src))
         dict['_code'] = compile(src, '<string>', dict['type'])
         dict['last'] = self.executePython(dict)
         
@@ -585,7 +611,7 @@ class CodeNamespace(AdvancedNamespace):
             return s
 
         id0, el0 = self._parseVariable(id)
-        if self.debug: print("CODE.getValue({},{},{})<br />".format(id,id0,el0))
+        self.dbgPrint("CODE.getValue({},{},{})".format(id,id0,el0))
         if el0 is None or el0 == CodeNamespace._run:
             # Get the dictionary (not a copy, the actual dictionary, so if you change it, your changing it. Got it? Good.)
             dict = super(CodeNamespace, self).getRVal(id0)
@@ -593,22 +619,22 @@ class CodeNamespace(AdvancedNamespace):
             # TODO: Don't hard code what's be skipped over
             # Build a dictionary of the attrs that need to be restored after we process this getValue()
             restoreValues = {key: value for (key, value) in dict.items() if key not in ['_code', 'last', '_params_']}
-            if self.debug: self.oprint("Saving these: {}<br />".format(restoreValues))
+            self.dbgPrint("Saving these: {}".format(restoreValues))
 
-            if self.debug: self.oprint("START CODE(gv) src={}<br />".format(dict['src']))
+            self.dbgPrint("START CODE(gv) src={}".format(dict['src']))
 
             # Shouldn't this always be true? Doesn't jit_attrs() add this, always?
             if CodeNamespace._params_ in dict:
                 params = dict[CodeNamespace._params_]
-                if self.debug: self.oprint("PARAMS: {}<br />".format(params))
+                self.dbgPrint("PARAMS: {}".format(params))
                 for var in params:
-                    if self.debug: self.oprint("REP: {} with {}<br />".format(var, params[var]))
+                    self.dbgPrint("REP: {} with {}".format(var, params[var]))
                     dict[var] = params[var]
 
 
             # Need to expand any variables inside src... (referencing self. overwrites _params_ :(
             src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
-            if self.debug: self.oprint("Markdown CODE(src)={}<br />\nDICT={}<br />".format(src, dict))
+            self.dbgPrint("Markdown CODE(src)={}<br />\nDICT={}".format(src, dict))
 
             # TODO: Is this working right? If new attrs are added, they'll be sticky. Is that okay?
             # Now build a dictionary of the attrs that need substitution (if present) in the src code
@@ -618,14 +644,14 @@ class CodeNamespace(AdvancedNamespace):
             src = xlat_parameters(src, replaceValues)
 
             # Finally, compile it and execute it
-            if self.debug: self.oprint("Compiling CODE(gv) src={}<br />".format(src))
+            self.dbgPrint("Compiling CODE(gv) src={}".format(src))
             dict['_code'] = compile(src, '<string>', dict['type'])
             dict['last'] = self.executePython(dict)
 
             # And now, put back the attributes as they were on entrance. This is a requirement for @code vars.
             # The only way to change an attribute is to use @set (TODO: test that theory)
             for key in restoreValues:
-                if self.debug: self.oprint("RES: {} with {}<br />".format(key, restoreValues[key]))
+                self.dbgPrint("RES: {} with {}".format(key, restoreValues[key]))
                 dict[key] = restoreValues[key]
 
             return dict['last']
@@ -643,7 +669,6 @@ class Namespaces(object):
     _search_order = [_default, _var, _image, _link, _html, _code]
 
     def __init__(self, markdown, setNSxface, oprint=print):
-        self._debug = False
         self._namespaces = {
             Namespaces._default: BasicNamespace(markdown, Namespaces._default, oprint),
             Namespaces._html: HtmlNamespace(markdown, Namespaces._html, oprint),
@@ -652,19 +677,12 @@ class Namespaces(object):
             Namespaces._link: LinkNamespace(markdown, Namespaces._link, oprint),
             Namespaces._code: CodeNamespace(markdown, Namespaces._code, oprint),
         }
-        #for ns in self._namespaces:
-        #    print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
+        self.debug = Debug('ns')
+        for ns in self._namespaces:
+            self.debug.print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
 
         self.oprint = oprint
         setNSxface(self)
-
-    @property
-    def debug(self):
-        return self._debug
-
-    @debug.setter
-    def debug(self, args):
-        self._debug = True
 
     def addVariable(self, value, name=None, ns=None):
         if ns is None:
@@ -744,7 +762,7 @@ class Namespaces(object):
         return False
 
     def getValue(self, variable_name, jit_attrs=None):
-        #print("INSIDE GV: {}".format(variable_name))
+        self.debug.print('getValue(<em>"{}"</em>, <strong>[{}]</strong>)'.format(variable_name, jit_attrs))
 
         def addJITattrs(jit_attrs, ns, var):
             if ns == Namespaces._default:
@@ -761,13 +779,13 @@ class Namespaces(object):
                 # the jit_attrs inside the _params_ key, as they are substituted
                 # on the fly when getValue() is called.
                 if jit_attrs is None:
-                    #if self.debug: self.oprint("jit_attrs is NONE<br />")
+                    #self.dbgPrint("jit_attrs is NONE<br />")
                     jit_attrs = {}
                 # Make a temp dictionary with "_" and "_params_" keys
                 params = {CodeNamespace._params_: jit_attrs, 
                           '_': self._namespaces[ns].getVarID(var)}
                 # Add _params_ to the variable dictionary
-                #if self.debug: self.oprint("Adding/Updating _params_ to: {}<br />".format(params))
+                #self.dbgPrint("Adding/Updating _params_ to: {}<br />".format(params))
                 self._namespaces[ns].updateVariable(params)
         
         ns, name = self._splitNamespace(variable_name)

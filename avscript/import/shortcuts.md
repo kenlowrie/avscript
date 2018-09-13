@@ -83,7 +83,10 @@
 
 @var _id="_castmember_" \
       _format="{{html._cast_.<}}{{self.castmember}}{{html._cast_.>}}" \
+      name="{{html._cast_.<}}{{self.actor}}{{html._cast_.>}}" \
+      name_e="{{html._cast_.<+}}{{self.actor}}{{html._cast_.>}}" \
       castmember="UNDEFINED" \
+      actor="UNDEFINED"\
       _help_="x"
 @var _id="_propitem_" \
       _format="{{html._props_.<}}{{self.prop}}{{html._props_.>}}" \
@@ -91,9 +94,10 @@
       _help_="x"
 
 @code _id="cast_factory" type="eval" \
-    src="print('@var _id=\"$.nm\" _inherit=\"_castmember_\" castmember=\"$.c\"')"\
+    src="print('@var _id=\"$.nm\" _inherit=\"_castmember_\" castmember=\"$.c\" actor=\"$.a\"')"\
     c = "*UNDEFINED*" \
-    usage="Usage: **{{self.nm}}(c=&quot;castmember&quot;)**)"
+    a = "*UNDEFINED*" \
+    usage="Usage: **{{self.nm}}(c=&quot;castmember&quot;, n=&quot;actorname&quot;)**)"
 
 @code _id="prop_factory" type="eval" \
     src="print('@var _id=\"$.nm\" _inherit=\"_propitem_\" prop=\"$.p\"')"\

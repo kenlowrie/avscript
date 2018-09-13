@@ -1,9 +1,25 @@
 #!/usr/bin/env python
 
-class _DebugTag(object):
-    def __init__(self, tag, initial_state=False):
+def default_debug_register(obj, dups_okay):
+    raise NotImplementedError("You need to define a default debug register first")
+
+gb_debug_register_tag = default_debug_register
+
+def set_default_debug_register(func):
+    if not isinstance(func, DebugTracker):
+        raise NameError("set_default_debug_register requires a DebugTracker object")
+
+    global gb_debug_register_tag
+    gb_debug_register_tag = func.debug_register_xface
+
+
+class Debug(object):
+    def __init__(self, classtag, initial_state=False, output=None):
         self._state = initial_state
-        self._tag = tag
+        self._tag = '{}.{}'.format(classtag,id(self))
+        self._out = output if output is not None else print
+        global gb_debug_register_tag
+        gb_debug_register_tag(self)
 
     @property
     def state(self):
@@ -13,23 +29,44 @@ class _DebugTag(object):
     def state(self, newvalue):
         self._state = True if newvalue else False
 
+    @property
+    def output(self):
+        self._out
+
+    @output.setter
+    def output(self, output):
+        self._out = output
+
+    @property
+    def tag(self):
+        return self._tag
+
     def on(self):
-        return self.state is True
+        self.state = True
 
     def off(self):
-        return self.state is False
+        self.state = False
 
     def toggle(self):
         self.state = not self.state
 
-    def print(msg):
-        s = '{}: {}'.format(self._tag, msg)
-        if self.on:
-            print(s)
+    def enabled(self):
+        return self.state
 
-class Debug(object):
-    def __init__(self):
+    def print(self, msg, context=None):
+        if not self.state:
+            return
+
+        s = '{:>20}: {}{}'.format(self._tag, '{}'.format('' if context is None else '({})'.format(context)), msg)
+        self._out(s)
+
+
+class DebugTracker(object):
+    def __init__(self, output=None):
         self._debug_tags = {}
+        self._out = output if output is not None else print
+        global gb_debug_register_tag
+        gb_debug_register_tag = self.debug_register_xface
 
     @property
     def debug_tags(self):
@@ -39,77 +76,55 @@ class Debug(object):
     def debug_tags(self, args):
         return self._debug_tags
 
-    def debug_register_xface(self, xface):
-        # Does this make sense? Is it the right way to do this?
-        xface(self)     # pass this object reference to the client
+    def _is_registered(self, tag):
+        return True if tag in self.debug_tags else False
 
-    def _has_tag(self, obj):
-        return True if hasattr(obj, 'DBG') else False
+    def _check_valid(self, tag):
+        if not self._is_registered(tag):
+            raise NameError("tag {} is not registered".format(tag))
 
-    def _is_registered(self, obj):
-        return True if self._has_tag(obj) and obj.DBG in self.debug_tags else False
+    def _get_tag(self, tag):
+        if not self._is_registered(tag):
+            raise NameError("tag {} is unknown".format(tag))
 
-    def at3(self, obj, initial_state=False):
-        if self._is_registered(obj):
-            raise NameError("tag {} already registered".format(obj.DBG))
+        return self.debug_tags[tag]
 
-        self.debug_tags[obj.DBG] = _DebugTag(initial_state)
+    def debug_register_xface(self, obj):
+        if not isinstance(obj, Debug):
+            raise NameError("obj must be instance of Debug class")
 
-    def me(self, obj):
-        return obj.DBG if self._has_tag(obj) else "UNKNOWN"
+        if self._is_registered(obj.tag):
+            raise NameError("tag {} already registered".format(obj.tag))
 
-    def on3(self, obj):
-        if not self._is_registered(obj):
-            self.at3(obj, True)
-            return
+        self.debug_tags[obj._tag] = obj
 
-        self.debug_tags[obj.DBG].state = True
+    def call(self, which, method):
+        from .regex import RegexSafe
+        reObj = RegexSafe(which)
+        
+        for var in sorted(self.debug_tags):
+            if reObj.is_match(var) is None:
+                continue
 
-    def off3(self, obj):
-        if not self._is_registered(obj):
-            self.at3(obj, False)
-            return
-
-        self.debug_tags[obj.DBG].state = False
-
-    def toggle3(self, obj):
-        if not self._is_registered(obj):
-            self.at3(obj, True)
-            return
-
-        self.debug_tags[obj.DBG].toggle()
-
-    def enabled3(self, obj):
-        if not self._is_registered(obj):
-            return False
-
-        return self.debug_tags[obj.DBG].state
-
-    def addTag(self, tag, initial_state=False):
-        if tag in self.debug_tags:
-            raise NameError("Debug tag [{}] already registered.".format(tag))
-    
-        self.debug_tags[tag] = _DebugTag(initial_state)
+            self._out('handling:{}'.format(var))
+            self._check_valid(var)
+            eval('self._get_tag(var).{}()'.format(method))
 
     def on(self, tag):
-        if tag in self.debug_tags:
-            self.debug_tags[tag].state = True
-    
+        self.call(tag, 'on')
+
     def off(self, tag):
-        if tag in self.debug_tags:
-            self.debug_tags[tag].state = False
-    
+        self.call(tag, 'off')
+
     def toggle(self, tag):
-        if tag in self.debug_tags:
-            self.debug_tags[tag].toggle()
+        self.call(tag, 'toggle')
 
     def enabled(self, tag):
-        if tag in self.debug_tags:
-            return self.debug_tags[tag].state
+        self.call(tag, 'enabled')
 
     def dumpTags(self):
         for tag in self.debug_tags:
-            print("{} is {}".format(tag, 'on' if self.debug_tags[tag].state else 'off'))
+            self._out("{} is {}".format(tag, 'on' if self.debug_tags[tag].state else 'off'))
 
 
 if __name__ == '__main__':

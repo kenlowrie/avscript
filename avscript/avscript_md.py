@@ -95,8 +95,9 @@ class AVScriptParser(StdioWrapper):
         set_default_debug_register(self._dbgTracker)
 
         # Register a tracker for this object
-        self._dbg_avs = Debug('avscript')
-        self._dbg_avs_line = Debug('avscript.line')
+        self.debug_avs = Debug('avscript')
+        self.debug_avs_line = Debug('avscript.line')
+        self.debug_avs_raw = Debug('avscript.raw')
 
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
@@ -466,12 +467,11 @@ class AVScriptParser(StdioWrapper):
             """Handle a raw line"""
             from .avs.utility import HtmlUtils
             if(m is not None):
-                if self.debug:
-                    self.oprint('&nbsp;&nbsp;lineObj.current_line=<br />'   \
-                                '{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'
-                                .format(HtmlUtils.escape_html(lineObj.current_line),
-                                        HtmlUtils.escape_html(m.group(2)))
-                    )
+                self.debug_avs_raw.print('&nbsp;&nbsp;lineObj.current_line=<br />'   \
+                                         '{}<br />&nbsp;&nbsp;m.group(2)=<br />{}'
+                                            .format(HtmlUtils.escape_html(lineObj.current_line),
+                                                    HtmlUtils.escape_html(m.group(2)))
+                )
                 self.oprint(self._html.formatLine(self._md.markdown(m.group(2))))
             else:
                 self.oprint(lineObj.current_line)
@@ -630,7 +630,7 @@ class AVScriptParser(StdioWrapper):
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
                 # TODO: What about self.oprint()? Doesn't that need to be passed to NS?
-                self._dbg_avs_line.print('handle_code: {}'.format(d))
+                self.debug_avs_line.print('handle_code: {}'.format(d))
                 self._ns.addVariable(d, ns="code")
 
             else:

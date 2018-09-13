@@ -303,6 +303,10 @@ div.extras p{
     display:none;
 }
 
+.center {
+    text-align:center;
+}
+
 td {
     width: 100%;
 }
@@ -331,11 +335,11 @@ p {
 div.av p, div.av ul, .fs13{
 	font-size: 1.3em;
 }
-
+/* 
 ul li + li {
-	/*margin-top: 10px;*/
+	margin-top: 10px;
 }
-
+*/
 ul + ul {
 	clear: left;
 }
@@ -475,9 +479,8 @@ table.shotinfo{
     width:100%;
 }
 
-tr.shotinfo{
-}
-
+/* tr.shotinfo{
+}*/
 th.item, td.item{
     width:30%;
 }
@@ -488,10 +491,10 @@ th.desc, td.desc{
 
 @media print
 {
-	ul, li, p {
-		/*page-break-inside: avoid;
-		display:inline;*/
-	}
+	/*ul, li, p {
+		page-break-inside: avoid;
+		display:inline;
+	}*/
 	.plain{
 		page-break-inside: avoid;
 	}

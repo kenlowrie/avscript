@@ -65,6 +65,7 @@ from os.path import isfile
 
 from .avs.line import Line
 from .avs.link import LinkDict
+from .avs.debug import DebugTracker, set_default_debug_register, Debug
 from .avs.regex import Regex, RegexMD, RegexMain
 from .avs.stdio import StdioWrapper
 from .avs.variable import Namespaces
@@ -88,7 +89,15 @@ class AVScriptParser(StdioWrapper):
         Initialize the required instance variables for this class.
         """
         super(AVScriptParser, self).__init__()  # Initialize the base class(es)
-        self._debug = False
+
+        # Create the debug tracker object for this app
+        self._dbgTracker = DebugTracker(output=self.oprint)
+        set_default_debug_register(self._dbgTracker)
+
+        # Register a tracker for this object
+        self._dbg_avs = Debug('avscript')
+        self._dbg_avs_line = Debug('avscript.line')
+
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
         self._lineInCache = False       # if we have a line in the cache
@@ -104,6 +113,8 @@ class AVScriptParser(StdioWrapper):
 
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
+        #TODO: Next line was attempt at allowing embedded quotes inside id="string" parameters
+        #self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)(?<!\\)\"(?=[,|\s)])')
         self._special_parameter = Regex(r'\s([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
 
         # Dictionary of each line type that we can process
@@ -128,17 +139,6 @@ class AVScriptParser(StdioWrapper):
             'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
             'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None), 
         }
-
-    @property
-    def debug(self):
-        return self._debug
-
-    @debug.setter
-    def debug(self, args):
-        # self.oprint("<br />debug args={}<br />".format(args))
-        self._debug = args
-        self._ns.debugToggle(args)
-        self._md.debug = args
 
     def _regex(self, id):
         """
@@ -486,10 +486,21 @@ class AVScriptParser(StdioWrapper):
 
                 if not d:
                     self.oprint("<br />Toggling Debug Mode<br />")
-                    self.debug = not self.debug
+                    self._dbgTracker.toggle('.')
                 else:
                 
-                    self.oprint("<br />d={}".format(d))
+                    for key in d:
+                        if key not in ['on', 'off', 'enabled', 'toggle']:
+                            self.oprint("<br /><strong>Unknown debug key: <em>{}</em></strong>".format(key))
+                        elif key == 'on':
+                            self._dbgTracker.on(d[key])
+                        elif key == 'off':
+                            self._dbgTracker.off(d[key])
+                        elif key == 'enabled':
+                            self._dbgTracker.enabled(d[key])
+                        elif key == 'toggle':
+                            self._dbgTracker.toggle(d[key])
+                        
                     #ts_key = "timestamp"
 
                     #if d.get(ts_key) and d.get(ts_key).lower() in ['false', 'no', 'off', '0']:
@@ -619,6 +630,7 @@ class AVScriptParser(StdioWrapper):
 
                 #fmt = lambda x: "{0}<br />".format(self._markdown(d.get(x))) if d.get(x) else ""
                 # TODO: What about self.oprint()? Doesn't that need to be passed to NS?
+                self._dbg_avs_line.print('handle_code: {}'.format(d))
                 self._ns.addVariable(d, ns="code")
 
             else:

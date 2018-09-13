@@ -2,6 +2,7 @@
 
 from re import findall, compile, IGNORECASE
 
+from .debug import Debug
 from .regex import Regex, RegexMD
 from .utility import HtmlUtils
 from .exception import LogicError, NestingError
@@ -24,18 +25,11 @@ class Markdown(object):
             'ins': RegexMD(r'(\+{2}(.+?)\+{2})', '<ins>{0}</ins>'),
             'del': RegexMD(r'(\~{2}(.+?)\~{2})', '<del>{0}</del>')
         }
+        #self._special_parameter = Regex(r'([\w]+)\s*=\s*\"(.*?)(?<!\\)\"(?=[,|\s)])') 
         self._special_parameter = Regex(r'([\w]+)\s*=\s*\"(.*?)(?<!\\)\"')
         self._namespaces = DummyNamespaces()
         self._stripClass = self.DummyStripClass
-        self._debug = False
-
-    @property
-    def debug(self):
-        return self._debug
-
-    @debug.setter
-    def debug(self, args):
-        self._debug = args
+        self.debug = Debug('markdown')
 
     def _inc_nesting_level(self):
         self._current_nesting_level += 1
@@ -113,6 +107,7 @@ class Markdown(object):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(params)}
                 return d
 
+            self.debug.print("{}--{}--{}".format(m[0],m[1],s))
             #print("CALLED WITH:****{}----{}----{}****".format(m[0],m[1],s))
             jit_attrs = None if not m[3] else makeJitAttrs(m[3])
             if self._namespaces.exists(m[1]):
@@ -120,6 +115,7 @@ class Markdown(object):
                 c, v = self._stripClass(self._namespaces.getValue(m[1], jit_attrs))
                 v = self._md_value(v)
                 if(not c):
+                    # print("OLD: {}<br />\nNEW: {}<br />".format(m[0], v))
                     s = s.replace(m[0], v)
                 else:
                     s = s.replace(m[0], '<{0}{1}>{2}</{0}>'.format('span', c, v))
@@ -147,7 +143,7 @@ class Markdown(object):
         ]
 
         self._inc_nesting_level()
-        if self.debug: print("markdown({})<br />".format(HtmlUtils.escape_html(s)))
+        self.debug.print("markdown({})".format(HtmlUtils.escape_html(s)))
         # For each type of markdown
         for key, md_func in markdownTypes:
             md_obj = self._regex_markdown[key]

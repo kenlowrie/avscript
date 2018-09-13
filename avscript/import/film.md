@@ -45,6 +45,9 @@
      CT3="{{html._div_gen_.<}}{{html._p_right_.<}}CUT TO:{{html.p.>}}{{html.div.>}}"    \
      CT="{{html._div_gen_.<}}{{html._p_right_.<}}CUT TO:{{html.p.>}}{{html.div.>}}"    \
      F2B="{{html._div_gen_.<}}{{html._p_right_.<}}FADE TO BLACK:{{html.p.>}}{{html.div.>}}"    \
+     f2b="{{html.span.<}}**FTB:**{{html.span.>}}"    \
+     fi="{{html.span.<}}**Fade In:**{{html.span.>}}"    \
+     xf="{{html.span.<}}**Cross Fade:**{{html.span.>}}"    \
      S="SFX:"    \
      CT1="{:.right}CUT TO:"    \
      _format="**Shot Notes:**[bb]***{{self._public_keys_}}***"

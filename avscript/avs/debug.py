@@ -57,7 +57,7 @@ class Debug(object):
         if not self.state:
             return
 
-        s = '{:>20}: {}{}'.format(self._tag, '{}'.format('' if context is None else '({})'.format(context)), msg)
+        s = '{:>20}: {}{}<br />\n'.format(self._tag, '{}'.format('' if context is None else '({})'.format(context)), msg)
         self._out(s)
 
 
@@ -89,6 +89,12 @@ class DebugTracker(object):
 
         return self.debug_tags[tag]
 
+    def _get_state(self, tag):
+        if not self._is_registered(tag):
+            raise NameError("tag {} is unknown".format(tag))
+
+        return self.debug_tags[tag].state
+
     def debug_register_xface(self, obj):
         if not isinstance(obj, Debug):
             raise NameError("obj must be instance of Debug class")
@@ -106,9 +112,9 @@ class DebugTracker(object):
             if reObj.is_match(var) is None:
                 continue
 
-            self._out('handling:{}'.format(var))
             self._check_valid(var)
             eval('self._get_tag(var).{}()'.format(method))
+            self._out('Process({1}): {0} is now {2}<br />'.format(var, method, 'enabled' if self._get_state(var) else "disabled"))
 
     def on(self, tag):
         self.call(tag, 'on')
@@ -122,9 +128,10 @@ class DebugTracker(object):
     def enabled(self, tag):
         self.call(tag, 'enabled')
 
+    #TODO: Should I have a print that takes a wildcard? print('avscript.header', 'msg'...)
     def dumpTags(self):
         for tag in self.debug_tags:
-            self._out("{} is {}".format(tag, 'on' if self.debug_tags[tag].state else 'off'))
+            self._out("{} is {}<br />".format(tag, 'on' if self.debug_tags[tag].state else 'off'))
 
 
 if __name__ == '__main__':

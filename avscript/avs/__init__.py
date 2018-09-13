@@ -2,6 +2,7 @@
 
 from .link import *
 from .line import *
+from .debug import *
 from .regex import *
 from .stdio import *
 from .stream import *

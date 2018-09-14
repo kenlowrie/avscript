@@ -89,6 +89,9 @@ del{
     font-weight:bold;
 }
 
+.debug{
+    font-size: 1.2em;
+}
 .center{
     text-align:center;
 }

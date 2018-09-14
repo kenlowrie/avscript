@@ -58,7 +58,7 @@ class Debug(object):
             return
 
         s = '{:>20}: {}{}<br />\n'.format(self._tag, '{}'.format('' if context is None else '({})'.format(context)), msg)
-        self._out(s)
+        self._out('<span class="debug">{}</span>'.format(s))
 
 
 class DebugTracker(object):
@@ -114,7 +114,8 @@ class DebugTracker(object):
 
             self._check_valid(var)
             eval('self._get_tag(var).{}()'.format(method))
-            self._out('Process({1}): {0} is now {2}<br />'.format(var, method, 'enabled' if self._get_state(var) else "disabled"))
+            s = 'Process({1}): {0} is now {2}<br />'.format(var, method, 'enabled' if self._get_state(var) else "disabled")
+            self._out('<span class="debug green">{}</span>'.format(s))
 
     def on(self, tag):
         self.call(tag, 'on')

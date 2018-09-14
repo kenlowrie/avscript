@@ -9,17 +9,7 @@
 Then, the embedded file would be marked down as normal, giving more flexibility. This wouldn't work, though, because it would have \n in the input, and that would fail, right?
 @ @raw @embed 'foo.html'
 
-@code _id="foo" \
-     _format="xyz"
-
 [header]
-@debug on="ns.var"
-@debug 
-@dump html="table"
-[html.table._format]
-[var.cover.xxinline]
 // -------------------------------------------------------------------
 
-
-
-
+ 

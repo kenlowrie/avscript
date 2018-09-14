@@ -14,6 +14,10 @@
       type="exec"\
       src="from .utility import HtmlUtils;print(HtmlUtils.escape_html('$.t'))"\
       t="Usage: code.escape.run(t=\"text to escape\")"
+@code _id="encodeURL"\
+      type="exec"\
+      src="from .utility import HtmlUtils;print(HtmlUtils.encodeURL('$.t'))"\
+      t="code.encodeURL(t=\"https://www.url to encode.com\")"
 @code _id="split_as"\
       type="exec"\
       src="from .utility import CodeHelpers;print(CodeHelpers.split_as('{{self.t}}'))"\

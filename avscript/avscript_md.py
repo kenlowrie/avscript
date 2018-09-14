@@ -126,7 +126,7 @@ class AVScriptParser(StdioWrapper):
             'header': RegexMain(True, False, True, r'^([#]{1,6})[ ]*', r'^([#]{1,6})[ ]*(.*)'),
             'alias': RegexMain(True, True, False, r'^\[([^\]]+)\](?=([\=](.+)))', None),
             'import': RegexMain(True, False, False, r'^[@]import[ ]+[\'|\"](.+[^\'|\"])[\'|\"]', None),
-            'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)\")+)', None),
+            'image': RegexMain(True, True, False, r'^(@image(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'var': RegexMain(True, True, False, r'^(@var(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'set': RegexMain(True, True, False, r'^(@set(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'code': RegexMain(True, True, False, r'^(@code(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
@@ -137,8 +137,6 @@ class AVScriptParser(StdioWrapper):
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
             'debug': RegexMain(True, False, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
-            'variables': RegexMain(True, False, False, r'^[/]{3}Variables[/]{3}', None),
-            'dumplinks': RegexMain(True, False, False, r'^[/]{3}Links[/]{3}', None), 
         }
 
     def _regex(self, id):

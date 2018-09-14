@@ -44,16 +44,20 @@ class Variable(object):
             return {key: value for (key,value) in self.rval.items() if key[0] == Variable.prefix}
         elif which == Variable.public:
             return {key: value for (key,value) in self.rval.items() if key[0] != Variable.prefix}
+        else:
+            raise NameError("Invalid attr type requested {}".format(which))
 
         return self.rval.copy()
 
-    def getAttrsAsString(self, which):
-        attrsDict = self.getAttrsAsDict(which)
+    def encodeAttrsAsString(self, attrsDict):
         attrs = ''
         for item in attrsDict:
             attrs += ' {}="{}"'.format(item, attrsDict[item])
 
         return attrs
+
+    def getAttrsAsString(self, which):
+        return self.encodeAttrsAsString(self.getAttrsAsDict(which))
 
     def getKeysAsString(self, which):
         attrsDict = self.getAttrsAsDict(which)
@@ -99,6 +103,11 @@ class VariableStore(object):
             raise NotImplementedError("Object must define a variable 'debug' of class Debug")
         self.debug.print(msg, ctx)  #pylint: disable=E1101
 
+    def dbgPrintDict(self, msg, d):
+        self.dbgPrint(msg)
+        for i in d:
+            self.dbgPrint("&nbsp;&nbsp;<strong>{}</strong>: {}".format(i, HtmlUtils.escape_html(d[i])))
+
     def _markdown(self, s):
         markdown = self._md_ptr
         return markdown(s)
@@ -116,6 +125,8 @@ class VariableStore(object):
         """Gets the value of the variable 'name'
         
         If it doesn't exist, it returns ''."""
+
+        self.dbgPrint('Requesting <strong>{}.{}</strong>'.format(name, attribute))
 
         return self.vars[name].getValue(attribute) if self.exists(name) else ""
 
@@ -137,6 +148,7 @@ class VariableStore(object):
 
     def getRVal(self, name):
         if self.exists(name):
+            self.dbgPrint('<strong><span class="green">You asked for: <em>{}</em></span></strong>'.format(name))
             return self.vars[name].rval
 
     def setRVal(self, name, rval):
@@ -152,11 +164,25 @@ class VariableStore(object):
 
     def getPublicAttrsDict(self, name):
         if self.exists(name):
+            self.dbgPrint('Requesting <em>_public_attrs_</em> dict for <strong>{}</strong>'.format(name))
+            # TODO: Do we need to encode HREF? Is this API even used?
             return self.vars[name].getAttrsAsDict(Variable.public)
 
     def getPublicAttrs(self, name, escape=False):
         if self.exists(name):
-            s = self.vars[name].getAttrsAsString(Variable.public)
+            self.dbgPrint('Requesting <em>_public_attrs_</em> string for <strong>{}</strong>'.format(name))
+            if self.namespace == 'link.':
+                d = self.vars[name].getAttrsAsDict(Variable.public)
+                href = 'href'
+                if href in d:
+                    encoded = HtmlUtils.encodeURL(d[href])
+                    self.dbgPrint("Encoding HREF <strong>{}</strong> as <em>{}</em>".format(d[href],encoded))
+                    d[href] = encoded
+                else:
+                    self.dbgPrint('Namespace is link., but no HREF present')
+                s = self.vars[name].encodeAttrsAsString(d)
+            else:
+                s = self.vars[name].getAttrsAsString(Variable.public)
             return self.escapeString(s) if escape else s
 
     def getPublicKeys(self, name):
@@ -366,7 +392,7 @@ class AdvancedNamespace(Namespace):
         return id, None
 
     def exists(self, id):
-        self.dbgPrint('exists("{}")'.format(id))
+        self.dbgPrint('<strong>exists("<em>{}</em>")</strong>'.format(id))
         id0, el0 = self._parseVariable(id)
         if el0 is not None:
             # _parseVar() only returns both elements if the attribute exists
@@ -379,35 +405,52 @@ class AdvancedNamespace(Namespace):
         return id0 if el0 is not None else id
 
     def getValue(self, id):
-        self.dbgPrint('getValue("{}")'.format(id))
+        self.dbgPrint('<strong>getValue("<em>{}</em>")</strong>'.format(id))
         id0, el0 = self._parseVariable(id)
         if el0 is not None:
             # If they are asking for the special name (_, _id)
             if el0 in AdvancedNamespace._variable_name_str:
                 # return the variable name itself, no markdown.
+                self.dbgPrint('Returning {} for getValue("{}")'.format(id0, el0))
                 return id0
 
             if el0 in VariableStore._special_attributes:
                 # should this be marked down? Probably.
-                return self._markdown(self.getSpecialAttr(el0, id0))
+                s = self._markdown(self.getSpecialAttr(el0, id0))
+                self.dbgPrint('Returning <em>{}</em> for <strong>getValue("{}.{}</strong>")'.format(s, id0, el0))
+                return s
 
             # TODO: When test code in place, I need to remove this and see what happens.
             #       Feels a bit like a side affect...
             # First, apply standard markdown in case _format has regular variables in it.
             fmt_str = self._markdown(self.vars[id0].rval[el0]).replace('{{','[').replace('}}',']')
+            self.dbgPrint("MD1: <strong>{}</strong>".format(HtmlUtils.escape_html(self.vars[id0].rval[el0])))
+            self.dbgPrint("RS1: <em>{}</em>".format(HtmlUtils.escape_html(fmt_str)))
 
             # And now, markdown again, to expand the self. namespace variables
-            return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
+            s = self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
+            self.dbgPrint("MD2: fmt_str(self.-&gt;{}{}):<strong>{}</strong>".format(self.namespace,id0, HtmlUtils.escape_html(fmt_str)))
+            self.dbgPrint("RS2: <em>{}</em>".format(HtmlUtils.escape_html(s)))
+            # If the namespace is link. and the attribute is href, we need to encode it.
+            if self.namespace == 'link.' and el0 == 'href':
+                self.dbgPrint("Encoding HREF from <strong>{}</strong> to <em>{}</em>".format(s, HtmlUtils.encodeURL(s)))
+            return s
 
         if self.exists(id0):
             # if the special _format element exists, return it with markdown applied
             fmt = AdvancedNamespace._default_format_attr
             if fmt in self.vars[id0].rval:
-                self.dbgPrint("Returning _format(\"{}\") as value for {}".format(self.vars[id0].rval[fmt], id))
+                self.dbgPrint("Returning _format(\"<em>{}</em>\") as value for <strong>{}</strong>".format(self.vars[id0].rval[fmt], id))
                 # First, apply standard markdown in case _format has regular variables in it.
                 fmt_str = self._markdown(self.vars[id0].rval[fmt]).replace('{{','[').replace('}}',']')
+                self.dbgPrint("MD3: <strong>{}</strong>".format(HtmlUtils.escape_html(self.vars[id0].rval[fmt])))
+                self.dbgPrint("RS3: <em>{}</em>".format(HtmlUtils.escape_html(fmt_str)))
+
                 # And now, markdown again, to expand the self. namespace variables
-                return self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
+                s = self._markdown(fmt_str.replace('self.','{}{}.'.format(self.namespace, id0)))
+                self.dbgPrint("MD4: fmt_str(self.-&gt;{}{}):<strong>{}</strong>".format(self.namespace,id0, HtmlUtils.escape_html(fmt_str)))
+                self.dbgPrint("RS4: <em>{}</em>".format(HtmlUtils.escape_html(s)))
+                return s
 
             compoundVar = ''
             for item in sorted(self.vars[id0].rval):
@@ -528,6 +571,7 @@ class CodeNamespace(AdvancedNamespace):
     _run = 'run'
     _params_ = '_params_'
     _defaults_ = '_defaults_'
+    _code_str = '<strong><em><span class="blue">@code</span></em></strong>'
     #_locals_ = '_locals_'
     _element_partials = [_run]
 
@@ -535,6 +579,17 @@ class CodeNamespace(AdvancedNamespace):
         super(CodeNamespace, self).__init__(markdown, namespace_name, oprint)  # Initialize the base class(es)
         self.debug = Debug('ns.code')
         self.dbgPrint("My NS is: {}".format(self.namespace))
+
+    def compileSource(self, src, src_type):
+        try:
+            code = compile(src, '<string>', src_type)
+        except Exception as e:
+            self.dbgPrint('<strong><em>Compile error: </em>{}</strong>'.format(src))
+            self.dbgPrint('<strong><em>Error message: </em>{}</strong>'.format(str(e)))
+            exceptionMessage = "{}".format(str(e))
+            code = None
+
+        return code if code is not None else compile('print("Compile error: {}".format(exceptionMessage))','<string>', 'eval')
 
     def executePython(self, dict):
         import sys
@@ -583,7 +638,7 @@ class CodeNamespace(AdvancedNamespace):
         # Compile a string for now, it isn't needed until the variable is expanded.
         src = 'print("<strong>raw src=</strong>{}")'.format(dict['src'].replace('"','\\"'))
         self.dbgPrint("Compiling CODE(av) src={}".format(src))
-        dict['_code'] = compile(src, '<string>', dict['type'])
+        dict['_code'] = self.compileSource(src, dict['type'])
         dict['last'] = self.executePython(dict)
         
 
@@ -611,7 +666,7 @@ class CodeNamespace(AdvancedNamespace):
             return s
 
         id0, el0 = self._parseVariable(id)
-        self.dbgPrint("CODE.getValue({},{},{})".format(id,id0,el0))
+        self.dbgPrint("<strong>getValue(<em>{}, {}, {}</em>)</strong>".format(id,id0,el0), CodeNamespace._code_str)
         if el0 is None or el0 == CodeNamespace._run:
             # Get the dictionary (not a copy, the actual dictionary, so if you change it, your changing it. Got it? Good.)
             dict = super(CodeNamespace, self).getRVal(id0)
@@ -619,22 +674,23 @@ class CodeNamespace(AdvancedNamespace):
             # TODO: Don't hard code what's be skipped over
             # Build a dictionary of the attrs that need to be restored after we process this getValue()
             restoreValues = {key: value for (key, value) in dict.items() if key not in ['_code', 'last', '_params_']}
-            self.dbgPrint("Saving these: {}".format(restoreValues))
+            self.dbgPrintDict("Saving these values:", restoreValues)
 
-            self.dbgPrint("START CODE(gv) src={}".format(dict['src']))
+            self.dbgPrint("<strong>src=</strong><em>{}</em>".format(dict['src']), CodeNamespace._code_str)
 
             # Shouldn't this always be true? Doesn't jit_attrs() add this, always?
             if CodeNamespace._params_ in dict:
                 params = dict[CodeNamespace._params_]
-                self.dbgPrint("PARAMS: {}".format(params))
+                self.dbgPrintDict("Parameters:", params)
                 for var in params:
-                    self.dbgPrint("REP: {} with {}".format(var, params[var]))
+                    self.dbgPrint("Replacing: <strong>{}</strong> with <em>{}</em>".format(var, params[var]))
                     dict[var] = params[var]
 
 
             # Need to expand any variables inside src... (referencing self. overwrites _params_ :(
             src = super(CodeNamespace, self).getValue('{}.src'.format(id0))
-            self.dbgPrint("Markdown CODE(src)={}<br />\nDICT={}".format(src, dict))
+            self.dbgPrint("(src)=<em>{}</em>".format(src))
+            self.dbgPrintDict("[dict]=", dict)
 
             # TODO: Is this working right? If new attrs are added, they'll be sticky. Is that okay?
             # Now build a dictionary of the attrs that need substitution (if present) in the src code
@@ -644,14 +700,14 @@ class CodeNamespace(AdvancedNamespace):
             src = xlat_parameters(src, replaceValues)
 
             # Finally, compile it and execute it
-            self.dbgPrint("Compiling CODE(gv) src={}".format(src))
-            dict['_code'] = compile(src, '<string>', dict['type'])
+            self.dbgPrint("Compiling <strong>src=</strong><em>{}</em>".format(HtmlUtils.escape_html(src)), CodeNamespace._code_str)
+            dict['_code'] = self.compileSource(src, dict['type'])
             dict['last'] = self.executePython(dict)
 
             # And now, put back the attributes as they were on entrance. This is a requirement for @code vars.
             # The only way to change an attribute is to use @set (TODO: test that theory)
             for key in restoreValues:
-                self.dbgPrint("RES: {} with {}".format(key, restoreValues[key]))
+                self.dbgPrint("Restore: <strong>{}</strong> with <em>{}</em>".format(key, HtmlUtils.escape_html(restoreValues[key])))
                 dict[key] = restoreValues[key]
 
             return dict['last']

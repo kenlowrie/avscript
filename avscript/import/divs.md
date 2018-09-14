@@ -41,3 +41,21 @@
           with_content="@@ {{html._div_plain_.<}}{{html._p_plain_.<}}{{self.t}}{{html._p_plain_.>}}{{html._p_plain_content_.<}}{{self.c}}{{html.p.>}}{{html.div.>}}" \
           t="This is your plain title" \
           c="This is your plain content"
+
+@html _id="code" _tag="code"
+
+@html _id="_div_code_" \
+      _tag="div" \
+      class="code"
+@html _id="_code_" \
+      _inherit="code" \
+      style="font-size:1.4em;font-weight:bold"
+@html _id="_code_content_" \
+      _inherit="_code_" \
+      style="font-size:1.2em" 
+ 
+@var _id="code" \
+          _format="@@ {{html._div_code_.<}}{{html._code_.<}}{{self.t}}{{html._code_.>}}{{html._div_code_.>}}" \
+          with_content="@@ {{html._div_code_.<}}{{html._code_.<}}{{self.t}}{{html._code_.>}}{{html._code_content_.<}}{{self.c}}{{html.code.>}}{{html.div.>}}" \
+          t="This is your code title" \
+          c="This is your code content"

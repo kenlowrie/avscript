@@ -248,13 +248,13 @@ div.generic p{
     font-size: 1.3em;
 }
 
-.extras {
+.extras, .code {
     clear:both;
     margin: .5em;
     padding: 0 10px 0 10px;
 }
 
-div.extras p{
+div.extras p, div.extras code{
     border:none;
     float: none;
     width: inherit;

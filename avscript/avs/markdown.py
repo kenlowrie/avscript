@@ -107,8 +107,9 @@ class Markdown(object):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(params)}
                 return d
 
-            self.debug.print("{}--{}--{}".format(m[0],m[1],s))
-            #print("CALLED WITH:****{}----{}----{}****".format(m[0],m[1],s))
+            self.debug.print("mdvars(<strong>m[0])=</strong><em>{}</em>".format(HtmlUtils.escape_html(m[0])))
+            self.debug.print("mdvars(<strong>m[1])=</strong><em>{}</em>".format(HtmlUtils.escape_html(m[1])))
+            self.debug.print("mdvars(<strong>s)=</strong><em>{}</em>".format(HtmlUtils.escape_html(s)))
             jit_attrs = None if not m[3] else makeJitAttrs(m[3])
             if self._namespaces.exists(m[1]):
                 # Substitute the variable name with the value

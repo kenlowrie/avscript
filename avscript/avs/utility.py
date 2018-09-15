@@ -1,12 +1,40 @@
 #!/usr/bin/env python
 
+from .debug import Debug
+
 # This global is used to hold the interface to Namespaces.
 _ns_xface = None
+_line_cache = None
+
+def _default_debug_handler(msg):
+    pass
 
 # Called during avscript initialization to save the interface to Namespaces
 def _set_ns_xface(ns_ptr):
     global _ns_xface
     _ns_xface = ns_ptr
+
+# Called during avscript initialization to save the interface to Namespaces
+def _set_line_cache(line_cache_ptr):
+    global _line_cache
+    _line_cache = line_cache_ptr
+
+# Called during avscript initialization to save the interface to Namespaces
+def _init_debug():
+    global _debug
+    _debug = Debug('utility')
+
+
+class _default_debug(object):
+    def print(self, msg):
+        pass
+
+_debug = _default_debug()
+
+def _get_ns_value(v):
+    global _ns_xface
+    return _ns_xface.getValue(v)
+
 
 
 class HtmlUtils():
@@ -119,6 +147,29 @@ class CodeHelpers():
             return
 
         print("{}".format(default_value if not _ns_xface.exists(v) else _ns_xface.getValue(v)))
+
+    @staticmethod
+    def pushline(s=None):
+        if s is not None and type(s) is type(''):
+            _line_cache.pushline(s)
+
+    @staticmethod
+    def pushlines(s=None):
+        #_line_cache.pushline("#### I was passed this: {}".format(HtmlUtils.escape_html(s)))
+        if s is not None and type(s) is type(''):
+            lines = s.split('\n')[::-1]
+            for line in lines:
+                _line_cache.pushline(line)
+
+    @staticmethod
+    def pushvar(v=None):
+
+        #_line_cache.pushline("#### I was passed this: {}".format(v))
+        if v is not None and type(v) is type(''):
+            #_line_cache.pushline("#### get_ns_value returns: {}".format(HtmlUtils.escape_html(_get_ns_value(v))))
+            lines = _get_ns_value(v).split('\n')[::-1]
+            for line in lines:
+                _line_cache.pushline(line)
 
 
 if __name__ == '__main__':

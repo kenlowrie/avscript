@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#pylint: disable=W1401
 """
 This script is a BBEdit-compliant Markup Previewer
 
@@ -98,6 +98,7 @@ class AVScriptParser(StdioWrapper):
         self.debug_avs = Debug('avscript')
         self.debug_avs_line = Debug('avscript.line')
         self.debug_avs_raw = Debug('avscript.raw')
+        self.stdinput.cache().initDebug()
 
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
@@ -111,6 +112,10 @@ class AVScriptParser(StdioWrapper):
 
         #_set_ns_xface(ns_ptr)
         exec("from .avs.utility import _set_ns_xface;_set_ns_xface(self._ns)")
+        #_set_ns_xface(ns_ptr)
+        exec("from .avs.utility import _set_line_cache;_set_line_cache(self.stdinput.cache())")
+        #_init_debug()
+        exec("from .avs.utility import _init_debug;_init_debug()")
 
 
         self._css_class_prefix = Regex(r'\{:([\s]?.\w[^\}]*)\}(.*)')
@@ -480,8 +485,6 @@ class AVScriptParser(StdioWrapper):
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
 
-                fmt = lambda x: "{0}".format(self._md.markdown(d.get(x))) if d.get(x) else ""
-
                 if not d:
                     self.oprint("<br />Toggling Debug Mode<br />")
                     self._dbgTracker.toggle('.')
@@ -548,8 +551,6 @@ class AVScriptParser(StdioWrapper):
             """Handle the dump parse line type."""
             if(m is not None):
                 d = {l[0]: l[1] for l in self._special_parameter.regex.findall(m.groups()[0])}
-
-                fmt = lambda x: "{0}<br />".format(self._md.markdown(d.get(x))) if d.get(x) else ""
 
                 self.oprint(self._html.formatLine("<div class=\"variables\">", 1))
                 self.oprint(self._html.formatLine("<code>", 1))

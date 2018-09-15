@@ -4,11 +4,11 @@
 @import '$/divs.md'
 
 // Define a var for underscoring text
-@html _id="ul" \
+@html _id="uline" \
       _inherit="span" \
       style="text-decoration:underline"
-@var _id="ul1" \
-      _format="{{html.ul.<}}{{self.t}}{{html.ul.>}}" \
+@var _id="uline1" \
+      _format="{{html.uline.<}}{{self.t}}{{html.uline.>}}" \
       t="TEXT TO UNDERSCORE"
 
 // Define a set of vars for letting me make an ordered list

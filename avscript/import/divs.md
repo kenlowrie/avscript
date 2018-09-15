@@ -66,4 +66,5 @@
  
 @var _id="avwrapper" \
           start="{{html._div_av_.<}}{{html.ul.<}}{{html.li.<}}" \
-          end="{{html.li.>}}{{html.ul.>}}{{html.div.>}}"
+          endul="{{html.li.>}}{{html.ul.>}}" \
+          enddiv="{{html.div.>}}"

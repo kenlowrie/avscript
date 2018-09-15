@@ -59,3 +59,11 @@
           with_content="@@ {{html._div_code_.<}}{{html._code_.<}}{{self.t}}{{html._code_.>}}{{html._code_content_.<}}{{self.c}}{{html.code.>}}{{html.div.>}}" \
           t="This is your code title" \
           c="This is your code content"
+
+@html _id="_div_av_" \
+      _inherit="div" \
+      class="av"
+ 
+@var _id="avwrapper" \
+          start="{{html._div_av_.<}}{{html.ul.<}}{{html.li.<}}" \
+          end="{{html.li.>}}{{html.ul.>}}{{html.div.>}}"

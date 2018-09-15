@@ -13,6 +13,8 @@ from os.path import join, split, abspath, isfile, realpath, dirname
 
 from .exception import FileError, LogicError
 from .globals import init_globals
+from .debug import Debug
+from .utility import HtmlUtils
 
 class _OpenFile(object):
     """A simple class to keep track of files that are opened."""
@@ -37,6 +39,9 @@ class Cache(object):
         # add the globals onto the stack
         for line in init_globals():
             self._cache.append(line)
+
+    def initDebug(self):
+            self.debug = Debug('cache')
 
     def pushline(self, s):
         self._cache.append(s)
@@ -63,6 +68,7 @@ class Cache(object):
                     line = "// Blank line in the cache..."
 
             # Return the line
+            self.debug.print('Returning: <em>{}</em>'.format(HtmlUtils.escape_html(line)))
             return line
 
         raise LogicError("Cache().readline() failed while processing cache.")
@@ -89,6 +95,9 @@ class StreamHandler(object):
         self._started_with_stdin = None
         self._started_with_file = None
         self._cache = Cache()
+
+    def cache(self):
+        return self._cache
 
     def push(self, fh, name=None):
         """

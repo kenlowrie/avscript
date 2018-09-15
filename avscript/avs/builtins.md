@@ -22,6 +22,18 @@
       type="exec"\
       src="from .utility import CodeHelpers;print(CodeHelpers.split_as('{{self.t}}'))"\
       t="Usage: {{self._}}(t=\"var._public_attrs_\")"
+@code _id="pushline"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.pushline('{{self.t}}')"\
+      t="Usage: {{self._}}(t=\"line to push onto input stream\")"
+@code _id="pushvar"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.pushvar('{{self.t}}')"\
+      t="Usage: {{self._}}(t=\"variable whose value will be pushed onto input stream\")"
+@code _id="pushlines"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.pushlines('{{self.t}}')"\
+      t="Usage: {{self._}}(t=\"lines to push onto input stream. separate lines with \\n \")"
 @code _id="datetime_stamp"\
       type="exec"\
       src="from time import strftime;print(strftime(\"{{self.fmtstr}}\"))"\
@@ -80,6 +92,7 @@
 @html _id="div" _tag="div"
 @html _id="p" _tag="p"
 @html _id="ol" _tag="ol"
+@html _id="ul" _tag="ul"
 @html _id="li" _tag="li"
 @html _id="span" _tag="span"
 @html _id="table" _tag="table"

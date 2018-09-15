@@ -96,8 +96,26 @@ class StreamHandler(object):
         self._started_with_file = None
         self._cache = Cache()
 
+        # Easy way to force EOF no matter what we're doing
+        self._fake_eof = False
+
     def cache(self):
         return self._cache
+
+    def initDebug(self):
+            self.debug = Debug('stdinput')
+            self._cache.initDebug()
+
+    @property
+    def fake_eof(self):
+        return self._fake_eof
+
+    @fake_eof.setter
+    def fake_eof(self, flag):
+        self._fake_eof = flag
+
+    def force_eof(self):
+        self.fake_eof = True
 
     def push(self, fh, name=None):
         """
@@ -162,6 +180,10 @@ class StreamHandler(object):
         current file, we read from the new file until EOF, and then close it,
         and fall back to the previous file.
         """
+        if self.fake_eof:
+            self.debug.print("<strong><em>Forced EOF</em></strong>")
+            return ''
+
         # Process the builtIns first.
         self.line = ''
         if self._cache.gotCachedLine():

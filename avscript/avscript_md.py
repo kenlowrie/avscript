@@ -98,7 +98,7 @@ class AVScriptParser(StdioWrapper):
         self.debug_avs = Debug('avscript')
         self.debug_avs_line = Debug('avscript.line')
         self.debug_avs_raw = Debug('avscript.raw')
-        self.stdinput.cache().initDebug()
+        self.stdinput.initDebug()
 
         self._line = Line()             # current line of input
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
@@ -139,6 +139,7 @@ class AVScriptParser(StdioWrapper):
             'html': RegexMain(True, True, False, r'^(@html(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'dump': RegexMain(True, True, False, r'^(@dump(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
             'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
+            'stop': RegexMain(True, False, False, r'^[@](stop|quit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
             'debug': RegexMain(True, False, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
             'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
@@ -466,6 +467,10 @@ class AVScriptParser(StdioWrapper):
             """Handle a break parse line"""
             pass    # don't do anything with @break or @exit
 
+        def handle_stop(m, lineObj):
+            """Handle a stop parse line"""
+            self.stdinput.force_eof()
+
         def handle_raw(m, lineObj):
             """Handle a raw line"""
             from .avs.utility import HtmlUtils
@@ -652,6 +657,7 @@ class AVScriptParser(StdioWrapper):
             ('link', handle_link),
             ('html', handle_html),
             ('break', handle_break),
+            ('stop', handle_stop),
             ('raw', handle_raw),
             ('shotlist', handle_shotlist),
             ('alias', handle_alias),
@@ -671,6 +677,8 @@ class AVScriptParser(StdioWrapper):
                     parse_obj = self._regex_main[key]
                     if(testLine(parse_obj, self._line)):
                         m = matchLine(parse_obj, self._line)
+                        #TODO: Should we HTMLESC what we're printing here?
+                        self.debug_avs_line.print('Match <strong>{}=<em>{}</em></strong>'.format(m[0],self._line._oriLine))
                         parse_func(m, self._line)
                         matched = True
                         break

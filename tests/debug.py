@@ -12,6 +12,6 @@ import avscript
 
 #from avscript_md import av_parse_file
 
-#avscript.avscript_md.av_parse_file(['-f', 'test.md'])
+avscript.avscript_md.av_parse_file(['-f', 'test.md'])
 
-avscript.avscript_md.av_parse_file(['-f', '/Users/ken/Dropbox/clp/projects/2018/buddyvargas/video/forgiveme/forgiveme-musicvideo.md'])
+#avscript.avscript_md.av_parse_file(['-f', '/Users/ken/Dropbox/clp/projects/2018/buddyvargas/video/forgiveme/forgiveme-musicvideo.md'])

@@ -98,6 +98,9 @@ class VariableStore(object):
         self._md_ptr = markdown
         self.oprint = oprint
 
+    def dbgState(self, enable):
+        self.debug.state = True if enable else False
+
     def dbgPrint(self, msg, ctx=None):
         if not hasattr(self, 'debug') or not isinstance(self.debug, Debug):
             raise NotImplementedError("Object must define a variable 'debug' of class Debug")
@@ -161,6 +164,18 @@ class VariableStore(object):
     def setAttribute(self, name, attr, value):
         if self.exists(name):
             self.vars[name].rval[attr] = value
+            return
+
+        raise NameError("setAttribute: Variable {} is not defined".format(name))
+
+    def getAttribute(self, name, attr):
+        if self.exists(name):
+            if attr in self.vars[name].rval:
+                return self.vars[name].rval[attr]
+
+            return ''   # Should I return an error instead?
+
+        raise NameError("getAttribute: Variable {} is not defined".format(name))
 
     def getPublicAttrsDict(self, name):
         if self.exists(name):
@@ -325,6 +340,7 @@ class BasicNamespace(Namespace):
 class AdvancedNamespace(Namespace):
     _variable_name_str = ["_id", "_"]
     _default_format_attr = '_format'
+    _raw_format_attr = '_raw'
     _inherit_attr = '_inherit'
 
     def __init__(self, markdown, namespace_name, oprint):
@@ -419,6 +435,13 @@ class AdvancedNamespace(Namespace):
                 s = self._markdown(self.getSpecialAttr(el0, id0))
                 self.dbgPrint('Returning <em>{}</em> for <strong>getValue("{}.{}</strong>")'.format(s, id0, el0))
                 return s
+
+            if el0 == AdvancedNamespace._raw_format_attr and el0 in self.vars[id0].rval:
+                # We need to return this string raw.
+                raw = self.vars[id0].rval[el0]
+                self.dbgPrint("Returning _raw(\"<em>{}</em>\") as value for <strong>{}</strong>".format(raw, id))
+
+                return raw
 
             # TODO: When test code in place, I need to remove this and see what happens.
             #       Feels a bit like a side affect...
@@ -581,6 +604,8 @@ class CodeNamespace(AdvancedNamespace):
         self.dbgPrint("My NS is: {}".format(self.namespace))
 
     def compileSource(self, src, src_type):
+        exceptionMessage = ''   # pylint: disable=W0612
+        self.dbgPrint("About to compile: <strong>{}</strong>".format(HtmlUtils.escape_html(src)))
         try:
             code = compile(src, '<string>', src_type)
         except Exception as e:
@@ -606,11 +631,13 @@ class CodeNamespace(AdvancedNamespace):
             sys.stdout = old
 
         exceptionMessage = ''
+        self.debug.global_suspend(True)
         with stdoutIO() as s:
             try:
                 exec(dict['_code']) if dict['type'] == 'exec' else eval(dict['_code'])
             except Exception as e:
                 exceptionMessage = "{}".format(str(e))
+        self.debug.global_suspend(False)
 
         if exceptionMessage: self.oprint("<br />\n<strong><em>Exception:</em> {}</strong><br />\n<strong>src=</strong>{}<br />".format(exceptionMessage, dict['src']))
         return s.getvalue().rstrip()
@@ -862,6 +889,73 @@ class Namespaces(object):
 
         # TODO: We may want to just return variable_name instead... like before...
         return "Variable {} is (undefined)".format(variable_name)    # I don't think this will ever happen
+
+    def parseVariableName(self, variable_name):
+        # split as many times as possible
+        cv = variable_name.split('.')
+        # If we have more than 3 components, it's not valid
+        if len(cv) > 3:
+            return (None, None, None)
+
+        # If the variable doesn't exist, bail
+        if not self.exists(variable_name):
+            return (None, None, None)
+
+        if len(cv) == 3:
+            return (cv[0], cv[1], cv[2])
+
+        elif len(cv) == 2:
+            if cv[0] in Namespaces._search_order:
+                return (cv[0], cv[1], None)
+
+            for ns in Namespaces._search_order:
+                if self._namespaces[ns].exists(variable_name):
+                    return (ns, cv[0], cv[1])
+
+            raise LogicError("This can't happen happened.")
+
+        for ns in Namespaces._search_order:
+            if self._namespaces[ns].exists(cv[0]):
+                return (ns, cv[0], None)
+
+        raise LogicError("This really can't happen happened.")
+
+    def isAttribute(self, variable_name, return_elements=False):
+        left, right = self._splitNamespace(variable_name)
+        if left is None:
+            # if this were an attribute, you have to have 2 elements
+            return False if not return_elements else (None, None, None)
+
+        left2, right2 = self._splitNamespace(right)
+        if left2 is not None and self.exists(variable_name):
+            # we have 3 elements here, so this is the right format
+            return True if not return_elements else (left, left2, right2)
+
+        # okay, so we have 2 elements, we need to look further
+        if left in Namespaces._search_order:
+            # this isn't a valid attribute if namespace is valid
+            return False if not return_elements else (left, right2, None)
+
+        for ns in Namespaces._search_order:
+            if self._namespaces[ns].exists(left):
+                return (ns, left, right)
+
+        raise LogicError("This surely can't happen happened.")
+
+    def getAttribute(self, variable_name, attr_name):
+        ns, name = self._splitNamespace(variable_name)
+        if ns is not None:
+            if ns in Namespaces._search_order:
+                if self._namespaces[ns].exists(name):
+                    return self._namespaces[ns].getAttribute(name, attr_name)
+                
+                return "Attribute {}.{} is (undefined)".format(variable_name, attr_name)    # I don't think this will ever happen
+
+        for ns in Namespaces._search_order:
+            if self._namespaces[ns].exists(variable_name):
+                return self._namespaces[ns].getAttribute(variable_name, attr_name)
+
+        return "Attribute {}.{} is (undefined)".format(variable_name, attr_name)    # I don't think this will ever happen
 
     def setAttribute(self, variable_name, attr_name, attr_value):
         ns, name = self._splitNamespace(variable_name)

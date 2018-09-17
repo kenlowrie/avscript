@@ -57,6 +57,7 @@
      lens="24mm" \
      crane="No" \
      notes="&nbsp;" \
+     val="***default note text***"\
      _format="<strong><em>{{self._}}</em> defaults:</strong>[bb]{{code.split_as(t=\"{{self._public_attrs_}}\")}}"
 
 @var _id="_shot_template_" \
@@ -65,6 +66,9 @@
      lens="{{code.get_default(v=\"self.l\", default=\"{{var._shot_defs_.lens}}\")}}" \
      crane="{{code.get_default(v=\"self.c\", default=\"{{var._shot_defs_.crane}}\")}}"\
      notes="{{code.get_default(v=\"self.n\", default=\"{{var._shot_defs_.notes}}\")}}"\
+     addNote="{{code.append(_var_=\"self.notes\", _txtvar_=\"self.val\")}}"\
+     addBB="{{self.addNote(val=\"{{bb}}\")}}"\
+     val="{{var._shot_defs_.notes}}"\
      usage="Usage: **{{self._}}(d=&quot;desc&quot; l=&quot;lens&quot; c=&quot;crane&quot;)**)"\
 
 @code _id="shot_factory" type="eval" \

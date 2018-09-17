@@ -65,6 +65,12 @@
       src="print('{}'.format('$.t'*$.c))"\
       t="repeat_str "\
       c="2"
+@code _id="append"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.append('$._var_', '$._txtvar_')"\
+      _var_="_ns.var.attr_"\
+      _txtvar_="_ns.txtvar.attr_"\
+      _help_="Usage: <strong>{{self._}}(_var_=<em>&quot;ns.var.attr&quot;</em>, _txtvar_=<em>&quot;ns.var.attr with text to add&quot;</em>)</strong>"
 //
 @var _id="defaults"\
      title="[title]"\

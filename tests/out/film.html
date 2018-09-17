@@ -185,6 +185,7 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>lens=</strong>24mm<br />
 &nbsp;&nbsp;<strong>crane=</strong>No<br />
 &nbsp;&nbsp;<strong>notes=</strong>&amp;nbsp;<br />
+&nbsp;&nbsp;<strong>val=</strong>***default note text***<br />
 &nbsp;&nbsp;<strong>_format=</strong>&lt;strong&gt;&lt;em&gt;{{self._}}&lt;/em&gt; defaults:&lt;/strong&gt;[bb]{{code.split_as(t="{{self._public_attrs_}}")}}<br />
 <br />
 <strong>_shot_template_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}{{self._basic_}}{{html.table.&gt;}}<br />
@@ -195,6 +196,9 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="{{var._shot_defs_.lens}}")}}<br />
 &nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="{{var._shot_defs_.crane}}")}}<br />
 &nbsp;&nbsp;<strong>notes=</strong>{{code.get_default(v="self.n", default="{{var._shot_defs_.notes}}")}}<br />
+&nbsp;&nbsp;<strong>addNote=</strong>{{code.append(_var_="self.notes", _txtvar_="self.val")}}<br />
+&nbsp;&nbsp;<strong>addBB=</strong>{{self.addNote(val="{{bb}}")}}<br />
+&nbsp;&nbsp;<strong>val=</strong>{{var._shot_defs_.notes}}<br />
 &nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
 <br />
 <strong>_shotinfo2_=</strong><br />&nbsp;&nbsp;<strong>_format=</strong>{{html._table_si_.&lt;}}{{self._basic_}}{{html.table.&gt;}}<br />
@@ -349,6 +353,9 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="{{var._shot_defs_.lens}}")}}<br />
 &nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="{{var._shot_defs_.crane}}")}}<br />
 &nbsp;&nbsp;<strong>notes=</strong>{{var._shot_defs_.notes}}<br />
+&nbsp;&nbsp;<strong>addNote=</strong>{{code.append(_var_="self.notes", _txtvar_="self.val")}}<br />
+&nbsp;&nbsp;<strong>addBB=</strong>{{self.addNote(val="{{bb}}")}}<br />
+&nbsp;&nbsp;<strong>val=</strong>{{var._shot_defs_.notes}}<br />
 &nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
 &nbsp;&nbsp;<strong>d=</strong>[ws]Crane high shooting over car<br />
 &nbsp;&nbsp;<strong>l=</strong>24mm<br />
@@ -362,6 +369,9 @@ NAMESPACE: var<br />
 &nbsp;&nbsp;<strong>lens=</strong>{{code.get_default(v="self.l", default="{{var._shot_defs_.lens}}")}}<br />
 &nbsp;&nbsp;<strong>crane=</strong>{{code.get_default(v="self.c", default="{{var._shot_defs_.crane}}")}}<br />
 &nbsp;&nbsp;<strong>notes=</strong>{{var._shot_defs_.notes}}<br />
+&nbsp;&nbsp;<strong>addNote=</strong>{{code.append(_var_="self.notes", _txtvar_="self.val")}}<br />
+&nbsp;&nbsp;<strong>addBB=</strong>{{self.addNote(val="{{bb}}")}}<br />
+&nbsp;&nbsp;<strong>val=</strong>{{var._shot_defs_.notes}}<br />
 &nbsp;&nbsp;<strong>usage=</strong>Usage: **{{self._}}(d=&amp;quot;desc&amp;quot; l=&amp;quot;lens&amp;quot; c=&amp;quot;crane&amp;quot;)**)<br />
 &nbsp;&nbsp;<strong>d=</strong>[ws]Crane Down to Mom removing groceries<br />
 &nbsp;&nbsp;<strong>l=</strong>24mm<br />

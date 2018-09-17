@@ -149,6 +149,28 @@ class CodeHelpers():
         print("{}".format(default_value if not _ns_xface.exists(v) else _ns_xface.getValue(v)))
 
     @staticmethod
+    def append(v=None, text="ns.var.attr"):
+        if not v or not _ns_xface.exists(v):
+            print("existing attribute variable name is required")
+            return
+
+        v_ns, v_name, v_attr = _ns_xface.isAttribute(text, True)
+        if v_attr is not None:
+            v_var = '{}.{}'.format(v_ns, v_name)
+            v_val = _ns_xface.getAttribute(v_var, v_attr)
+        else:
+            v_val = "{} is not a valid attribute".format(text)
+
+        ns, name, attr = _ns_xface.isAttribute(v, True)
+        if attr is not None:
+            var = '{}.{}'.format(ns, name)
+            val = _ns_xface.getAttribute(var, attr) + v_val
+            _ns_xface.setAttribute(var, attr, val)
+            #print("{}={}+{}".format(v,val,text))
+        else:
+            print("Attribute [{}] is not defined".format(v))
+
+    @staticmethod
     def pushline(s=None):
         if s is not None and type(s) is type(''):
             _line_cache.pushline(s)

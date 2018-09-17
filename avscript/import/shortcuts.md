@@ -94,10 +94,11 @@
       _help_="x"
 
 @code _id="cast_factory" type="eval" \
-    src="print('@var _id=\"$.nm\" _inherit=\"_castmember_\" castmember=\"$.c\" actor=\"$.a\"')"\
+    src="print('@var _id=\"$.nm\" _inherit=\"_castmember_\" castmember=\"$.c\" actor=\"$.a\" castname=\"$.m\"')"\
     c = "*UNDEFINED*" \
     a = "*UNDEFINED*" \
-    usage="Usage: **{{self.nm}}(c=&quot;castmember&quot;, n=&quot;actorname&quot;)**)"
+    m = "*UNDEFINED*" \
+    usage="Usage: **{{self.nm}}(c=&quot;castmember&quot;, n=&quot;actorname&quot; m=&quot;charactername&quot;)**)"
 
 @code _id="prop_factory" type="eval" \
     src="print('@var _id=\"$.nm\" _inherit=\"_propitem_\" prop=\"$.p\"')"\

@@ -1,7 +1,7 @@
 {:.red}# Script Series
 @link _="domain" _inherit="_template_" _text="https://yourdomain.com" href="https://yourdomain.com"
 @link _="me" _inherit="_template_" _text="me" href="email@yourdomain.com"
-@link _="feedback" _inherit="me" _text="feedback" href="mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
+@link _="feedback" _inherit="me" _text="feedback" href="DELETE_ME_mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
 
 [var.cover(title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever.")]
 [var.revision.plain(v="1a")]

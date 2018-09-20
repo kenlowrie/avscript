@@ -100,12 +100,13 @@ class AVScriptParser(StdioWrapper):
         self.debug_avs_raw = Debug('avscript.raw')
         self.stdinput.initDebug()
 
-        self._line = Line()             # current line of input
+        self._md = Markdown()           # New markdown support in separate class
+
+        self._line = Line(md_func=self._md.markdown)
         self._html = HTMLFormatter()    # format HTML output (indent for readability)
         self._lineInCache = False       # if we have a line in the cache
         self._shotListQ = BookmarkList()    # shot list link Q
 
-        self._md = Markdown()               # New markdown support in separate class
         self._ns = Namespaces(self._md.markdown, self._md.setNSxface, oprint=self.oprint)
         #TODO: Clean this up. _stripClass needs to be handled better than this...
         self._md.setStripClass(self._stripClass)
@@ -138,11 +139,11 @@ class AVScriptParser(StdioWrapper):
             'link': RegexMain(True, True, False, r'^(@link(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'html': RegexMain(True, True, False, r'^(@html(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None), 
             'dump': RegexMain(True, True, False, r'^(@dump(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")+)', None),
-            'break': RegexMain(True, False, False, r'^[@](break|exit)$', None),
-            'stop': RegexMain(True, False, False, r'^[@](stop|quit)$', None),
+            'break': RegexMain(True, True, False, r'^[@](break|exit)$', None),
+            'stop': RegexMain(True, True, False, r'^[@](stop|quit)$', None),
             'raw': RegexMain(True, False, False, r'^@(@|raw)[ ]+(.*)', None),
-            'debug': RegexMain(True, False, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
-            'shotlist': RegexMain(True, False, False, r'^[/]{3}Shotlist[/]{3}', None),
+            'debug': RegexMain(True, True, False, r'^(@debug(\s*([\w]+)\s*=\s*\"(.*?)(?<!\\)\")*)', None),
+            'shotlist': RegexMain(True, True, False, r'^[/]{3}Shotlist[/]{3}', None),
         }
 
     def _regex(self, id):
@@ -212,11 +213,11 @@ class AVScriptParser(StdioWrapper):
         self._line.original_line = line
 
         # strip the class, if any, and initialize css_prefix
-        self._line.css_prefix, stripped_line = self._stripClass(line.strip())
+        self._line.css_prefix, self._line.stripped_line = self._stripClass(line.strip())
 
         # process any markdown
         #self._line.current_line = self._markdown(stripped_line)
-        self._line.current_line = self._md.markdown(stripped_line)
+        #self._line.current_line = self._md.markdown(stripped_line)
         
         # here's a hack! - Causes tests to fail, but didn't look if it's an issue
         # or a side affect of how the test script was using the tags...
@@ -253,7 +254,7 @@ class AVScriptParser(StdioWrapper):
         self._setLineAttrs(line)
         #self._line.reprocessed = False
 
-        # return the marked down version
+        # return the non-marked down version
         return self._line.original_line
 
     def _addBookmark(self, linktext):
@@ -646,10 +647,6 @@ class AVScriptParser(StdioWrapper):
 
         # A map linking line parse types to processor functions
         parseTypes = [
-            ('shot', handle_shot),
-            ('div', handle_div),
-            ('header', handle_header),
-            ('import', handle_import),
             ('image', handle_image),
             ('var', handle_varv2),
             ('set', handle_setv2),
@@ -658,11 +655,15 @@ class AVScriptParser(StdioWrapper):
             ('html', handle_html),
             ('break', handle_break),
             ('stop', handle_stop),
-            ('raw', handle_raw),
             ('shotlist', handle_shotlist),
             ('alias', handle_alias),
             ('debug', handle_debug),
             ('dump', handle_dump),
+            ('shot', handle_shot),
+            ('div', handle_div),
+            ('header', handle_header),
+            ('raw', handle_raw),
+            ('import', handle_import),
         ]
         
         try:

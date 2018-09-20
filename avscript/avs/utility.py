@@ -171,6 +171,63 @@ class CodeHelpers():
             print("Attribute [{}] is not defined".format(v))
 
     @staticmethod
+    def equals(v1=None, v2=None, true=None, false=None):
+        def getAttrVal(var):
+            v_ns, v_name, v_attr = _ns_xface.isAttribute(var, True)
+            if v_attr is not None:
+                return _ns_xface.getAttribute('{}.{}'.format(v_ns, v_name), v_attr)
+            return None
+        
+        for v in [v1, v2, true, false]:
+            if not v or not _ns_xface.exists(v):
+                print("existing attribute variable name is required for {}".format(str(v)))
+                return
+
+        v1val = _get_ns_value(v1)   # use getValue so it runs through markdown()
+        v2val = _get_ns_value(v2)   # otherwise you can't use indirect values for expressions
+        trueval = getAttrVal(true)
+        falseval = getAttrVal(false)
+        
+        if not v1val or not v2val:
+            print("v1 and v2 cannot be None ({},{})".format(v1val,v2val))
+
+        if v1val == v2val:
+            # if there's no trueval to push, don't push a blank line...
+            if trueval:
+                CodeHelpers.pushlines(trueval)
+        elif falseval:
+            # don't push blank lines
+            CodeHelpers.pushlines(falseval)
+                
+    @staticmethod
+    def replace(var=None, val=None, str=None):        
+        for v in [var, val, str]:
+            if not v:
+                print("missing required parameter {}".format(str(v)))
+                return
+
+        # Go get the replacement value for "var"
+        val_ns, val_name, val_attr = _ns_xface.isAttribute(val, True)
+        if val_attr is None:
+            repval = _ns_xface.getValue(val)
+        else:
+            repval = _ns_xface.getAttribute('{}.{}'.format(val_ns, val_name), val_attr)
+
+        # Get the string that we're going to operate on
+        v_ns, v_name, v_attr = _ns_xface.isAttribute(str, True)
+        if v_attr is None:
+            # If there's no attribute, look in the basic namespace
+            repstr = _ns_xface.getValue(str)
+        else:
+            repstr = _ns_xface.getAttribute('{}.{}'.format(v_ns, v_name), v_attr)
+
+        if repstr:
+            # make sure we have a valid string to work with
+            CodeHelpers.pushlines(repstr.replace(var, repval))
+        else:
+            print("no string to operate on...")
+
+    @staticmethod
     def pushline(s=None):
         if s is not None and type(s) is type(''):
             _line_cache.pushline(s)

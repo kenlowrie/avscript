@@ -71,6 +71,20 @@
       _var_="_ns.var.attr_"\
       _txtvar_="_ns.txtvar.attr_"\
       _help_="Usage: <strong>{{self._}}(_var_=<em>&quot;ns.var.attr&quot;</em>, _txtvar_=<em>&quot;ns.var.attr with text to add&quot;</em>)</strong>"
+@code _id="equals"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.equals('$.v1', '$.v2', '$.true', '$.false')"\
+      v1="_ns.var.attr_"\
+      v2="_ns.txtvar.attr_"\
+      true="_ns.var.true_"\
+      false="_ns.var.false_"
+@code _id="replace"\
+      type="exec"\
+      src="from .utility import CodeHelpers;CodeHelpers.replace('$.var', '$.val', '$.str')"\
+      var="varname_to_replace"\
+      val="value_to_insert"\
+      str="string to operate on"
+ 
 //
 @var _id="defaults"\
      title="[title]"\

@@ -1,5 +1,4 @@
 @import "$/clsvars.md"
-[SP]=&nbsp;
 [var.cover(title="[title]" author="**Confidential**" logline="[proj_desc]")]
 [var.cover( title="" logline="" author="**DISCLAIMER**: This document is strictly private, confidential and personal to its recipients and should not be copied, distributed or reproduced in whole or in part, nor passed to any third party without the expressed, written consent of [Production Company], LLC.")]
 [var.revision.plain(v="[revision]")]

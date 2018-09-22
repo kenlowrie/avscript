@@ -761,6 +761,7 @@ class Namespaces(object):
             Namespaces._code: CodeNamespace(markdown, Namespaces._code, oprint),
         }
         self.debug = Debug('ns')
+        self.debugNSA = Debug('ns.add')
         for ns in self._namespaces:
             self.debug.print("Namespace for {} is set to {}".format(ns, self._namespaces[ns].namespace))
 
@@ -773,6 +774,13 @@ class Namespaces(object):
 
         if ns not in self._namespaces:
             raise SyntaxError("Invalid namespace [{}]".format(ns))
+
+        if self.debugNSA.enabled():
+            #self.debugNSA.print('val={}--name={}--ns={}'.format(value,name,ns))
+            rc, nspace, varname = self.exists2(value, name)
+                
+            if rc:
+                self.debugNSA.print('<strong>WARNING:</strong> Variable <strong><em>{}</em></strong> is already defined in namespace <strong><em>{}</em></strong>.'.format(varname, nspace))
 
         self._namespaces[ns].addVariable(value, name)
 
@@ -831,6 +839,30 @@ class Namespaces(object):
         # curname [[ns].name]
         # newname [[ns].name]
         pass
+
+    def exists2(self, value, variable_name):
+        if variable_name is not None:
+            # this is a basic variable
+            ns, name = self._splitNamespace(variable_name)
+        else:
+            # this is an advanced variable, parse the ns and varname
+            id = self._namespaces['var'].getIDstring(value)
+            if id is None:
+                # If there's no ID in the dict, nothing more we can do...
+                return (False, None, None)
+            
+            ns, name = self._splitNamespace(value[id])
+
+        if ns is not None:
+            if ns in Namespaces._search_order:
+                exists = self._namespaces[ns].exists(name)
+                return (True, ns, name)
+
+        for ns in Namespaces._search_order:
+            if self._namespaces[ns].exists(name):
+                return (True, ns, name)
+
+        return (False, None, None)
 
     def exists(self, variable_name):
         ns, name = self._splitNamespace(variable_name)

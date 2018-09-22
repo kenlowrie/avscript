@@ -1,3 +1,4 @@
+//@debug on="ns.add"
 [b]=<br />
 [bb]=[b][b]
 [SP]=&nbsp;

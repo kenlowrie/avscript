@@ -1,3 +1,4 @@
+//@debug on="ns.add"
 [title]=*Title of Project*
 [artist]=Artist Name
 [thisproject]=Music Video Treatment

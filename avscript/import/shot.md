@@ -2,6 +2,10 @@
 @html _id="_table_si_" \
       _inherit="table" \
       class="shotinfo"
+@html _id="_table_si_right_" \
+      _inherit="table" \
+      style="width:45%;float:right;margin-top:1em;margin-right:1em;padding:.7em 1em 1em;"\
+      class="shotinfo"
 @html _id="_td_header_" \
       _inherit="td" \
       class="center" \
@@ -24,7 +28,7 @@
 
 @var _id="_shotinfo2_" \
      _format="{{html._table_si_.<}}{{self._basic_}}{{html.table.>}}"\
-     _notes_="{{html._table_si_.<}}{{self._basic_}}{{self._n_row_}}{{html.table.>}}"\
+     _notes_="{{html._table_si_right_.<}}{{self._basic_}}{{self._n_row_}}{{html.table.>}}"\
      _basic_="{{html.tr.<}}\
                 {{html._td_header_.<}}***Shot Information***{{html.td.>}}\
               {{html.tr.>}}\
@@ -117,33 +121,16 @@
 @var _id="needshot" \
      _format="- [var.{{self.shotid}}.desc][image.needshot]<br />[var.{{self.shotid}}]" shotid="NOTSET"
 
-//[imagestyle]=@set _=\"image.$.shotid\" style=\"[{{ss}}]\"
-//[storyneeds]=@@ [{{avwrapper.start}}][image.needshot][{{avwrapper.endul}}]
-//[storyboard]=@@ [{{avwrapper.start}}][image.$.shotid][{{avwrapper.endul}}]
-//[shotdetail]=@@ {{html.p.<}}[var.$.shotid._notes_]{{html.p.>}}[{{avwrapper.enddiv}}]
-//[shot_split]=[{{imagestyle}}]\n[{{storyboard}}]\n[{{shotdetail}}]
-//[ns_split]=[{{imagestyle}}]\n[{{storyneeds}}]\n[{{shotdetail}}]
-//
-//[storyneeds2]=@@ [{{avwrapper.start}}][image.needshot][var.$.shotid][{{avwrapper.endul}}]
-//[storyboard2]=@@ [{{avwrapper.start}}][image.$.shotid][var.$.shotid][{{avwrapper.endul}}]
-//[shotdetail2]=@@ {{html.p.<}}[var.$.shotid.notes]{{html.p.>}}[{{avwrapper.enddiv}}]
-//[shot_left]=[{{imagestyle}}]\n[{{storyboard2}}]\n[{{shotdetail2}}]
-//[ns_left]=[{{imagestyle}}]\n[{{storyneeds2}}]\n[{{shotdetail2}}]
-
 @var _id="shot_formatter" \
         imagestyle="@set _=\"image.$.shotid\" style=\"{{ss}}\""\
-        storyneeds="@@ {{avwrapper.start}}{{image.needshot}}{{avwrapper.endul}}"\
         storyboard="@@ {{avwrapper.start}}{{image.$.shotid}}{{avwrapper.endul}}"\
-        shotdetail="@@ {{html.p.<}}{{var.$.shotid._notes_}}{{html.p.>}}{{avwrapper.enddiv}}"\
-        storyneeds2="@@ {{avwrapper.start}}{{image.needshot}}{{var.$.shotid}}{{avwrapper.endul}}"\
+        shotdetail="{{var.$.shotid._notes_}}{{avwrapper.enddiv}}"\
         storyboard2="@@ {{avwrapper.start}}{{image.$.shotid}}{{var.$.shotid}}{{avwrapper.endul}}"\
         shotdetail2="@@ {{html.p.<}}{{var.$.shotid.notes}}{{html.p.>}}{{avwrapper.enddiv}}"
 
 @var _id="shot_emitter" \
-        shot_split="{{var.shot_formatter.imagestyle}}\n{{var.shot_formatter.storyboard}}\n{{var.shot_formatter.shotdetail}}"\
-        ns_split="{{var.shot_formatter.imagestyle}}\n{{var.shot_formatter.storyneeds}}\n{{var.shot_formatter.shotdetail}}"\
+        shot_split="{{var.shot_formatter.imagestyle}}\n{{var.shot_formatter.storyboard}}{{var.shot_formatter.shotdetail}}"\
         shot_left="{{var.shot_formatter.imagestyle}}\n{{var.shot_formatter.storyboard2}}\n{{var.shot_formatter.shotdetail2}}"\
-        ns_left="{{var.shot_formatter.imagestyle}}\n{{var.shot_formatter.storyneeds2}}\n{{var.shot_formatter.shotdetail2}}"
 
 @var _id="display" \
     print="0"\
@@ -151,12 +138,7 @@
     _format="{{code.equals(v1=\"self.print\", v2=\"self.test\", true=\"self.true\", false=\"self.false\")}}"\
     true="[code.replace(var=\"$.shotid\", val=\"var.display.shotid\", str=\"var.display.push\")]"\
     push="[code.pushlines(shotid=\"$.shotid\" t=\"{{var.shot_emitter.shot_left}}\")]"\
+    layout2="{{code.equals(v1=\"self.print\", v2=\"self.test\", true=\"self.true2\", false=\"self.false\")}}"\
+    true2="[code.replace(var=\"$.shotid\", val=\"var.display.shotid\", str=\"var.display.push2\")]"\
+    push2="[code.pushlines(shotid=\"$.shotid\" t=\"{{var.shot_emitter.shot_split}}\")]"\
     false=""
-
-
-
-//# Example of using code.pushlines to generate
-//[code.pushlines(shotid="shot1", t="[storyboard]\n@@ <p>[var.$.shotid]</p>")] 
-//[code.pushlines(shotid="shot2a", t="[storyboard]\n[shotdetail]")] 
-//[code.pushlines(shotid="shot1", t="[storyboard]\n[shotdetail]")] 
-//[code.pushlines(shotid="shot1", t="[shot_split]")] 

@@ -92,6 +92,7 @@ class StreamHandler(object):
         self.filestack = []
         self.idx = -1
         self.line = ''
+        self.imported = []
         self._started_with_stdin = None
         self._started_with_file = None
         self._cache = Cache()
@@ -159,11 +160,16 @@ class StreamHandler(object):
             # Make sure the specified file exists, and then open it
             if isfile(filename):
                 name = abspath(filename)
+                # Check if we've already imported this file
+                if name in self.imported:
+                    self.debug.print('File <strong><em>{}</em></strong> has already been imported'.format(name))
+                    return
                 file = open(filename, "r")
                 self.push(file, name)
+                self.imported.append(name)
 
             else:
-                raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.".format(filename))
+                raise FileError(1, "ERROR: Unable to import '{}'. File does not exist.<br />".format(filename))
 
     def readline(self):
         """

@@ -29,6 +29,9 @@
 @html _id="_div_plain_" \
       _inherit="div" \
       class="plain"
+@html _id="_div_plain_pbb_" \
+      _inherit="div" \
+      class="plain pbb"
 @html _id="_p_plain_" \
       _inherit="p" \
       class="plainTitle"

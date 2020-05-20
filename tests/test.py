@@ -1,25 +1,38 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+
+
+from sys import path
+from os.path import dirname, abspath, realpath, split, join
+bin_path, whocares = split(dirname(realpath('__file__')))
+lib_path = abspath(bin_path)
+path.insert(0, lib_path)
+print("AVScript Package unittest")
+print("PYTHONPATH=")
+for item in path:
+    print('  {}'.format(item))
 
 import io
 import sys
 from unittest import TestCase, TestLoader, TextTestRunner
 
-import avscript_md
+import avscript.avscript_md
 
 
 def decode(html_string):
-    try:
+    from sys import version_info
+    if version_info.major < 3:
         from HTMLParser import HTMLParser
-    except ImportError:
-        from html.parser import HTMLParser
+        unescape = HTMLParser().unescape
+    else:
+        from html import unescape
 
-    h = HTMLParser()
-    return h.unescape(html_string)
+    #h = HTMLParser()
+    return unescape(html_string)
 
 
 class TestAVScriptClass(TestCase):
     def setUp(self):
-        self.avscript_md = avscript_md.AVScriptParser()
+        self.avscript_md = avscript.avscript_md.AVScriptParser()
         self.capturedOutput = io.StringIO()     # Create StringIO object
         self.avscript_md.stdoutput = (self.capturedOutput, False)   # and redirect stdout.
 
@@ -30,12 +43,12 @@ class TestAVScriptClass(TestCase):
         del self.capturedOutput
 
     def process(self, which, checkEqual=True):
-        self.avscript_md.open_and_parse("tests/in/{}.md".format(which))
-        with open('tests/run/{}.out'.format(which), 'w') as mf2:
+        self.avscript_md.open_and_parse("in/{}.md".format(which))
+        with open('run/{}.out'.format(which), 'w') as mf2:
             mf2.write(self.capturedOutput.getvalue())
 
         if(checkEqual):
-            with open('tests/out/{}.html'.format(which), 'r') as myfile:
+            with open('out/{}.html'.format(which), 'r') as myfile:
                 data = myfile.read()
             self.assertEqual(self.capturedOutput.getvalue(), data)
 
@@ -44,6 +57,18 @@ class TestAVScriptClass(TestCase):
 
     def test_variables(self):
         self.process('variables')
+
+    def test_film(self):
+        self.process('film')
+
+    def test_varv2(self):
+        self.process('varv2')
+
+    def test_misc(self):
+        self.process('misc')
+
+    def test_image(self):
+        self.process('image')
 
     def test_divs(self):
         self.process('divs')

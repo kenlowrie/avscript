@@ -22,7 +22,7 @@ class StdioWrapper(object):
         for the class to operate
         """
         from sys import stdout, stderr
-        from avs.stream import StreamHandler
+        from .stream import StreamHandler
         self._stdinput = StreamHandler()
         self._stdoutput = stdout
         self._stderror = stderr
@@ -59,6 +59,10 @@ class StdioWrapper(object):
             self._raise_wrong_mode(new_input_file.name, 'r')
 
         self._stdinput.push(new_input_file)
+
+    def isetio(self, use_stdin=True):
+        self._stdinput._started_with_stdin = use_stdin
+        self._stdinput._started_with_file = not use_stdin
 
     def iopen(self, filename):
         self.stdinput.open(filename)

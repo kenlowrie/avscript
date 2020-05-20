@@ -1,0 +1,53 @@
+// This file creates some useful variables for marking down shots
+@var _id="fs" \
+     pov="**POV**"   \
+     ots="**OTS**"   \
+     fg="**FG:&nbsp;**"   \
+     bg="**BG:&nbsp;**"   \
+     ws="**WS:&nbsp;**"   \
+     ews="**EWS:&nbsp;**"   \
+     els="**ELS:&nbsp;**"   \
+     ls="**LS:&nbsp;**"   \
+     fs="**FS:&nbsp;**"   \
+     ms="**MS:&nbsp;**"   \
+     cu="**CU:&nbsp;**"   \
+     mcu="**MCU:&nbsp;**"   \
+     ecu="**ECU:&nbsp;**"   \
+     ra="**RA**"   \
+     ha="**HA**"   \
+     la="**LA**"   \
+     _format="**File Shot Prefixes:**[bb]***{{self._public_keys_}}***"
+
+@var _id="tags" \
+     ns="**NEED SHOT(s) HERE**" \
+     narr="{:.bigandbold.blue}Narrative -" \
+     perf="{:.bigandbold.green}Performance -" \
+     stock="{:.bigandbold.red}Stock -" \
+     unk="{:.bigandbold.italic}Unknown - " \
+     wardrobe="{:.wardrobe}**WARDROBE**" \
+     makeup="{:.makeup}**MAKEUP**" \
+     props="{:.props}**PROPS**" \
+     cast="{:.cast}**CAST**" \
+     _format="**Shot Tags:**[bb]***{{self._public_keys_}}***"
+
+@html _id="_div_gen_" \
+      _inherit="div" \
+      class="generic"
+@html _id="_p_right_" \
+      _inherit="p" \
+      class="right"
+
+@var _id="notes" \
+     cont="*{soundtrack continues}*"    \
+     C="CGI:"    \
+     ST="SUBTITLE:"    \
+     BS="**BLACK SCREEN**"    \
+     CT3="{{html._div_gen_.<}}{{html._p_right_.<}}CUT TO:{{html.p.>}}{{html.div.>}}"    \
+     CT="{{html._div_gen_.<}}{{html._p_right_.<}}CUT TO:{{html.p.>}}{{html.div.>}}"    \
+     F2B="{{html._div_gen_.<}}{{html._p_right_.<}}FADE TO BLACK:{{html.p.>}}{{html.div.>}}"    \
+     f2b="{{html.span.<}}**FTB:**{{html.span.>}}"    \
+     fi="{{html.span.<}}**Fade In:**{{html.span.>}}"    \
+     xf="{{html.span.<}}**Cross Fade:**{{html.span.>}}"    \
+     S="SFX:"    \
+     CT1="{:.right}CUT TO:"    \
+     _format="**Shot Notes:**[bb]***{{self._public_keys_}}***"

@@ -1,10 +1,11 @@
 {:.red}# Script Series
-[domain]:https://yourdomain.com
-[me]:email@yourdomain.com
-[feedback]:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback
-@cover title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever."
-@revision v="1a" timestamp="No"
-@contact cn="Contact Name" ph="Phone" em="[me]" c1="Copyright (c) 2018 by YOURNAME." c2="All Rights Reserved." c3="Don't steal my script"
+@link _="domain" _inherit="_template_" _text="https://yourdomain.com" href="https://yourdomain.com"
+@link _="me" _inherit="_template_" _text="me" href="email@yourdomain.com"
+@link _="feedback" _inherit="me" _text="feedback" href="DELETE_ME_mailto:email@yourdomain.com?subject=Your%20Film%20Title%20Feedback"
+
+[var.cover(title="Title of Script" author="Script Author" logline="Script summary goes here and can be as long as needed. Let is wrap around if you have softwrap, or just go on forever.")]
+[var.revision.plain(v="1a")]
+[var.contact(cn="Contact Name" ph="Phone" em="[me]" c1="Copyright (c) 2018 by YOURNAME." c2="All Rights Reserved." c3="Don't steal my script")]
 {:.review}---    noteTitle       Notes to Reviewers
     Please send [me] any and all [feedback], preferably by marking up the PDF using embedded comments. If you edit the PDF text, do so inline using comment boxes, or if you edit the text directly, change the color and/or font size so I can easily find it. ++additions are marked like this++ ~~deletions are marked like this~~
 
@@ -12,7 +13,7 @@
     ClientName:
     The overall purpose of this demo is to show the type of production value that we will bring to your project, focusing primarily on ...
 
-[Link to Article]:https://domain.com/article_link/
+@link _="article" _inherit="_template_" _text="Link to Article" href="https://domain.com/article_link/"
 
 {:.section}@@@ divTitle
     AV Script
@@ -20,7 +21,7 @@
 {: .red }- PART 1: Description for part 1
     PART 1A
     {:.blue}PART 1B
-[Link to Article]
+[link.article]
 
 -       WS:Couple watching TV
 - CU:Couple looking concerned
@@ -31,10 +32,11 @@ The narrative for the shots on the left would go here.
 - ECU:Perspective looking thru peephole.
 - CU:Locking door
 More narrative here that goes with the shot on the left...
-[Link to Article]:https://domain.com/another_article_link
+@link _="article2" _inherit="_template_"
+
 - PART 2: The middle section
 This is a description for this section
-[Link to Article] <-- That should have been turned into a link
+[link.article2(_text="Link to Article" href="https://domain.com/another_article_link")] <-- That should have been turned into a link
 {:.red}- MS/CU:Clips of people angry
     You can add more information about a shot by indenting the line that follows the definition. New shots are not started if you indent, however, so don't do that. :)
 The narration for the Clips of people angry would be here...

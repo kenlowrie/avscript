@@ -23,10 +23,10 @@ from os.path import split, splitext, join, isdir, isfile
 
 from sys import argv, exit
 
-import pylib
+import kenl380.pylib as pylib
 
 
-def context(varfile=None):
+def context():
     """returns the context object for this script."""
 
     try:
@@ -34,13 +34,13 @@ def context(varfile=None):
     except NameError:
         myself = argv[0]
 
-    return pylib.context(myself, varfile)
+    return pylib.context(myself)
 
 
-me = context('mkavscript_md')
+me = context()
 
 
-class FileName:
+class FileName(object):
     def __init__(self, mdfile, htmldir):
         path, name = split(mdfile)
         file, ext = splitext(name)
@@ -156,7 +156,7 @@ def _mkhtml(mdfile, cssfile, outpath, open_output_file):
 
     htmlfile = open(fileobj.HTML_filename, "w")
 
-    from avscript_md import AVScriptParser
+    from avscript.avscript_md import AVScriptParser
 
     message("Creating: " + fileobj.rootname)
     add_header(htmlfile, fileobj, cssfile)

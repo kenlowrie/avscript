@@ -1,3 +1,3 @@
-@revision v="1a"
-@revision timestamp="yes"
-@revision v="28f" timestamp="1"
+[var.revision(v="1a")] 
+[var.revision(v="1.0")]
+[var.revision(v="28f")]

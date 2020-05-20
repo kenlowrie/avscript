@@ -16,34 +16,37 @@ Description
 Description
 - Shot
 Description
-[cls]:https://www.cloudylogic.com
+@link _="cls" _inherit="_template_" href="https://www.cloudylogic.com" _text="{{self._}}"
 - Shot - [cls] <-- should be a link to www.cloudylogic.com
     Shot 2 - [cls]
     {:.red}Shot 3 - [cls]
     Shot 4 - [cls] - Working good..
 Description
-[Google]:(https://www.google.com)
+@link _="Google" _inherit="_template_" href="https://www.google.com" _text="{{self._}}"
 - Shot - [Google] <-- Should be link to google.com
 Description
-[amazon]:https://www.amazon.com "amazon website"
+@link _="amazon" _inherit="_template_" title="amazon website" href="https://www.amazon.com" _text="{{self._}}"
 - Shot - [amazon] <-- Should be link to amazon.com with title "amazon website"
 Description
-[Amazon]:https://www.amazon.com "Amazon website"
+@link _="Amazon" _inherit="_template_" title="Amazon website" href="https://www.amazon.com" _text="{{self._}}"
 - Shot - [Amazon] <-- Should be link to amazon.com with title "Amazon website"
 Description
 //$$revision$$:<<1b>>
 - Shot
 Description
-@cover title="A" author="B" logline="C"
+@break
+[var.cover(title="A" author="B" logline="C")]
 - Shot
 Description
-@contact c1="D" c2="E"  c3="F"  cn = "A"  ph  =  "B"    em   ="C"
+@break
+[var.contact(c1="D" c2="E"  c3="F"  cn = "A"  ph  =  "B"    em   ="C")]
 - Shot
 Description
-///Variables///
+@dump basic="b|v" var="cover"
+
 - Shot
 Description
-///Links///
+@dump link="A|G|a|c"
 - Shot
 Description
 ///Shotlist///
@@ -60,6 +63,8 @@ Description
 {:.green}$$contact$$:<<.NOT>>:<<.HERE>>:<<.EITHER>>:<<1>>:<<2>>:<<3>>
 {:.red}[variable]=NO NOT HERE EITHER
 {:.blue}[link]:not_in_links_either_
-@+[myanchor]
-@:[myanchor]<<*This is my text*>>
+@break
+[link.bm_factory(nm="myanchor" t="*This is my text*")]
+[link.myanchor]
+[link.myanchor.link]
 

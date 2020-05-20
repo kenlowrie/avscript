@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from .debug import Debug
+from .utility import HtmlUtils
+
 
 class BookmarkList(object):
     """This class keeps track of bookmarks in the document being processed by AVScript.
@@ -12,6 +15,7 @@ class BookmarkList(object):
     def __init__(self):
         self.bookmarks = []
         self.linkIDnum = 0
+        self.debug = Debug('bookmarks')
 
     def addBookmarkUsingID(self, id, text):
         """Add a bookmark to the list of bookmarks.
@@ -26,6 +30,7 @@ class BookmarkList(object):
         curItem = len(self.bookmarks)
         self.bookmarks.append((id, text))
         self.linkIDnum += 1
+        self.debug.print('addBookmarkUsingID(<strong>id=<em>"{}"</em>, text=<em>"{}"</em></strong>)'.format(id, HtmlUtils.escape_html(text)))
         return self.bookmarks[curItem][0]
 
     def addBookmark(self, text):

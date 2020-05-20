@@ -1,9 +1,34 @@
+
 @var _id="header" \
      _format="# [code.repeat.run(t=\"-\", c=\"42\")]"
 
 [header]
 
-@stop 
+@var _id="display0" \
+    print="0"\
+    test="1"\ 
+    _format="{{code.equals(v1=\"self.print\", v2=\"self.test\", true=\"self.true\", false=\"self.false\")}}"\
+    true="[code.replace(var=\"$.shotid\", val=\"var.display.shotid\", str=\"var.display.push\")]"\
+    push="[code.pushlines(shotid=\"$.shotid\" t=\"[basic.shot_left]\")]"\
+    false=""
+
+//@debug on="ns.code"
+@dump code="equals" var="display"
+[code.equals(v1="display.print", v2="display.test", true="display.true", false="display.false")]
+
+ 
+@import '[sys.imports]/shot.md' 
+@import '[sys.imports]/../../avscript/import/shot.md' 
+
+[header]
+//@debug on="avscript.line"
+[var.display(shotid="shot00", print="1")]
+@dump var="display"
+[header]
+[var.display2(shotid="shot00", print="1")]
+@dump var="display0"
+
+@stop
 
 
 //@debug toggle="." on="." off="." enabled="." foo="bar"  

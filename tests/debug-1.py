@@ -15,7 +15,7 @@ import avscript.avs.defaults as defaults
 mydefs = defaults.Defaults()
 mydefs.setDefault('import2', 'some cool value for import 2')
 mydefs.dumpDefaults()
-print( mydefs.getDefault('import2'))
+print( f"{mydefs.getDefault('import2')}")
 mydefs.getDefault('import2')
 mydefs.removeDefault('import2')
 mydefs.setDefault('imports', '/Users/ken/Dropbox/filestor/docs/script_templates')
